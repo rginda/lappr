@@ -13,7 +13,7 @@ import {
   deleteCar,
   getSettings, 
   saveSettings,
-  deleteDriverPr
+  deleteLap
 } from './database.js';
 
 import { 
@@ -516,6 +516,28 @@ function renderLeaderboard({ state, leaderboard }) {
         });
       });
       
+      // Make car cell clickable to edit
+      const carCell = row.children[2];
+      carCell.style.cursor = 'pointer';
+      carCell.title = 'Click to edit car';
+      carCell.addEventListener('click', () => {
+        const cars = getCars();
+        const existingCar = cars.find(c => c.transponder === racer.transponder);
+        
+        // Deselect tree items
+        document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+        
+        if (existingCar) {
+          renderCarDetails(racer.transponder);
+          switchView('view-car-details');
+        } else {
+          document.getElementById('car-transponder').value = racer.transponder;
+          document.getElementById('car-name').value = '';
+          document.getElementById('car-name').focus();
+          switchView('view-car-form');
+        }
+      });
+      
       leaderboardBody.appendChild(row);
     });
   }
@@ -710,12 +732,12 @@ function renderDriverDetails(driverId) {
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
         <td>${pr.car}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
-        <td><button class="btn delete-pr-btn" data-prid="${pr.id}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
+        <td><button class="btn delete-lap-btn" data-lapid="${pr.id}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
-      tr.querySelector('.delete-pr-btn').addEventListener('click', (e) => {
-        if (window.confirm('Delete this personal record?')) {
-          deleteDriverPr(driverId, pr.id);
-          renderDriverDetails(driverId); // refresh
+      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+        if (window.confirm('Delete this lap entirely?')) {
+          deleteLap(pr.id);
+          renderDriverDetails(driverId);
         }
       });
       driverPrsBody.appendChild(tr);
@@ -735,7 +757,14 @@ function renderDriverDetails(driverId) {
         <td class="mono">${lap.lapTime.toFixed(3)}</td>
         <td>${lap.car}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+        <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
+      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+        if (window.confirm('Delete this lap entirely?')) {
+          deleteLap(lap.id);
+          renderDriverDetails(driverId);
+        }
+      });
       driverLapsBody.appendChild(tr);
     });
   }
@@ -786,7 +815,14 @@ function renderCarDetails(transponder) {
         <td>${best.driverName}</td>
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${best.lapTime.toFixed(3)}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+        <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
+      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+        if (window.confirm('Delete this lap entirely?')) {
+          deleteLap(best.id);
+          renderCarDetails(transponder);
+        }
+      });
       carDriversBody.appendChild(tr);
     });
   }
@@ -805,8 +841,14 @@ function renderCarDetails(transponder) {
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
         <td>${pr.driverName}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
-        <td></td>
+        <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
+      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+        if (window.confirm('Delete this lap entirely?')) {
+          deleteLap(pr.id);
+          renderCarDetails(transponder);
+        }
+      });
       carPrsBody.appendChild(tr);
     });
   }

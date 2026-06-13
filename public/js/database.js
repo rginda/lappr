@@ -155,31 +155,60 @@ export function logLap(driverId, transponder, lapTime) {
 }
 
 /**
- * Delete a PR by its ID and recalculate the next best if needed.
+ * Helper to recalculate historical PRs from a laps array
  */
-export function deleteDriverPr(driverId, prId) {
+function recalculatePRs(lapsArray) {
+  if (!lapsArray || lapsArray.length === 0) return [];
+  // lapsArray is sorted newest first. Reverse to chronological
+  const chronological = [...lapsArray].reverse();
+  const prs = [];
+  let best = Infinity;
+  for (const lap of chronological) {
+    if (lap.lapTime < best) {
+      best = lap.lapTime;
+      prs.unshift(lap); // newest PR stays at index 0
+      if (prs.length > 15) prs.pop();
+    }
+  }
+  return prs;
+}
+
+/**
+ * Delete a lap by its ID from all cars and drivers and recalculate PRs.
+ */
+export function deleteLap(lapId) {
   const drivers = getDrivers();
-  const driverIndex = drivers.findIndex(d => d.id === driverId);
-  if (driverIndex === -1) return;
+  const cars = getCars();
+  let changed = false;
   
-  const driver = drivers[driverIndex];
-  if (!driver.prs) return;
-  
-  // Also delete from laps if it was an erroneous lap completely
-  if (driver.laps) {
-    driver.laps = driver.laps.filter(l => l.id !== prId);
+  // Clean Drivers
+  for (const driver of drivers) {
+    if (driver.laps) {
+      const originalLen = driver.laps.length;
+      driver.laps = driver.laps.filter(l => l.id !== lapId);
+      if (driver.laps.length !== originalLen) {
+        changed = true;
+        driver.prs = recalculatePRs(driver.laps);
+      }
+    }
   }
   
-  // Remove from PR list
-  driver.prs = driver.prs.filter(p => p.id !== prId);
+  // Clean Cars
+  for (const car of cars) {
+    if (car.laps) {
+      const originalLen = car.laps.length;
+      car.laps = car.laps.filter(l => l.id !== lapId);
+      if (car.laps.length !== originalLen) {
+        changed = true;
+        car.prs = recalculatePRs(car.laps);
+      }
+    }
+  }
   
-  // Actually, if we deleted a PR, do we need to recalculate PRs from history?
-  // We have a stored history of PRs. If I run 4.0, 3.8, 3.5. `prs` = [3.5, 3.8, 4.0]
-  // If I delete 3.5, `prs` = [3.8, 4.0]. The next PR is naturally 3.8, which is already there!
-  // So just removing it is sufficient.
-  
-  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
-  return driver;
+  if (changed) {
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
 }
 
 /**
