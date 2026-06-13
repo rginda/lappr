@@ -98,6 +98,10 @@ let currentSessionStatus = 'ready';
 /**
  * Initialize application.
  */
+window.addEventListener('beforeunload', () => {
+  backupSessionState();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   activeSettings = getSettings();
   loadSettingsUI();
