@@ -382,14 +382,16 @@ function announceLap(racer, lap, dbResult) {
     }
   }
   
-  // Append Driver Custom PR Callout and apply Audio Overrides
+  // Process Driver Custom PR Callout and Audio Overrides
+  let customCallout = '';
   let speechOptions = {};
+  
   const driverId = sessionState.assignments[racer.transponder];
   if (driverId) {
     const driver = getDrivers().find(d => d.id === driverId);
     if (driver) {
       if ((isDriverBestEver || isCarRecord || isDriverCarPR) && driver.customCallout) {
-        announcement += ` ${driver.customCallout}`;
+        customCallout = driver.customCallout;
       }
       if (driver.speechOverride) {
         speechOptions = driver.speechOverride;
@@ -397,7 +399,13 @@ function announceLap(racer, lap, dbResult) {
     }
   }
 
-  speak(announcement, false, speechOptions);
+  // Speak the main announcement with global settings
+  speak(announcement);
+  
+  // Speak the custom callout with driver's override settings (if applicable)
+  if (customCallout) {
+    speak(customCallout, false, speechOptions);
+  }
 }
 
 /**

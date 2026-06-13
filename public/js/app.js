@@ -67,21 +67,27 @@ const countLapsDisplay = document.getElementById('leaderboard-count-laps');
 
 const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
-const speechVoice = document.getElementById('setting-speech-voice');
-const speechPitch = document.getElementById('setting-speech-pitch');
-const speechPitchSlider = document.getElementById('setting-speech-pitch-slider');
-const speechRate = document.getElementById('setting-speech-rate');
-const speechRateSlider = document.getElementById('setting-speech-rate-slider');
+const modalSpeechVoice = document.getElementById('modal-speech-voice');
+const modalSpeechPitch = document.getElementById('modal-speech-pitch');
+const modalSpeechPitchSlider = document.getElementById('modal-speech-pitch-slider');
+const modalSpeechRate = document.getElementById('modal-speech-rate');
+const modalSpeechRateSlider = document.getElementById('modal-speech-rate-slider');
+
+const btnConfigGlobalAudio = document.getElementById('btn-config-global-audio');
+const btnConfigDriverAudio = document.getElementById('btn-config-driver-audio');
+
+const audioModal = document.getElementById('audio-settings-modal');
+const audioModalTitle = document.getElementById('audio-settings-modal-title');
+const btnModalAudioRevert = document.getElementById('btn-modal-audio-revert');
+const btnModalAudioCancel = document.getElementById('btn-modal-audio-cancel');
+const btnModalAudioSave = document.getElementById('btn-modal-audio-save');
+let currentAudioModalContext = null;
+
 const notificationsContainer = document.getElementById('notifications');
 
 // Driver Details
 const editDriverName = document.getElementById('edit-driver-name');
 const editDriverCallout = document.getElementById('edit-driver-callout');
-const editDriverVoice = document.getElementById('edit-driver-voice');
-const editDriverPitch = document.getElementById('edit-driver-pitch');
-const editDriverPitchSlider = document.getElementById('edit-driver-pitch-slider');
-const editDriverRate = document.getElementById('edit-driver-rate');
-const editDriverRateSlider = document.getElementById('edit-driver-rate-slider');
 const btnSaveDriverName = document.getElementById('btn-save-driver-name');
 const driverPrsBody = document.getElementById('driver-prs-body');
 const driverLapsBody = document.getElementById('driver-laps-body');
@@ -152,16 +158,10 @@ function populateVoiceDropdowns() {
   const optionsHtml = `<option value="">Default (Auto)</option>` + 
     voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
     
-  if (speechVoice) {
-    const prevVal = speechVoice.value || activeSettings.speechVoice;
-    speechVoice.innerHTML = optionsHtml;
-    speechVoice.value = prevVal;
-  }
-  
-  if (editDriverVoice) {
-    const prevVal = editDriverVoice.value;
-    editDriverVoice.innerHTML = optionsHtml;
-    editDriverVoice.value = prevVal;
+  if (modalSpeechVoice) {
+    const prevVal = modalSpeechVoice.value || activeSettings.speechVoice;
+    modalSpeechVoice.innerHTML = optionsHtml;
+    modalSpeechVoice.value = prevVal;
   }
 }
 
@@ -211,10 +211,74 @@ function bindEvents() {
     input.addEventListener('input', () => slider.value = input.value);
   }
   
-  linkSliderAndInput(speechPitchSlider, speechPitch);
-  linkSliderAndInput(speechRateSlider, speechRate);
-  linkSliderAndInput(editDriverPitchSlider, editDriverPitch);
-  linkSliderAndInput(editDriverRateSlider, editDriverRate);
+  linkSliderAndInput(modalSpeechPitchSlider, modalSpeechPitch);
+  linkSliderAndInput(modalSpeechRateSlider, modalSpeechRate);
+
+  // Audio Modal Logic
+  function openAudioModal(context) {
+    currentAudioModalContext = context;
+    if (context === 'global') {
+      audioModalTitle.textContent = 'Global Audio Engine';
+      modalSpeechVoice.value = activeSettings.speechVoice || '';
+      modalSpeechPitch.value = activeSettings.speechPitch || 1.0;
+      modalSpeechPitchSlider.value = activeSettings.speechPitch || 1.0;
+      modalSpeechRate.value = activeSettings.speechRate || 1.1;
+      modalSpeechRateSlider.value = activeSettings.speechRate || 1.1;
+    } else if (context === 'driver' && selectedDriverId) {
+      audioModalTitle.textContent = 'Driver Voice Override';
+      const driver = getDrivers().find(d => d.id === selectedDriverId);
+      const override = (driver && driver.speechOverride) ? driver.speechOverride : {};
+      modalSpeechVoice.value = override.voiceName || '';
+      modalSpeechPitch.value = override.pitch || 1.0;
+      modalSpeechPitchSlider.value = override.pitch || 1.0;
+      modalSpeechRate.value = override.rate || 1.1;
+      modalSpeechRateSlider.value = override.rate || 1.1;
+    }
+    audioModal.style.display = 'flex';
+  }
+  
+  function closeAudioModal() {
+    audioModal.style.display = 'none';
+    currentAudioModalContext = null;
+  }
+  
+  btnConfigGlobalAudio.addEventListener('click', () => openAudioModal('global'));
+  btnConfigDriverAudio.addEventListener('click', () => openAudioModal('driver'));
+  btnModalAudioCancel.addEventListener('click', closeAudioModal);
+  
+  btnModalAudioRevert.addEventListener('click', () => {
+    modalSpeechVoice.value = '';
+    modalSpeechPitch.value = 1.0;
+    modalSpeechPitchSlider.value = 1.0;
+    modalSpeechRate.value = 1.1;
+    modalSpeechRateSlider.value = 1.1;
+  });
+  
+  btnModalAudioSave.addEventListener('click', () => {
+    if (currentAudioModalContext === 'global') {
+      activeSettings.speechVoice = modalSpeechVoice.value;
+      activeSettings.speechPitch = parseFloat(modalSpeechPitch.value);
+      activeSettings.speechRate = parseFloat(modalSpeechRate.value);
+      saveActiveSettings();
+      import('./speech.js').then(m => m.configureSpeech({
+        voiceName: activeSettings.speechVoice,
+        pitch: activeSettings.speechPitch,
+        rate: activeSettings.speechRate
+      }));
+    } else if (currentAudioModalContext === 'driver' && selectedDriverId) {
+      const drivers = getDrivers();
+      const idx = drivers.findIndex(d => d.id === selectedDriverId);
+      if (idx !== -1) {
+        drivers[idx].speechOverride = {
+          voiceName: modalSpeechVoice.value,
+          pitch: parseFloat(modalSpeechPitch.value),
+          rate: parseFloat(modalSpeechRate.value)
+        };
+        import('./database.js').then(m => m.saveDriver(drivers[idx]));
+      }
+    }
+    closeAudioModal();
+  });
 
   // Preview Buttons
   document.querySelectorAll('.preview-btn').forEach(btn => {
@@ -222,19 +286,17 @@ function bindEvents() {
       const targetId = btn.getAttribute('data-target');
       const input = document.getElementById(targetId);
       if (input && input.value) {
-        // Mock replacements for preview
         const previewText = input.value
           .replace(/{driver}/g, "John Doe")
           .replace(/{car}/g, "Red Racer")
           .replace(/{time}/g, "9.5")
           .replace(/{streak}/g, "5");
           
-        // Pull current un-saved values for accurate preview
         import('./speech.js').then(speech => {
           speech.speak(previewText, true, {
-            voiceName: speechVoice.value,
-            pitch: parseFloat(speechPitch.value),
-            rate: parseFloat(speechRate.value)
+            voiceName: activeSettings.speechVoice,
+            pitch: activeSettings.speechPitch,
+            rate: activeSettings.speechRate
           });
         });
       }
@@ -289,19 +351,13 @@ function bindEvents() {
       const newName = editDriverName.value.trim();
       const newCallout = editDriverCallout.value.trim();
       
-      const speechOverride = {
-        voiceName: editDriverVoice.value,
-        pitch: parseFloat(editDriverPitch.value),
-        rate: parseFloat(editDriverRate.value)
-      };
-
       if (newName) {
         const drivers = getDrivers();
         const driverIndex = drivers.findIndex(d => d.id === selectedDriverId);
         if (driverIndex !== -1) {
           drivers[driverIndex].name = newName;
           drivers[driverIndex].customCallout = newCallout;
-          drivers[driverIndex].speechOverride = speechOverride;
+          // speechOverride is saved directly via modal now
           saveDriver(drivers[driverIndex]);
           renderDriverList();
           
@@ -927,13 +983,6 @@ function renderDriverDetails(driverId) {
   selectedDriverId = driver.id;
   editDriverName.value = driver.name;
   editDriverCallout.value = driver.customCallout || '';
-  
-  const speechOverride = driver.speechOverride || {};
-  editDriverVoice.value = speechOverride.voiceName || '';
-  editDriverPitch.value = speechOverride.pitch || 1.0;
-  editDriverPitchSlider.value = speechOverride.pitch || 1.0;
-  editDriverRate.value = speechOverride.rate || 1.1;
-  editDriverRateSlider.value = speechOverride.rate || 1.1;
   
   deleteDriverConfirm.value = '';
   btnDeleteDriver.disabled = true;

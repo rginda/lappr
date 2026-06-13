@@ -195,24 +195,7 @@
             </div>
             <div style="margin-bottom: 2rem;">
               <h3 style="margin-bottom: 1rem; font-size: 1rem;">Speech Audio Override</h3>
-              <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; align-items: center;">
-                <label for="edit-driver-voice" style="margin: 0; text-align: left;">Voice</label>
-                <select id="edit-driver-voice" style="width: 100%;">
-                  <option value="">System Default</option>
-                </select>
-                
-                <label for="edit-driver-pitch" style="margin: 0; text-align: left;">Pitch</label>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <input type="range" id="edit-driver-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
-                  <input type="number" id="edit-driver-pitch" min="0" max="2" step="0.1" style="width: 60px;">
-                </div>
-                
-                <label for="edit-driver-rate" style="margin: 0; text-align: left;">Rate</label>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <input type="range" id="edit-driver-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
-                  <input type="number" id="edit-driver-rate" min="0.5" max="2.5" step="0.1" style="width: 60px;">
-                </div>
-              </div>
+              <button id="btn-config-driver-audio" class="btn btn-secondary">⚙️ Configure Driver Voice</button>
             </div>
 
             <div style="margin-bottom: 2rem;">
@@ -404,23 +387,8 @@
             <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem;">Speech Settings</h2>
             
             <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem;">Audio Engine</h3>
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; margin-bottom: 2rem; align-items: center;">
-              <label for="setting-speech-voice" style="margin: 0; text-align: left;">Voice</label>
-              <select id="setting-speech-voice" style="width: 100%;">
-                <option value="">Default (Auto)</option>
-              </select>
-              
-              <label for="setting-speech-pitch" style="margin: 0; text-align: left;">Pitch</label>
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="range" id="setting-speech-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
-                <input type="number" id="setting-speech-pitch" min="0" max="2" step="0.1" style="width: 60px;">
-              </div>
-              
-              <label for="setting-speech-rate" style="margin: 0; text-align: left;">Rate</label>
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="range" id="setting-speech-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
-                <input type="number" id="setting-speech-rate" min="0.5" max="2.5" step="0.1" style="width: 60px;">
-              </div>
+            <div style="margin-bottom: 2rem;">
+              <button id="btn-config-global-audio" class="btn btn-secondary">⚙️ Configure Audio Engine</button>
             </div>
 
             <hr style="border-top: 1px solid var(--border-color); border-bottom: none; margin-bottom: 2rem;">
@@ -518,6 +486,40 @@
   </footer>
 
   <!-- Application Modules -->
-  <script type="module" src="js/app.js"></script>
+  <!-- Audio Settings Modal -->
+  <div id="audio-settings-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card glass-panel" style="width: 90%; max-width: 500px; padding: 2rem; position: relative;">
+      <h2 id="audio-settings-modal-title" style="color: var(--accent-primary); margin-bottom: 1.5rem;">Audio Engine</h2>
+      
+      <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; align-items: center; margin-bottom: 2rem;">
+        <label for="modal-speech-voice" style="margin: 0; text-align: left;">Voice</label>
+        <select id="modal-speech-voice" style="width: 100%;">
+          <option value="">Default (Auto)</option>
+        </select>
+        
+        <label for="modal-speech-pitch" style="margin: 0; text-align: left;">Pitch</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="range" id="modal-speech-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
+          <input type="number" id="modal-speech-pitch" min="0" max="2" step="0.1" style="width: 60px;">
+        </div>
+        
+        <label for="modal-speech-rate" style="margin: 0; text-align: left;">Rate</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="range" id="modal-speech-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
+          <input type="number" id="modal-speech-rate" min="0.5" max="2.5" step="0.1" style="width: 60px;">
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button id="btn-modal-audio-revert" class="btn btn-secondary" style="font-size: 0.85rem;">Revert to Default</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="btn-modal-audio-cancel" class="btn" style="background: transparent; color: var(--text-primary); border: 1px solid var(--border-color);">Cancel</button>
+          <button id="btn-modal-audio-save" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>
