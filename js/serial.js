@@ -58,7 +58,7 @@ function handleBinaryData(data, onLineCallback) {
       const idHex = transponderId.toString(16).toUpperCase().padStart(6, '0');
       const ticksHex = ticks.toString(16).toUpperCase().padStart(8, '0');
       
-      console.log(`[Binary Parser] Detected Crossing! Emitting legacy string: ${idHex}${ticksHex}`);
+      // console.log(`[Binary Parser] Detected Crossing! Emitting legacy string: ${idHex}${ticksHex}`);
       onLineCallback(idHex + ticksHex);
     }
   }
@@ -135,7 +135,7 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
         
         if (actualLen > 0 && available > 0) {
           const uartBytes = new Uint8Array(data.buffer, data.byteOffset, Math.min(actualLen, available));
-          console.log(`[WebHID] Received Report ID ${reportId}. Bytes:`, Array.from(uartBytes).map(b => b.toString(16).padStart(2, '0')).join(' '));
+          // console.log(`[WebHID] Received Report ID ${reportId}. Bytes:`, Array.from(uartBytes).map(b => b.toString(16).padStart(2, '0')).join(' '));
           handleBinaryData(uartBytes, onLineCallback);
         }
       } else {

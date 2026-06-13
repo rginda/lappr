@@ -91,6 +91,6 @@ function triggerCrossing(transponderId) {
   
   const serialLine = `${idHex}${ticksHex}\r\n`;
   
-  console.log(`[Simulator TX] ${serialLine.trim()}`);
+  // console.log(`[Simulator TX] ${serialLine.trim()}`);
   onDataCallback(serialLine);
 }
