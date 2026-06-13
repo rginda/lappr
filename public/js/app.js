@@ -89,7 +89,6 @@ const notificationsContainer = document.getElementById('notifications');
 // Driver Details
 const editDriverName = document.getElementById('edit-driver-name');
 const editDriverCallout = document.getElementById('edit-driver-callout');
-const btnSaveDriverName = document.getElementById('btn-save-driver-name');
 const driverPrsBody = document.getElementById('driver-prs-body');
 const driverLapsBody = document.getElementById('driver-laps-body');
 const deleteDriverConfirm = document.getElementById('delete-driver-confirm');
@@ -102,7 +101,6 @@ const editCarTransponder = document.getElementById('edit-car-transponder');
 const editCarChassis = document.getElementById('edit-car-chassis');
 const editCarColor = document.getElementById('edit-car-color');
 const editCarChips = document.querySelectorAll('#view-car-details .color-chip');
-const btnSaveCar = document.getElementById('btn-save-car');
 const deleteCarConfirm = document.getElementById('delete-car-confirm');
 const btnDeleteCar = document.getElementById('btn-delete-car');
 let selectedCarId = null;
@@ -179,15 +177,23 @@ function bindEvents() {
   connectionBadge.addEventListener('click', handleConnectClick);
   
   // Session Settings Events
-  minLapTime.addEventListener('change', () => {
+  const handleSessionSettingChange = () => {
     saveActiveSettings();
     reinitSessionState();
-  });
+    
+    // Quick inline notification
+    const notif = document.createElement('div');
+    notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+    notif.textContent = 'Settings Saved';
+    document.body.appendChild(notif);
+    setTimeout(() => {
+      notif.style.opacity = '0';
+      setTimeout(() => notif.remove(), 500);
+    }, 2000);
+  };
   
-  maxLapTime.addEventListener('change', () => {
-    saveActiveSettings();
-    reinitSessionState();
-  });
+  minLapTime.addEventListener('change', handleSessionSettingChange);
+  maxLapTime.addEventListener('change', handleSessionSettingChange);
   
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
@@ -358,12 +364,12 @@ function bindEvents() {
       const picker = chip.closest('.form-group').querySelector('input[type="color"]');
       if (picker) {
         picker.value = color;
+        picker.dispatchEvent(new Event('change'));
       }
     });
   });
   
-  // Driver Details Events
-  btnSaveDriverName.addEventListener('click', () => {
+  const handleDriverUpdate = () => {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
       const newCallout = editDriverCallout.value.trim();
@@ -374,16 +380,25 @@ function bindEvents() {
         if (driverIndex !== -1) {
           drivers[driverIndex].name = newName;
           drivers[driverIndex].customCallout = newCallout;
-          // speechOverride is saved directly via modal now
           saveDriver(drivers[driverIndex]);
           renderDriverList();
-          
-          // Update active session racers dynamically without resetting
           refreshActiveRacers();
+          
+          const notif = document.createElement('div');
+          notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+          notif.textContent = 'Profile Saved';
+          document.body.appendChild(notif);
+          setTimeout(() => {
+            notif.style.opacity = '0';
+            setTimeout(() => notif.remove(), 500);
+          }, 2000);
         }
       }
     }
-  });
+  };
+
+  editDriverName.addEventListener('change', handleDriverUpdate);
+  editDriverCallout.addEventListener('change', handleDriverUpdate);
 
   deleteDriverConfirm.addEventListener('input', (e) => {
     const driver = getDrivers().find(d => d.id === selectedDriverId);
@@ -405,8 +420,7 @@ function bindEvents() {
     }
   });
 
-  // Car Details Events
-  btnSaveCar.addEventListener('click', () => {
+  const handleCarUpdate = () => {
     if (!selectedCarId) return;
     const cars = getCars();
     const carIndex = cars.findIndex(c => c.transponder === selectedCarId);
@@ -422,11 +436,22 @@ function bindEvents() {
       cars[carIndex].color = newColor;
       saveCar(cars[carIndex]);
       renderCarList();
-      
-      // Update active session racers dynamically
       refreshActiveRacers();
+      
+      const notif = document.createElement('div');
+      notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+      notif.textContent = 'Car Saved';
+      document.body.appendChild(notif);
+      setTimeout(() => {
+        notif.style.opacity = '0';
+        setTimeout(() => notif.remove(), 500);
+      }, 2000);
     }
-  });
+  };
+
+  editCarName.addEventListener('change', handleCarUpdate);
+  editCarChassis.addEventListener('change', handleCarUpdate);
+  editCarColor.addEventListener('change', handleCarUpdate);
 
   deleteCarConfirm.addEventListener('input', (e) => {
     const car = getCars().find(c => c.transponder === selectedCarId);
@@ -451,44 +476,50 @@ function bindEvents() {
   onUnregisteredAlert(displayUnregisteredNotification);
   
   // Settings Events
-  document.querySelectorAll('.btn-save-settings').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const settings = getSettings();
-      settings.announcements = {
-        driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
-        carRecord: document.getElementById('setting-speech-car-record').value.trim(),
-        driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
-        sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
-        personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
-        normal: document.getElementById('setting-speech-normal').value.trim(),
-        consistent: document.getElementById('setting-speech-consistent').value.trim()
-      };
-      settings.streak = {
-        minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
-        varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
-        mustBeFast: document.getElementById('setting-streak-fast-only').checked
-      };
-      
-      saveSettings(settings);
-      
-      // Also save the active settings (Volume, minLapTime, etc.)
-      saveActiveSettings();
-      
-      const notif = document.createElement('div');
-      notif.style.position = 'fixed';
-      notif.style.bottom = '80px';
-      notif.style.left = '50%';
-      notif.style.transform = 'translateX(-50%)';
-      notif.style.background = 'var(--accent-primary)';
-      notif.style.color = '#fff';
-      notif.style.padding = '0.75rem 1.5rem';
-      notif.style.borderRadius = 'var(--radius-md)';
-      notif.style.zIndex = '1000';
-      notif.textContent = 'Settings Saved!';
-      
-      document.body.appendChild(notif);
-      setTimeout(() => notif.remove(), 2500);
-    });
+  const handleSettingsUpdate = () => {
+    const settings = getSettings();
+    settings.announcements = {
+      driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
+      carRecord: document.getElementById('setting-speech-car-record').value.trim(),
+      driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
+      sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
+      personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
+      normal: document.getElementById('setting-speech-normal').value.trim(),
+      consistent: document.getElementById('setting-speech-consistent').value.trim()
+    };
+    settings.streak = {
+      minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
+      varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
+      mustBeFast: document.getElementById('setting-streak-fast-only').checked
+    };
+    
+    saveSettings(settings);
+    saveActiveSettings();
+    
+    const notif = document.createElement('div');
+    notif.style.position = 'fixed';
+    notif.style.bottom = '80px';
+    notif.style.left = '50%';
+    notif.style.transform = 'translateX(-50%)';
+    notif.style.background = 'var(--success-color)';
+    notif.style.color = '#000';
+    notif.style.padding = '0.75rem 1.5rem';
+    notif.style.borderRadius = 'var(--radius-md)';
+    notif.style.fontWeight = '600';
+    notif.style.zIndex = '9999';
+    notif.textContent = 'Settings Saved';
+    
+    document.body.appendChild(notif);
+    setTimeout(() => {
+      notif.style.opacity = '0';
+      notif.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => notif.remove(), 500);
+    }, 2000);
+  };
+
+  const settingsInputs = document.querySelectorAll('#view-settings-speech input, #view-settings-streaks input');
+  settingsInputs.forEach(input => {
+    input.addEventListener('change', handleSettingsUpdate);
   });
 }
 
