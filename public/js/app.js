@@ -397,8 +397,8 @@ function bindEvents() {
     }
   };
 
-  editDriverName.addEventListener('change', handleDriverUpdate);
-  editDriverCallout.addEventListener('change', handleDriverUpdate);
+  editDriverName.addEventListener('input', handleDriverUpdate);
+  editDriverCallout.addEventListener('input', handleDriverUpdate);
 
   deleteDriverConfirm.addEventListener('input', (e) => {
     const driver = getDrivers().find(d => d.id === selectedDriverId);
@@ -449,9 +449,9 @@ function bindEvents() {
     }
   };
 
-  editCarName.addEventListener('change', handleCarUpdate);
-  editCarChassis.addEventListener('change', handleCarUpdate);
-  editCarColor.addEventListener('change', handleCarUpdate);
+  editCarName.addEventListener('input', handleCarUpdate);
+  editCarChassis.addEventListener('input', handleCarUpdate);
+  editCarColor.addEventListener('input', handleCarUpdate);
 
   deleteCarConfirm.addEventListener('input', (e) => {
     const car = getCars().find(c => c.transponder === selectedCarId);
@@ -517,9 +517,10 @@ function bindEvents() {
     }, 2000);
   };
 
-  const settingsInputs = document.querySelectorAll('#view-settings-speech input, #view-settings-streaks input');
+  const settingsInputs = document.querySelectorAll('#view-settings-speech input, #view-settings-streaks input, #view-settings-session input');
   settingsInputs.forEach(input => {
-    input.addEventListener('change', handleSettingsUpdate);
+    input.addEventListener('input', handleSettingsUpdate);
+    input.addEventListener('change', handleSettingsUpdate); // catch checkbox/select changes too
   });
 }
 
