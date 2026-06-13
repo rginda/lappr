@@ -337,13 +337,13 @@ export function getSettings() {
     speechPitch: 1.0,
     speechRate: 1.1,
     announcements: {
-      driverBestEver: '{driver} best lap ever! {time}',
-      carRecord: '{car} record! {time}',
-      driverCarPR: '{driver} {car} p.r.! {time}',
-      sessionFastest: 'Session fastest lap! {driver}, {time} seconds',
-      personalBest: 'Personal best for {driver}, {time} seconds',
+      driverBestEver: '{driver} PR {time}',
+      carRecord: '{car} record {time}',
+      driverCarPR: '{driver} {car} PR {time}',
+      sessionFastest: 'Session fast lap {driver}, {time}',
+      personalBest: 'Personal best for {driver}, {time}',
       normal: '{driver}, {time}',
-      consistent: '{streak} laps consistent!'
+      consistent: '{streak} lap streak'
     },
     streak: {
       minLaps: 3,
