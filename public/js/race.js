@@ -4,7 +4,7 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getDrivers, getCars, saveSession } from './database.js';
+import { getDrivers, getCars, saveSession, logDriverLap } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
@@ -265,6 +265,9 @@ export function processCrossing(transponderId, ticks) {
 
   racer.laps.push(lapObject);
   sessionState.lapsLogged++;
+
+  // Log to persistent driver stats
+  logDriverLap(car.driverId, car.name, lapTimeSeconds);
 
   // Recalculate Racer Statistics
   recalculateRacerStats(racer);

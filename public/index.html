@@ -32,145 +32,204 @@
           <span class="status-dot"></span>
           <span id="connection-status-text">CONNECT TO HARDWARE</span>
         </div>
-        <button id="btn-hud" class="btn btn-secondary" title="Toggle pit lane big screen mode">
-          HUD Mode
-        </button>
       </div>
     </header>
     
     <!-- Main Application Grid -->
     <div class="app-grid">
       
-      <!-- Left Sidebar: Controls & Configuration -->
+      <!-- Left Sidebar: Navigation Tabs -->
       <aside class="sidebar">
-        
-        <!-- Driver Roster Card -->
-        <section class="card glass-panel" id="drivers-panel">
-          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Driver Roster</h2>
-          
-          <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-            <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
-            <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
-          </form>
-          
-          <div style="max-height: 150px; overflow-y: auto; padding-right: 0.25rem;">
-            <ul id="driver-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
-              <!-- Dynamically populated -->
-            </ul>
-          </div>
-        </section>
-
-        <!-- Car Fleet Card -->
-        <section class="card glass-panel" id="cars-panel">
-          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Car Fleet</h2>
-          
-          <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label for="car-name">Car Name</label>
-              <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="car-transponder">Transponder ID</label>
-                <input type="text" id="car-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="car-color">Theme</label>
-                <select id="car-color">
-                  <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
-                  <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
-                  <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
-                  <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
-                  <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
-                  <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
-                </select>
-              </div>
-            </div>
-            
-            <button type="submit" class="btn btn-secondary">Add Car</button>
-          </form>
-          
-          <div style="max-height: 250px; overflow-y: auto; padding-right: 0.25rem;">
-            <ul id="car-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
-              <!-- Dynamically populated -->
-            </ul>
-          </div>
-        </section>
-        
+        <nav class="sidebar-nav">
+          <button class="nav-tab active" data-target="view-session">Session</button>
+          <button class="nav-tab" data-target="view-drivers">Drivers</button>
+          <button class="nav-tab" data-target="view-cars">Cars</button>
+        </nav>
       </aside>
       
-      <!-- Right Main Panel: Timer & Leaderboard -->
-      <main class="main-content">
+      <div class="views-container">
         
-        <!-- Timer Dashboard -->
-        <section class="card glass-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
-          <div>
-            <h2 id="session-title" style="font-weight: 500; font-size: 1.25rem;">Practice Session</h2>
-            <p id="session-subtitle" style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Ready to run</p>
-          </div>
+        <!-- View: Session -->
+        <main id="view-session" class="view-panel active">
           
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <label for="min-lap-time" style="font-size: 0.85rem; color: var(--text-muted);">Min Lap Filter (s):</label>
-              <input type="number" id="min-lap-time" value="3.0" step="0.1" min="0.5" max="30" style="width: 60px; padding: 0.25rem 0.5rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
+          <!-- Timer Dashboard -->
+          <section class="card glass-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
+            <div>
+              <h2 id="session-title" style="font-weight: 500; font-size: 1.25rem;">Practice Session</h2>
+              <p id="session-subtitle" style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Ready to run</p>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <button id="btn-session-start" class="btn btn-success" style="padding: 0.4rem 1rem;">Start Session</button>
-              <button id="btn-session-reset" class="btn btn-secondary" style="padding: 0.4rem 1rem;">Clear Laps</button>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="min-lap-time" style="font-size: 0.85rem; color: var(--text-muted);">Min Lap Filter (s):</label>
+                <input type="number" id="min-lap-time" value="3.0" step="0.1" min="0.5" max="30" style="width: 60px; padding: 0.25rem 0.5rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button id="btn-session-start" class="btn btn-success" style="padding: 0.4rem 1rem;">Start Session</button>
+                <button id="btn-session-reset" class="btn btn-secondary" style="padding: 0.4rem 1rem;">Clear Laps</button>
+              </div>
             </div>
-          </div>
+            
+            <div id="session-timer-display" class="session-timer mono">00:00.00</div>
+          </section>
           
-          <div id="session-timer-display" class="session-timer mono">00:00.00</div>
-        </section>
-        
-        <!-- Starting Lights Overlay (For Races) -->
-        <section id="starting-lights" style="display: none; justify-content: center; gap: 1rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-        </section>
-        
-        <!-- Live Leaderboard Board -->
-        <section class="card" style="flex: 1; min-height: 450px;">
-          <div class="leaderboard-header">
-            <h2 style="font-weight: 600;">Leaderboard</h2>
-            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 1rem;">
-              <span>Total Cars: <strong id="leaderboard-count-cars" class="mono">0</strong></span>
-              <span>Laps Logged: <strong id="leaderboard-count-laps" class="mono">0</strong></span>
+          <!-- Starting Lights Overlay (For Races) -->
+          <section id="starting-lights" style="display: none; justify-content: center; gap: 1rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+          </section>
+          
+          <!-- Live Leaderboard Board -->
+          <section class="card" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+            <div class="leaderboard-header" style="flex-shrink: 0;">
+              <h2 style="font-weight: 600;">Leaderboard</h2>
+              <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 1rem;">
+                <span>Total Cars: <strong id="leaderboard-count-cars" class="mono">0</strong></span>
+                <span>Laps Logged: <strong id="leaderboard-count-laps" class="mono">0</strong></span>
+              </div>
             </div>
+            
+            <div style="flex: 1; overflow: auto;">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">Pos</th>
+                    <th>Driver</th>
+                    <th>Car</th>
+                    <th style="width: 80px; text-align: center;">Laps</th>
+                    <th>Last Lap</th>
+                    <th>Best Lap</th>
+                    <th>3-Fast Streak</th>
+                    <th>Consistency</th>
+                    <th style="width: 100px; text-align: right;">Gap</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                  <!-- Dynamically populated row elements -->
+                  <tr id="empty-leaderboard-row">
+                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
+                      No lap data recorded yet. Pass a transponder under the bridge or start the mock simulator!
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <!-- View: Drivers -->
+        <main id="view-drivers" class="view-panel">
+          <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; align-items: start;">
+            <!-- Left: Driver List -->
+            <section class="card glass-panel" id="drivers-panel">
+              <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Driver Roster</h2>
+              
+              <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
+                <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
+              </form>
+              
+              <div style="max-height: 600px; overflow-y: auto; padding-right: 0.25rem;">
+                <ul id="driver-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+                  <!-- Dynamically populated -->
+                </ul>
+              </div>
+            </section>
+            
+            <!-- Right: Driver Details -->
+            <section class="card glass-panel" id="driver-details-panel" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--accent-primary);">Driver Profile</h2>
+                <button id="btn-close-driver-details" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem;">Close</button>
+              </div>
+              
+              <div style="margin-bottom: 2rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="edit-driver-name" style="flex: 1; max-width: 300px;" placeholder="Driver Name">
+                <button id="btn-save-driver-name" class="btn btn-primary">Save Name</button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Last 10 Personal Records</h3>
+                  <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="leaderboard-table" style="font-size: 0.85rem;">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Car</th>
+                          <th>Date</th>
+                          <th style="width: 50px;"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="driver-prs-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Recent Laps (up to 100)</h3>
+                  <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="leaderboard-table" style="font-size: 0.85rem;">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Car</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody id="driver-laps-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
-          
-          <div style="overflow-x: auto;">
-            <table class="leaderboard-table">
-              <thead>
-                <tr>
-                  <th style="width: 60px;">Pos</th>
-                  <th>Racer</th>
-                  <th style="width: 80px; text-align: center;">Laps</th>
-                  <th>Last Lap</th>
-                  <th>Best Lap</th>
-                  <th>3-Fast Streak</th>
-                  <th>Consistency</th>
-                  <th style="width: 100px; text-align: right;">Gap</th>
-                </tr>
-              </thead>
-              <tbody id="leaderboard-body">
-                <!-- Dynamically populated row elements -->
-                <tr id="empty-leaderboard-row">
-                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
-                    No lap data recorded yet. Pass a transponder under the bridge or start the mock simulator!
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-        
-      </main>
+        </main>
+
+        <!-- View: Cars -->
+        <main id="view-cars" class="view-panel">
+          <section class="card glass-panel" id="cars-panel" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Car Fleet</h2>
+            
+            <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="car-name">Car Name</label>
+                <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="car-transponder">Transponder ID</label>
+                  <input type="text" id="car-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="car-color">Theme</label>
+                  <select id="car-color">
+                    <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
+                    <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
+                    <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
+                    <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
+                    <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
+                    <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
+                  </select>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-secondary">Add Car</button>
+            </form>
+            
+            <div style="max-height: 500px; overflow-y: auto; padding-right: 0.25rem;">
+              <ul id="car-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+          </section>
+        </main>
+      </div>
       
     </div>
     
@@ -180,7 +239,7 @@
   <div id="notifications" class="notification-container"></div>
   
   <!-- Audio & Speech Toggle Panel in Footer -->
-  <footer style="margin-top: 2rem; padding: 1.5rem 0; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+  <footer style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-primary); z-index: 10; flex-shrink: 0;">
     <div>
       <span>Lappr v1.0.0 &bull; Offline Ready</span>
     </div>

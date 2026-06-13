@@ -55,8 +55,10 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   line-height: 1.5;
   background-image: 
     radial-gradient(at 0% 0%, hsla(262, 80%, 20%, 0.15) 0px, transparent 50%),
@@ -92,9 +94,14 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Layout Utilities */
 .container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
+  overflow: hidden;
 }
 
 /* Glassmorphic Components */
@@ -284,9 +291,11 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 
 /* Grid Layout */
 .app-grid {
+  flex: 1;
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 250px 1fr;
   gap: 1.5rem;
+  overflow: hidden;
 }
 
 @media (max-width: 1024px) {
@@ -296,6 +305,58 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 }
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.nav-tab:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, hsla(262, 83%, 58%, 0.15), transparent);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  box-shadow: 0 0 16px var(--accent-primary-glow) inset;
+}
+
+.views-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
+}
+
+.view-panel {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+}
+.view-panel.active {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -352,6 +413,12 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   letter-spacing: 0.05em;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 10;
 }
 
 .leaderboard-table td {
@@ -410,19 +477,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   border: 1px solid var(--color-warning);
 }
 
-/* HUD Mode full screen toggle */
-.hud-view {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: var(--bg-primary);
-  z-index: 9999;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-}
+
 
 /* Alert notifications for unregistered transponders */
 .notification-container {

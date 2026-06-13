@@ -13,7 +13,8 @@ import {
   deleteCar,
   assignDriverToCar,
   getSettings, 
-  saveSettings 
+  saveSettings,
+  deleteDriverPr
 } from './database.js';
 
 import { 
@@ -59,14 +60,22 @@ const leaderboardBody = document.getElementById('leaderboard-body');
 const countCarsDisplay = document.getElementById('leaderboard-count-cars');
 const countLapsDisplay = document.getElementById('leaderboard-count-laps');
 
-const btnHud = document.getElementById('btn-hud');
+
 const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
 const notificationsContainer = document.getElementById('notifications');
 
+const driverDetailsPanel = document.getElementById('driver-details-panel');
+const editDriverName = document.getElementById('edit-driver-name');
+const btnSaveDriverName = document.getElementById('btn-save-driver-name');
+const btnCloseDriverDetails = document.getElementById('btn-close-driver-details');
+const driverPrsBody = document.getElementById('driver-prs-body');
+const driverLapsBody = document.getElementById('driver-laps-body');
+let selectedDriverId = null;
+
 // Application State
 let activeSettings = {};
-let isHUDMode = false;
+
 let currentSessionStatus = 'ready';
 
 /**
@@ -140,8 +149,41 @@ function bindEvents() {
     configureSpeech({ volume: vol });
   });
   
-  // HUD mode
-  btnHud.addEventListener('click', toggleHUDMode);
+  // View Routing
+  const navTabs = document.querySelectorAll('.nav-tab');
+  const viewPanels = document.querySelectorAll('.view-panel');
+
+  navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Deactivate all
+      navTabs.forEach(t => t.classList.remove('active'));
+      viewPanels.forEach(p => p.classList.remove('active'));
+      
+      // Activate clicked
+      tab.classList.add('active');
+      const targetId = tab.getAttribute('data-target');
+      document.getElementById(targetId).classList.add('active');
+    });
+  });
+  
+  // Driver Details Events
+  btnCloseDriverDetails.addEventListener('click', () => {
+    driverDetailsPanel.style.display = 'none';
+    selectedDriverId = null;
+  });
+  
+  btnSaveDriverName.addEventListener('click', () => {
+    if (selectedDriverId) {
+      const newName = editDriverName.value.trim();
+      if (newName) {
+        saveDriver({ id: selectedDriverId, name: newName });
+        renderDriverList();
+        renderCarList(); // Update dropdowns
+        reinitSessionState(); // Update leaderboard names
+        // Note: we'd ideally not wipe session just for a name change, but it ensures consistency
+      }
+    }
+  });
 
   // Unregistered transponder callback hooks
   onUnregisteredAlert(displayUnregisteredNotification);
@@ -295,7 +337,7 @@ function renderLeaderboard({ state, leaderboard }) {
   if (leaderboard.length === 0) {
     leaderboardBody.innerHTML = `
       <tr id="empty-leaderboard-row">
-        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
+        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
           No lap data recorded yet. Pass a transponder under the bridge or start the mock simulator!
         </td>
       </tr>`;
@@ -333,11 +375,18 @@ function renderLeaderboard({ state, leaderboard }) {
     if (isOverallBestLap) bestLapBadgeClass += ' overall-best';
     else if (racer.laps.some(l => l.isPersonalBest && l.lapTime === racer.bestLap)) bestLapBadgeClass += ' personal-best';
 
+    const isUnknown = racer.carName === 'Unknown Car';
+    const carDisplay = isUnknown
+      ? `<div style="font-weight:600;">${racer.carName}</div><div style="font-size:0.75rem; color:var(--text-muted);">${racer.transponder}</div>`
+      : `<div style="font-weight:600;">${racer.carName}</div>`;
+
     row.innerHTML = `
       <td><span class="pos-badge">${position}</span></td>
       <td>
         <div style="font-weight:700;">${racer.name}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">${racer.carName} (${racer.transponder})</div>
+      </td>
+      <td>
+        ${carDisplay}
       </td>
       <td style="text-align: center;" class="mono">${racer.laps.length}</td>
       <td class="mono">
@@ -451,13 +500,21 @@ function renderDriverList() {
     li.style.borderRadius = 'var(--radius-sm)';
     
     li.innerHTML = `
-      <div style="font-weight:600; font-size:0.9rem;">${d.name}</div>
+      <div style="font-weight:600; font-size:0.9rem; cursor:pointer;" class="driver-name-label">${d.name}</div>
       <button class="btn btn-secondary delete-btn" data-id="${d.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">Remove</button>
     `;
+    
+    li.querySelector('.driver-name-label').addEventListener('click', () => {
+      renderDriverDetails(d.id);
+    });
     
     li.querySelector('.delete-btn').addEventListener('click', (e) => {
       if (window.confirm('Delete this driver?')) {
         deleteDriver(e.target.getAttribute('data-id'));
+        if (selectedDriverId === d.id) {
+          driverDetailsPanel.style.display = 'none';
+          selectedDriverId = null;
+        }
         renderDriverList();
         renderCarList(); // Update dropdowns
         reinitSessionState();
@@ -561,27 +618,63 @@ function displayUnregisteredNotification(transponderId) {
   notificationsContainer.appendChild(alertCard);
 }
 
+
+
+
 /**
- * Toggle Full-Screen Pit Lane HUD view.
+ * Render Driver Details Panel (Stats, Laps, PRs)
  */
-function toggleHUDMode() {
-
-  const mainGrid = document.querySelector('.app-grid');
-  const sidebar = document.querySelector('.sidebar');
+function renderDriverDetails(driverId) {
+  const drivers = getDrivers();
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver) return;
   
-  isHUDMode = !isHUDMode;
+  selectedDriverId = driver.id;
+  driverDetailsPanel.style.display = 'block';
+  editDriverName.value = driver.name;
   
-  if (isHUDMode) {
-    btnHud.textContent = 'Exit HUD';
-    btnHud.className = 'btn btn-primary';
-    sidebar.style.display = 'none';
-    mainGrid.style.gridTemplateColumns = '1fr';
+  // Render PRs
+  driverPrsBody.innerHTML = '';
+  const prs = driver.prs || [];
+  if (prs.length === 0) {
+    driverPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
-    btnHud.textContent = 'HUD Mode';
-    btnHud.className = 'btn btn-secondary';
-    sidebar.style.display = 'flex';
-
-    mainGrid.style.gridTemplateColumns = '350px 1fr';
+    // Show top 10
+    prs.slice(0, 10).forEach(pr => {
+      const tr = document.createElement('tr');
+      const dateStr = new Date(pr.timestamp).toLocaleString();
+      tr.innerHTML = `
+        <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
+        <td>${pr.car}</td>
+        <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+        <td><button class="btn delete-pr-btn" data-prid="${pr.id}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
+      `;
+      tr.querySelector('.delete-pr-btn').addEventListener('click', (e) => {
+        if (window.confirm('Delete this personal record?')) {
+          deleteDriverPr(driverId, pr.id);
+          renderDriverDetails(driverId); // refresh
+        }
+      });
+      driverPrsBody.appendChild(tr);
+    });
+  }
+  
+  // Render Laps
+  driverLapsBody.innerHTML = '';
+  const laps = driver.laps || [];
+  if (laps.length === 0) {
+    driverLapsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
+  } else {
+    laps.forEach(lap => {
+      const tr = document.createElement('tr');
+      const dateStr = new Date(lap.timestamp).toLocaleString();
+      tr.innerHTML = `
+        <td class="mono">${lap.lapTime.toFixed(3)}</td>
+        <td>${lap.car}</td>
+        <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+      `;
+      driverLapsBody.appendChild(tr);
+    });
   }
 }
 

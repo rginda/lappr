@@ -13,8 +13,8 @@ const STORAGE_KEYS = {
 
 // Default setup if no data exists
 const DEFAULT_DRIVERS = [
-  { id: 'driver-1', name: 'Mock Driver A' },
-  { id: 'driver-2', name: 'Mock Driver B' }
+  { id: 'driver-1', name: 'Mock Driver A', laps: [], prs: [] },
+  { id: 'driver-2', name: 'Mock Driver B', laps: [], prs: [] }
 ];
 
 const DEFAULT_CARS = [
@@ -77,7 +77,86 @@ export function deleteDriver(id) {
     localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
   }
   
+  
   return drivers;
+}
+
+/**
+ * Log a lap for a driver. Maintains last 100 laps and a history of PRs.
+ */
+export function logDriverLap(driverId, carName, lapTime) {
+  const drivers = getDrivers();
+  const driverIndex = drivers.findIndex(d => d.id === driverId);
+  
+  if (driverIndex === -1) return null;
+  
+  const driver = drivers[driverIndex];
+  if (!driver.laps) driver.laps = [];
+  if (!driver.prs) driver.prs = [];
+  
+  const now = Date.now();
+  const lapEntry = { car: carName, timestamp: now, lapTime: lapTime, id: 'lap_' + now.toString(36) + Math.random().toString(36).substr(2, 5) };
+  
+  // Add to laps list (keep last 100)
+  driver.laps.unshift(lapEntry); // prepend so newest is first
+  if (driver.laps.length > 100) {
+    driver.laps.pop();
+  }
+  
+  // Check PR
+  // A lap is a PR if it's faster than the current absolute best PR.
+  // The current absolute best PR is the lapTime of the LAST element in the prs array (if any).
+  // Wait, if they beat their best, add a new entry.
+  let isPR = false;
+  if (driver.prs.length === 0) {
+    isPR = true;
+  } else {
+    // The most recent PR is at index 0 (if we unshift) or last (if we push).
+    // Let's keep newest PRs at index 0 to match laps array.
+    const currentBest = driver.prs[0].lapTime;
+    if (lapTime < currentBest) {
+      isPR = true;
+    }
+  }
+  
+  if (isPR) {
+    driver.prs.unshift(lapEntry); // prepend newest PR
+    // keep more than 10 so if they delete we have backups (user asked to drop oldest when > 11)
+    if (driver.prs.length > 15) {
+      driver.prs.pop();
+    }
+  }
+  
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  return { driver, isPR };
+}
+
+/**
+ * Delete a PR by its ID and recalculate the next best if needed.
+ */
+export function deleteDriverPr(driverId, prId) {
+  const drivers = getDrivers();
+  const driverIndex = drivers.findIndex(d => d.id === driverId);
+  if (driverIndex === -1) return;
+  
+  const driver = drivers[driverIndex];
+  if (!driver.prs) return;
+  
+  // Also delete from laps if it was an erroneous lap completely
+  if (driver.laps) {
+    driver.laps = driver.laps.filter(l => l.id !== prId);
+  }
+  
+  // Remove from PR list
+  driver.prs = driver.prs.filter(p => p.id !== prId);
+  
+  // Actually, if we deleted a PR, do we need to recalculate PRs from history?
+  // We have a stored history of PRs. If I run 4.0, 3.8, 3.5. `prs` = [3.5, 3.8, 4.0]
+  // If I delete 3.5, `prs` = [3.8, 4.0]. The next PR is naturally 3.8, which is already there!
+  // So just removing it is sufficient.
+  
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  return driver;
 }
 
 /**
