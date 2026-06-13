@@ -5,9 +5,13 @@
  */
 
 import { 
-  getRacers, 
-  saveRacer, 
-  deleteRacer, 
+  getDrivers, 
+  saveDriver, 
+  deleteDriver, 
+  getCars,
+  saveCar,
+  deleteCar,
+  assignDriverToCar,
   getSettings, 
   saveSettings 
 } from './database.js';
@@ -44,11 +48,15 @@ const minLapTime = document.getElementById('min-lap-time');
 const btnSessionStart = document.getElementById('btn-session-start');
 const btnSessionReset = document.getElementById('btn-session-reset');
 
-const addRacerForm = document.getElementById('add-racer-form');
-const racerNameInput = document.getElementById('racer-name');
-const racerTransponderInput = document.getElementById('racer-transponder');
-const racerColorSelect = document.getElementById('racer-color');
-const racerList = document.getElementById('racer-list');
+const addDriverForm = document.getElementById('add-driver-form');
+const driverNameInput = document.getElementById('driver-name');
+const driverList = document.getElementById('driver-list');
+
+const addCarForm = document.getElementById('add-car-form');
+const carNameInput = document.getElementById('car-name');
+const carTransponderInput = document.getElementById('car-transponder');
+const carColorSelect = document.getElementById('car-color');
+const carList = document.getElementById('car-list');
 
 const sessionTitle = document.getElementById('session-title');
 const sessionSubtitle = document.getElementById('session-subtitle');
@@ -73,7 +81,8 @@ let currentSessionStatus = 'ready';
 document.addEventListener('DOMContentLoaded', () => {
   activeSettings = getSettings();
   loadSettingsUI();
-  renderRacerList();
+  renderDriverList();
+  renderCarList();
   
   // Register service worker for PWA support
   registerServiceWorker();
@@ -136,8 +145,9 @@ function bindEvents() {
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
   btnSessionReset.addEventListener('click', handleSessionReset);
   
-  // Racer Form Events
-  addRacerForm.addEventListener('submit', handleAddRacer);
+  // Form Events
+  addDriverForm.addEventListener('submit', handleAddDriver);
+  addCarForm.addEventListener('submit', handleAddCar);
   
   // Audio Controls
   speechToggle.addEventListener('change', (e) => {
@@ -381,7 +391,7 @@ function renderLeaderboard({ state, leaderboard }) {
       <td><span class="pos-badge">${position}</span></td>
       <td>
         <div style="font-weight:700;">${racer.name}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">${racer.vehicle} (${racer.transponder})</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">${racer.carName} (${racer.transponder})</div>
       </td>
       <td style="text-align: center;" class="mono">${racer.laps.length}</td>
       <td class="mono">
@@ -396,6 +406,16 @@ function renderLeaderboard({ state, leaderboard }) {
       <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
       <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
     `;
+    
+    row.style.cursor = 'pointer';
+    row.title = 'Click to edit this car in the fleet manager';
+    row.addEventListener('click', () => {
+      carNameInput.value = racer.carName;
+      carTransponderInput.value = racer.transponder;
+      carColorSelect.value = racer.color;
+      carNameInput.focus();
+      carNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
     
     leaderboardBody.appendChild(row);
   });
@@ -432,43 +452,57 @@ function updateTimerDisplay(elapsedMs) {
 /**
  * Form Submission -> Adds a new driver.
  */
-function handleAddRacer(e) {
+function handleAddDriver(e) {
   e.preventDefault();
   
-  const name = racerNameInput.value.trim();
-  const transponder = racerTransponderInput.value.trim().toUpperCase();
-  const color = racerColorSelect.value;
+  const name = driverNameInput.value.trim();
+  const id = 'd_' + Date.now().toString(36);
   
-  const racer = {
+  saveDriver({ id, name });
+  addDriverForm.reset();
+  renderDriverList();
+  renderCarList(); // Re-render cars so the new driver shows in dropdowns
+}
+
+/**
+ * Form Submission -> Adds a new car.
+ */
+function handleAddCar(e) {
+  e.preventDefault();
+  
+  const name = carNameInput.value.trim();
+  const transponder = carTransponderInput.value.trim().toUpperCase();
+  const color = carColorSelect.value;
+  
+  const car = {
     name,
     transponder,
     color,
-    vehicle: 'Mini-Z'
+    driverId: ''
   };
   
-  saveRacer(racer);
-  
-  addRacerForm.reset();
-  renderRacerList();
+  saveCar(car);
+  addCarForm.reset();
+  renderCarList();
   
   // Hot-reload profile in the active timing engine
-  assignUnregisteredRacer(transponder, name, color, racer.vehicle);
+  assignUnregisteredRacer(transponder, name, color, 'Mini-Z');
   reinitSessionState();
 }
 
 /**
- * Render lists of drivers in the configuration manager.
+ * Render list of drivers.
  */
-function renderRacerList() {
-  racerList.innerHTML = '';
-  const racers = getRacers();
+function renderDriverList() {
+  driverList.innerHTML = '';
+  const drivers = getDrivers();
   
-  if (racers.length === 0) {
-    racerList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); text-align:center;">No racers added.</li>`;
+  if (drivers.length === 0) {
+    driverList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); text-align:center;">No drivers added.</li>`;
     return;
   }
   
-  racers.forEach(r => {
+  drivers.forEach(d => {
     const li = document.createElement('li');
     li.style.display = 'flex';
     li.style.justifyContent = 'space-between';
@@ -477,29 +511,84 @@ function renderRacerList() {
     li.style.background = 'rgba(255,255,255,0.02)';
     li.style.border = '1px solid var(--border-color)';
     li.style.borderRadius = 'var(--radius-sm)';
-    li.style.borderLeft = `4px solid ${r.color}`;
     
     li.innerHTML = `
-      <div>
-        <div style="font-weight:600; font-size:0.9rem;">${r.name}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">${r.transponder}</div>
-      </div>
-      <button class="btn btn-secondary delete-btn" data-id="${r.transponder}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">
-        Remove
-      </button>
+      <div style="font-weight:600; font-size:0.9rem;">${d.name}</div>
+      <button class="btn btn-secondary delete-btn" data-id="${d.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">Remove</button>
     `;
     
-    // Bind delete click
     li.querySelector('.delete-btn').addEventListener('click', (e) => {
-      const id = e.target.getAttribute('data-id');
-      if (confirm('Delete this racer?')) {
-        deleteRacer(id);
-        renderRacerList();
+      if (confirm('Delete this driver?')) {
+        deleteDriver(e.target.getAttribute('data-id'));
+        renderDriverList();
+        renderCarList(); // Update dropdowns
         reinitSessionState();
       }
     });
     
-    racerList.appendChild(li);
+    driverList.appendChild(li);
+  });
+}
+
+/**
+ * Render lists of cars in the configuration manager.
+ */
+function renderCarList() {
+  carList.innerHTML = '';
+  const cars = getCars();
+  const drivers = getDrivers();
+  
+  if (cars.length === 0) {
+    carList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); text-align:center;">No cars added.</li>`;
+    return;
+  }
+  
+  cars.forEach(c => {
+    const li = document.createElement('li');
+    li.style.display = 'flex';
+    li.style.justifyContent = 'space-between';
+    li.style.alignItems = 'center';
+    li.style.padding = '0.5rem 0.75rem';
+    li.style.background = 'rgba(255,255,255,0.02)';
+    li.style.border = '1px solid var(--border-color)';
+    li.style.borderRadius = 'var(--radius-sm)';
+    li.style.borderLeft = `4px solid ${c.color}`;
+    
+    // Create Driver Dropdown Options
+    let driverOptions = `<option value="">-- No Driver --</option>`;
+    drivers.forEach(d => {
+      const selected = (c.driverId === d.id) ? 'selected' : '';
+      driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
+    });
+    
+    li.innerHTML = `
+      <div style="flex: 1;">
+        <div style="font-weight:600; font-size:0.9rem;">${c.name}</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; margin-bottom: 0.25rem;">${c.transponder}</div>
+        <select class="driver-select" data-transponder="${c.transponder}" style="font-size: 0.75rem; padding: 0.1rem 0.25rem; width: 100%; max-width: 150px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm);">
+          ${driverOptions}
+        </select>
+      </div>
+      <button class="btn btn-secondary delete-btn" data-id="${c.transponder}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">Remove</button>
+    `;
+    
+    // Bind driver assignment change
+    li.querySelector('.driver-select').addEventListener('change', (e) => {
+      assignDriverToCar(c.transponder, e.target.value);
+      reinitSessionState();
+    });
+    
+    // Bind delete click
+    li.querySelector('.delete-btn').addEventListener('click', (e) => {
+      const id = e.target.getAttribute('data-id');
+      if (confirm('Delete this car?')) {
+        deleteCar(id);
+        renderCarList();
+        reinitSessionState();
+      }
+    });
+    
+    carList.appendChild(li);
   });
 }
 
@@ -521,8 +610,8 @@ function displayUnregisteredNotification(transponderId) {
 
   // Bind assign click
   alertCard.querySelector('.assign-btn').addEventListener('click', () => {
-    racerTransponderInput.value = transponderId;
-    racerNameInput.focus();
+    carTransponderInput.value = transponderId;
+    carNameInput.focus();
     alertCard.remove();
   });
 

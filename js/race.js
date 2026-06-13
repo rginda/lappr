@@ -4,7 +4,7 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getRacers, saveSession } from './database.js';
+import { getDrivers, getCars, saveSession } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
@@ -51,10 +51,18 @@ export function initSession(config, onUpdate, onTimerUpdate) {
   updateCallback = onUpdate;
   timerCallback = onTimerUpdate;
 
-  // Pre-load all registered profiles as empty structures so they show up or can be mapped
-  const registered = getRacers();
-  registered.forEach(r => {
-    sessionState.racers[r.transponder.toUpperCase()] = createRacerSessionData(r);
+  // Pre-load all registered profiles
+  const cars = getCars();
+  const drivers = getDrivers();
+  cars.forEach(c => {
+    const driver = drivers.find(d => d.id === c.driverId) || { name: 'Unknown Driver' };
+    const sessionKey = `${c.driverId}_${c.transponder.toUpperCase()}`;
+    sessionState.racers[sessionKey] = createRacerSessionData({
+      driverName: driver.name,
+      carName: c.name,
+      transponder: c.transponder.toUpperCase(),
+      color: c.color
+    });
   });
 
   triggerUpdate();
@@ -62,10 +70,10 @@ export function initSession(config, onUpdate, onTimerUpdate) {
 
 function createRacerSessionData(profile) {
   return {
-    name: profile.name,
-    transponder: profile.transponder.toUpperCase(),
+    name: profile.driverName,
+    carName: profile.carName,
+    transponder: profile.transponder,
     color: profile.color,
-    vehicle: profile.vehicle,
     laps: [],
     lastCrossingTicks: null,
     lastCrossingTime: null,
@@ -176,19 +184,28 @@ export function processCrossing(transponderId, ticks) {
   // If session hasn't started yet (e.g. waiting for race lights), ignore crossing
   if (sessionState.status === 'ready') return;
 
+  const cars = getCars();
+  const drivers = getDrivers();
+  const car = cars.find(c => c.transponder.toUpperCase() === id) || { name: 'Unknown Car', color: '#ef4444', driverId: 'unknown' };
+  const driver = drivers.find(d => d.id === car.driverId) || { name: 'Unknown Driver' };
+  
+  const sessionKey = `${car.driverId}_${id}`;
+
   // Retrieve or create racer profile (in case of unregistered transponder)
-  let racer = sessionState.racers[id];
+  let racer = sessionState.racers[sessionKey];
   if (!racer) {
     racer = createRacerSessionData({
-      name: `Unregistered (${id})`,
+      driverName: driver.name,
+      carName: car.name,
       transponder: id,
-      color: '#ef4444',
-      vehicle: 'Unknown'
+      color: car.color
     });
-    sessionState.racers[id] = racer;
+    sessionState.racers[sessionKey] = racer;
     
     // Fire unregistered notification callback
-    triggerUnregisteredAlert(id);
+    if (car.name === 'Unknown Car') {
+      triggerUnregisteredAlert(id);
+    }
   }
 
   racer.isActive = true;
@@ -444,17 +461,7 @@ function triggerUnregisteredAlert(transponderId) {
 
 /**
  * Dynamically assign a transponder to a newly registered profile.
- * @param {string} transponderId 
- * @param {string} name 
- * @param {string} color 
- * @param {string} vehicle 
  */
 export function assignUnregisteredRacer(transponderId, name, color, vehicle) {
-  const id = transponderId.toUpperCase();
-  if (sessionState.racers[id]) {
-    sessionState.racers[id].name = name;
-    sessionState.racers[id].color = color;
-    sessionState.racers[id].vehicle = vehicle;
-    triggerUpdate();
-  }
+  // Deprecated: reinitSessionState will handle the reload
 }

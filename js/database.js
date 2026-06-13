@@ -4,16 +4,22 @@
  */
 
 const STORAGE_KEYS = {
-  RACERS: 'apex_timing_racers',
+  DRIVERS: 'lappr_drivers',
+  CARS: 'lappr_cars',
   SESSIONS: 'apex_timing_sessions',
   SETTINGS: 'apex_timing_settings',
   TRACKS: 'apex_timing_tracks'
 };
 
 // Default setup if no data exists
-const DEFAULT_RACERS = [
-  { name: 'Mock Driver A', transponder: 'CDFD4C', color: '#8b5cf6', vehicle: 'Mini-Z RWD' },
-  { name: 'Mock Driver B', transponder: '00FFAB', color: '#06b6d4', vehicle: 'Mini-Z AWD' }
+const DEFAULT_DRIVERS = [
+  { id: 'driver-1', name: 'Mock Driver A' },
+  { id: 'driver-2', name: 'Mock Driver B' }
+];
+
+const DEFAULT_CARS = [
+  { transponder: 'CDFD4C', name: 'Red Mini-Z RWD', color: '#ef4444', driverId: 'driver-1' },
+  { transponder: '00FFAB', name: 'Blue Mini-Z AWD', color: '#06b6d4', driverId: 'driver-2' }
 ];
 
 const DEFAULT_SETTINGS = {
@@ -27,44 +33,103 @@ const DEFAULT_SETTINGS = {
 };
 
 /**
- * Get all registered racers.
- * @returns {Array} List of racer objects.
+ * Get all registered drivers.
  */
-export function getRacers() {
-  const data = localStorage.getItem(STORAGE_KEYS.RACERS);
+export function getDrivers() {
+  const data = localStorage.getItem(STORAGE_KEYS.DRIVERS);
   if (!data) {
-    localStorage.setItem(STORAGE_KEYS.RACERS, JSON.stringify(DEFAULT_RACERS));
-    return DEFAULT_RACERS;
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(DEFAULT_DRIVERS));
+    return DEFAULT_DRIVERS;
   }
   return JSON.parse(data);
 }
 
 /**
- * Save or update a racer.
- * @param {Object} racer - Racer object with name, transponder, color, vehicle.
+ * Save or update a driver.
  */
-export function saveRacer(racer) {
-  const racers = getRacers();
-  const index = racers.findIndex(r => r.transponder.toUpperCase() === racer.transponder.toUpperCase());
-  
+export function saveDriver(driver) {
+  const drivers = getDrivers();
+  const index = drivers.findIndex(d => d.id === driver.id);
   if (index !== -1) {
-    racers[index] = racer;
+    drivers[index] = driver;
   } else {
-    racers.push(racer);
+    drivers.push(driver);
   }
-  localStorage.setItem(STORAGE_KEYS.RACERS, JSON.stringify(racers));
-  return racers;
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  return drivers;
 }
 
 /**
- * Delete a racer by transponder ID.
- * @param {string} transponder - The transponder hex ID.
+ * Delete a driver by ID.
  */
-export function deleteRacer(transponder) {
-  let racers = getRacers();
-  racers = racers.filter(r => r.transponder.toUpperCase() !== transponder.toUpperCase());
-  localStorage.setItem(STORAGE_KEYS.RACERS, JSON.stringify(racers));
-  return racers;
+export function deleteDriver(id) {
+  let drivers = getDrivers();
+  drivers = drivers.filter(d => d.id !== id);
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  
+  // Clear assignments for deleted driver
+  const cars = getCars();
+  let carsUpdated = false;
+  cars.forEach(c => {
+    if (c.driverId === id) {
+      c.driverId = '';
+      carsUpdated = true;
+    }
+  });
+  if (carsUpdated) {
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
+  
+  return drivers;
+}
+
+/**
+ * Get all registered cars.
+ */
+export function getCars() {
+  const data = localStorage.getItem(STORAGE_KEYS.CARS);
+  if (!data) {
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(DEFAULT_CARS));
+    return DEFAULT_CARS;
+  }
+  return JSON.parse(data);
+}
+
+/**
+ * Save or update a car.
+ */
+export function saveCar(car) {
+  const cars = getCars();
+  const index = cars.findIndex(c => c.transponder.toUpperCase() === car.transponder.toUpperCase());
+  if (index !== -1) {
+    cars[index] = car;
+  } else {
+    cars.push(car);
+  }
+  localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  return cars;
+}
+
+/**
+ * Delete a car by transponder ID.
+ */
+export function deleteCar(transponder) {
+  let cars = getCars();
+  cars = cars.filter(c => c.transponder.toUpperCase() !== transponder.toUpperCase());
+  localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  return cars;
+}
+
+/**
+ * Assign a driver to a car.
+ */
+export function assignDriverToCar(transponder, driverId) {
+  const cars = getCars();
+  const car = cars.find(c => c.transponder.toUpperCase() === transponder.toUpperCase());
+  if (car) {
+    car.driverId = driverId;
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
 }
 
 /**
@@ -116,12 +181,12 @@ export function getSessions() {
 }
 
 /**
- * Export all data (racers, settings, sessions) as a JSON string.
- * @returns {string} JSON string of database.
+ * Export all data as a JSON string.
  */
 export function exportDatabase() {
   const db = {
-    racers: getRacers(),
+    drivers: getDrivers(),
+    cars: getCars(),
     settings: getSettings(),
     sessions: getSessions()
   };
@@ -130,12 +195,12 @@ export function exportDatabase() {
 
 /**
  * Import and overwrite database with imported JSON string.
- * @param {string} jsonString - The database JSON string.
  */
 export function importDatabase(jsonString) {
   try {
     const db = JSON.parse(jsonString);
-    if (db.racers) localStorage.setItem(STORAGE_KEYS.RACERS, JSON.stringify(db.racers));
+    if (db.drivers) localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(db.drivers));
+    if (db.cars) localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(db.cars));
     if (db.settings) localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(db.settings));
     if (db.sessions) localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(db.sessions));
     return true;

@@ -93,24 +93,40 @@
           </div>
         </section>
         
-        <!-- Racer Manager Card -->
-        <section class="card glass-panel" id="racers-panel">
-          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Racer Manager</h2>
+        <!-- Driver Roster Card -->
+        <section class="card glass-panel" id="drivers-panel">
+          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Driver Roster</h2>
           
-          <form id="add-racer-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+          <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
+            <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
+          </form>
+          
+          <div style="max-height: 150px; overflow-y: auto; padding-right: 0.25rem;">
+            <ul id="driver-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </section>
+
+        <!-- Car Fleet Card -->
+        <section class="card glass-panel" id="cars-panel">
+          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Car Fleet</h2>
+          
+          <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
             <div class="form-group" style="margin-bottom: 0;">
-              <label for="racer-name">Name</label>
-              <input type="text" id="racer-name" placeholder="Driver Name" required>
+              <label for="car-name">Car Name</label>
+              <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
               <div class="form-group" style="margin-bottom: 0;">
-                <label for="racer-transponder">Transponder ID</label>
-                <input type="text" id="racer-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
+                <label for="car-transponder">Transponder ID</label>
+                <input type="text" id="car-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label for="racer-color">Theme</label>
-                <select id="racer-color">
+                <label for="car-color">Theme</label>
+                <select id="car-color">
                   <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
                   <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
                   <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
@@ -121,12 +137,11 @@
               </div>
             </div>
             
-            <button type="submit" class="btn btn-secondary">Add Racer</button>
+            <button type="submit" class="btn btn-secondary">Add Car</button>
           </form>
           
-          <!-- Racer List -->
-          <div style="max-height: 200px; overflow-y: auto;">
-            <ul id="racer-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="max-height: 250px; overflow-y: auto; padding-right: 0.25rem;">
+            <ul id="car-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
               <!-- Dynamically populated -->
             </ul>
           </div>
