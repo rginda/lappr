@@ -415,7 +415,7 @@ function bindEvents() {
       selectedDriverId = null;
       renderDriverList();
       renderCarList();
-      reinitSessionState();
+      refreshActiveRacers();
       switchView('view-session');
     }
   });
@@ -467,7 +467,7 @@ function bindEvents() {
       deleteCar(selectedCarId);
       selectedCarId = null;
       renderCarList();
-      reinitSessionState();
+      refreshActiveRacers();
       switchView('view-session');
     }
   });
@@ -917,7 +917,7 @@ function handleAddCar(e) {
   
   // Hot-reload profile in the active timing engine
   assignUnregisteredRacer(transponder, name, color, 'Mini-Z');
-  reinitSessionState();
+  refreshActiveRacers();
   switchView('view-session');
 }
 
