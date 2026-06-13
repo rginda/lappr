@@ -364,33 +364,27 @@
               Customize the text used for text-to-speech. Use <code>{driver}</code>, <code>{car}</code>, and <code>{time}</code> as placeholders.
             </p>
             
-            <div style="display: grid; gap: 1rem; max-width: 600px; margin-bottom: 2rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-best-ever">Driver Best Lap Ever</label>
-                <input type="text" id="setting-speech-best-ever" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-car-record">Overall Car Record</label>
-                <input type="text" id="setting-speech-car-record" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-driver-car-pr">Driver Car P.R.</label>
-                <input type="text" id="setting-speech-driver-car-pr" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-session-fastest">Session Fastest</label>
-                <input type="text" id="setting-speech-session-fastest" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-personal-best">Session Personal Best</label>
-                <input type="text" id="setting-speech-personal-best" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-normal">Normal Lap</label>
-                <input type="text" id="setting-speech-normal" style="width: 100%;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="setting-speech-consistent">Consistency Streak</label>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; margin-bottom: 2rem; align-items: center;">
+              <label for="setting-speech-best-ever" style="margin: 0; text-align: left;">Driver Best Lap Ever</label>
+              <input type="text" id="setting-speech-best-ever" style="width: 100%;">
+              
+              <label for="setting-speech-car-record" style="margin: 0; text-align: left;">Overall Car Record</label>
+              <input type="text" id="setting-speech-car-record" style="width: 100%;">
+              
+              <label for="setting-speech-driver-car-pr" style="margin: 0; text-align: left;">Driver Car P.R.</label>
+              <input type="text" id="setting-speech-driver-car-pr" style="width: 100%;">
+              
+              <label for="setting-speech-session-fastest" style="margin: 0; text-align: left;">Session Fastest</label>
+              <input type="text" id="setting-speech-session-fastest" style="width: 100%;">
+              
+              <label for="setting-speech-personal-best" style="margin: 0; text-align: left;">Session Personal Best</label>
+              <input type="text" id="setting-speech-personal-best" style="width: 100%;">
+              
+              <label for="setting-speech-normal" style="margin: 0; text-align: left;">Normal Lap</label>
+              <input type="text" id="setting-speech-normal" style="width: 100%;">
+              
+              <label for="setting-speech-consistent" style="margin: 0; text-align: left; align-self: flex-start; padding-top: 0.5rem;">Consistency Streak</label>
+              <div>
                 <input type="text" id="setting-speech-consistent" style="width: 100%;">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Use <code>{streak}</code> for the number of laps.</div>
               </div>
