@@ -4,7 +4,7 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getDrivers, getCars, saveSession, logLap, assignHistoricalLaps } from './database.js';
+import { getDrivers, getCars, saveSession, logLap, assignHistoricalLaps, getSettings } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
@@ -312,24 +312,36 @@ function recalculateRacerStats(racer) {
  */
 function announceLap(racer, lap, dbResult) {
   const formattedTime = lap.lapTime.toFixed(2);
-  let announcement;
+  let announcement = "";
   
   const isCarRecord = dbResult?.carResult?.isPR;
   const isDriverBestEver = dbResult?.driverResult?.isPR;
   const isDriverCarPR = dbResult?.driverResult?.isDriverCarPR;
+  
+  const settings = getSettings();
+  const ann = settings.announcements || {};
+  
+  // Helper to replace tokens
+  const formatMsg = (template) => {
+    if (!template) return '';
+    return template
+      .replace(/{driver}/g, racer.name)
+      .replace(/{car}/g, racer.carName)
+      .replace(/{time}/g, formattedTime);
+  };
 
   if (isDriverBestEver) {
-    announcement = `${racer.name} best lap ever! ${formattedTime}.`;
+    announcement = formatMsg(ann.driverBestEver);
   } else if (isCarRecord) {
-    announcement = `${racer.carName} record! ${formattedTime}.`;
+    announcement = formatMsg(ann.carRecord);
   } else if (isDriverCarPR) {
-    announcement = `${racer.name} car p.r.! ${formattedTime}.`;
+    announcement = formatMsg(ann.driverCarPR);
   } else if (lap.isOverallBest) {
-    announcement = `Session fastest lap! ${racer.name}, ${formattedTime} seconds.`;
+    announcement = formatMsg(ann.sessionFastest);
   } else if (lap.isPersonalBest) {
-    announcement = `Personal best for ${racer.name}, ${formattedTime} seconds.`;
+    announcement = formatMsg(ann.personalBest);
   } else {
-    announcement = `${racer.name}, ${formattedTime}.`;
+    announcement = formatMsg(ann.normal);
   }
 
   // Check 3-consecutive fast lap streak
@@ -339,7 +351,20 @@ function announceLap(racer, lap, dbResult) {
     const maxDiff = Math.max(...last3.map(l => l.lapTime)) - Math.min(...last3.map(l => l.lapTime));
     // If the difference between fastest and slowest of the last 3 laps is < 0.1s
     if (maxDiff < 0.1 && lap.lapTime < racer.averageLap) {
-      announcement += ` Consistent streak!`;
+      if (ann.consistent) {
+        announcement += ` ${formatMsg(ann.consistent)}`;
+      }
+    }
+  }
+  
+  // Append Driver Custom PR Callout if it is a notable PR
+  if (isDriverBestEver || isCarRecord || isDriverCarPR) {
+    const driverId = sessionState.assignments[racer.transponder];
+    if (driverId) {
+      const driver = getDrivers().find(d => d.id === driverId);
+      if (driver && driver.customCallout) {
+        announcement += ` ${driver.customCallout}`;
+      }
     }
   }
 

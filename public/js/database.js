@@ -266,12 +266,33 @@ export function saveSettings(settings) {
  * @returns {Object} Settings object.
  */
 export function getSettings() {
-  const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-  if (!data) {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
-    return DEFAULT_SETTINGS;
+  const defaultSettings = {
+    speechEnabled: true,
+    speechVolume: 0.8,
+    announcements: {
+      driverBestEver: '{driver} best lap ever! {time}',
+      carRecord: '{car} record! {time}',
+      driverCarPR: '{driver} car p.r.! {time}',
+      sessionFastest: 'Session fastest lap! {driver}, {time} seconds',
+      personalBest: 'Personal best for {driver}, {time} seconds',
+      normal: '{driver}, {time}',
+      consistent: 'Consistent streak!'
+    }
+  };
+  
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (!data) return defaultSettings;
+    const parsed = JSON.parse(data);
+    // Merge deeply
+    return {
+      ...defaultSettings,
+      ...parsed,
+      announcements: { ...defaultSettings.announcements, ...(parsed.announcements || {}) }
+    };
+  } catch (e) {
+    return defaultSettings;
   }
-  return JSON.parse(data);
 }
 
 /**

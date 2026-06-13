@@ -69,6 +69,7 @@ const notificationsContainer = document.getElementById('notifications');
 
 // Driver Details
 const editDriverName = document.getElementById('edit-driver-name');
+const editDriverCallout = document.getElementById('edit-driver-callout');
 const btnSaveDriverName = document.getElementById('btn-save-driver-name');
 const driverPrsBody = document.getElementById('driver-prs-body');
 const driverLapsBody = document.getElementById('driver-laps-body');
@@ -207,11 +208,13 @@ function bindEvents() {
   btnSaveDriverName.addEventListener('click', () => {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
+      const newCallout = editDriverCallout.value.trim();
       if (newName) {
         const drivers = getDrivers();
         const driverIndex = drivers.findIndex(d => d.id === selectedDriverId);
         if (driverIndex !== -1) {
           drivers[driverIndex].name = newName;
+          drivers[driverIndex].customCallout = newCallout;
           saveDriver(drivers[driverIndex]);
           renderDriverList();
           
@@ -286,20 +289,61 @@ function bindEvents() {
 
   // Unregistered transponder callback hooks
   onUnregisteredAlert(displayUnregisteredNotification);
+  
+  // Settings Events
+  document.getElementById('btn-save-settings').addEventListener('click', () => {
+    const settings = getSettings();
+    settings.announcements = {
+      driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
+      carRecord: document.getElementById('setting-speech-car-record').value.trim(),
+      driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
+      sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
+      personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
+      normal: document.getElementById('setting-speech-normal').value.trim(),
+      consistent: document.getElementById('setting-speech-consistent').value.trim()
+    };
+    saveSettings(settings);
+    
+    const notif = document.createElement('div');
+    notif.className = 'status-indicator connected';
+    notif.textContent = 'Settings Saved';
+    notif.style.position = 'fixed';
+    notif.style.bottom = '20px';
+    notif.style.right = '20px';
+    notif.style.zIndex = '9999';
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 2000);
+  });
 }
 
-function switchView(targetId) {
+function switchView(viewId) {
   const viewPanels = document.querySelectorAll('.view-panel');
   viewPanels.forEach(p => p.classList.remove('active'));
-  document.getElementById(targetId).classList.add('active');
+  document.getElementById(viewId).classList.add('active');
   
   // Reset active state on nav elements
   document.querySelectorAll('.nav-tab[data-target]').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tree-list li').forEach(t => t.classList.remove('active'));
   
   // Add active state to matching nav tab if it's a top level
-  const tab = document.querySelector(`.nav-tab[data-target="${targetId}"]`);
+  const tab = document.querySelector(`.nav-tab[data-target="${viewId}"]`);
   if (tab) tab.classList.add('active');
+  
+  if (viewId === 'view-settings') {
+    populateSettingsView();
+  }
+}
+
+function populateSettingsView() {
+  const settings = getSettings();
+  const ann = settings.announcements || {};
+  document.getElementById('setting-speech-best-ever').value = ann.driverBestEver || '';
+  document.getElementById('setting-speech-car-record').value = ann.carRecord || '';
+  document.getElementById('setting-speech-driver-car-pr').value = ann.driverCarPR || '';
+  document.getElementById('setting-speech-session-fastest').value = ann.sessionFastest || '';
+  document.getElementById('setting-speech-personal-best').value = ann.personalBest || '';
+  document.getElementById('setting-speech-normal').value = ann.normal || '';
+  document.getElementById('setting-speech-consistent').value = ann.consistent || '';
 }
 
 /**
@@ -757,6 +801,7 @@ function renderDriverDetails(driverId) {
   
   selectedDriverId = driver.id;
   editDriverName.value = driver.name;
+  editDriverCallout.value = driver.customCallout || '';
   
   deleteDriverConfirm.value = '';
   btnDeleteDriver.disabled = true;
