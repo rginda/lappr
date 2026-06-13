@@ -605,7 +605,7 @@ export function refreshActiveRacers() {
  * Backs up the current session assignments to localStorage.
  */
 export function backupSessionState() {
-  if (sessionState.status === 'running' || Object.keys(sessionState.assignments).length > 0) {
+  if (sessionState.status === 'active' || Object.keys(sessionState.assignments).length > 0) {
     localStorage.setItem(
       'lappr-session-backup',
       JSON.stringify({
@@ -642,7 +642,7 @@ export function recoverSessionState() {
     }
 
     // We only recovered assignments. Do not auto-start the timer, let user do that.
-    return { recovered: true, wasRunning: backup.status === 'running' };
+    return { recovered: true, wasRunning: backup.status === 'active' };
   } catch (err) {
     console.error('Recovery failed:', err);
     return { recovered: false, wasRunning: false };
