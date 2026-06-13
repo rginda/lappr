@@ -827,6 +827,46 @@ function renderDriverDetails(driverId) {
   deleteDriverConfirm.value = '';
   btnDeleteDriver.disabled = true;
   
+  // Render Per-Car Stats
+  const driverPerCarBody = document.getElementById('driver-per-car-body');
+  driverPerCarBody.innerHTML = '';
+  
+  const laps = driver.laps || [];
+  if (laps.length === 0) {
+    driverPerCarBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
+  } else {
+    const carStats = {};
+    laps.forEach(lap => {
+      if (!carStats[lap.carId]) {
+        carStats[lap.carId] = {
+          carName: lap.car,
+          lapsRun: 0,
+          totalTime: 0,
+          pr: lap.lapTime
+        };
+      }
+      const stat = carStats[lap.carId];
+      stat.lapsRun++;
+      stat.totalTime += lap.lapTime;
+      if (lap.lapTime < stat.pr) stat.pr = lap.lapTime;
+    });
+    
+    // Convert to array and sort by most laps run
+    const carStatsArray = Object.values(carStats).sort((a, b) => b.lapsRun - a.lapsRun);
+    
+    carStatsArray.forEach(stat => {
+      const avg = stat.totalTime / stat.lapsRun;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align: left; font-weight: 500;">${stat.carName}</td>
+        <td class="mono" style="color:var(--color-success); font-weight:bold; text-align: center;">${stat.pr.toFixed(3)}</td>
+        <td style="text-align: center;">${stat.lapsRun}</td>
+        <td class="mono" style="text-align: center;">${avg.toFixed(3)}</td>
+      `;
+      driverPerCarBody.appendChild(tr);
+    });
+  }
+  
   // Render PRs
   driverPrsBody.innerHTML = '';
   const prs = driver.prs || [];
