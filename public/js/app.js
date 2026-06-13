@@ -34,8 +34,6 @@ import {
 
 import { configureSpeech } from './speech.js';
 
-// DOM Elements
-const btnConnect = document.getElementById('btn-connect');
 const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
@@ -112,7 +110,7 @@ function loadSettingsUI() {
  */
 function bindEvents() {
   // Connection Events
-  btnConnect.addEventListener('click', handleConnectClick);
+  connectionBadge.addEventListener('click', handleConnectClick);
   
   // Session Settings Events
   minLapTime.addEventListener('change', () => {
@@ -187,7 +185,7 @@ function saveActiveSettings() {
  * Hardware Connection Click.
  */
 async function handleConnectClick(e) {
-  if (btnConnect.textContent === 'Disconnect') {
+  if (connectionBadge.classList.contains('connected')) {
     await disconnect(onStatusChange);
     return;
   }
@@ -202,8 +200,6 @@ async function handleConnectClick(e) {
     await connectHID(baud, onLineReceived, onStatusChange);
   } catch (err) {
     alert(`WebHID connection failed: ${err.message}`);
-    btnConnect.disabled = false;
-    btnConnect.textContent = 'Connect Lap Counter';
   }
 }
 
@@ -214,20 +210,14 @@ async function handleConnectClick(e) {
 function onStatusChange(status) {
   if (status.connected) {
     connectionBadge.className = 'status-indicator connected';
+    connectionBadge.title = 'Click to Disconnect';
     connectionStatusText.textContent = status.name;
     btnSessionStart.disabled = false;
-    
-    btnConnect.textContent = 'Disconnect';
-    btnConnect.className = 'btn btn-danger';
-    btnConnect.disabled = false;
   } else {
     connectionBadge.className = 'status-indicator disconnected';
-    connectionStatusText.textContent = 'Hardware Offline';
+    connectionBadge.title = 'Click to Connect';
+    connectionStatusText.textContent = 'CONNECT TO HARDWARE';
     btnSessionStart.disabled = true;
-    
-    btnConnect.textContent = 'Connect Lap Counter';
-    btnConnect.className = 'btn btn-primary';
-    btnConnect.disabled = false;
   }
 }
 

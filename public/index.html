@@ -28,9 +28,9 @@
       </div>
       
       <div class="header-controls">
-        <div id="connection-badge" class="status-indicator disconnected">
+        <div id="connection-badge" class="status-indicator disconnected" style="cursor: pointer;" title="Click to Connect">
           <span class="status-dot"></span>
-          <span id="connection-status-text">Hardware Offline</span>
+          <span id="connection-status-text">CONNECT TO HARDWARE</span>
         </div>
         <button id="btn-hud" class="btn btn-secondary" title="Toggle pit lane big screen mode">
           HUD Mode
@@ -43,16 +43,6 @@
       
       <!-- Left Sidebar: Controls & Configuration -->
       <aside class="sidebar">
-        
-        <!-- Hardware Setup Card -->
-        <section class="card glass-panel" id="hardware-panel">
-          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Decoder Setup</h2>
-          
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-            <button id="btn-connect" class="btn btn-primary" title="Shift-Click for Mock Simulator">Connect Lap Counter</button>
-            <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Shift-Click for Mock Simulator</p>
-          </div>
-        </section>
         
         <!-- Session Settings Card -->
         <section class="card glass-panel" id="session-panel">
