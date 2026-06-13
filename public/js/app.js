@@ -895,7 +895,6 @@ function renderDriverDetails(driverId) {
   
   // Render Laps
   driverLapsBody.innerHTML = '';
-  const laps = driver.laps || [];
   if (laps.length === 0) {
     driverLapsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
   } else {
