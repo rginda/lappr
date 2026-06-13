@@ -341,13 +341,13 @@ export function getSettings() {
       carRecord: '{car} record {time}',
       driverCarPR: '{driver} {car} PR {time}',
       sessionFastest: 'Session fast lap {driver}, {time}',
-      personalBest: 'Personal best for {driver}, {time}',
+      driverSessionBest: '{driver} session best, {time}',
       normal: '{driver}, {time}',
       consistent: '{streak} lap streak'
     },
     streak: {
       minLaps: 3,
-      varianceThreshold: 0.1,
+      varianceThreshold: 10,
       mustBeFast: true
     }
   };

@@ -938,13 +938,13 @@
                   ▶️
                 </button>
 
-                <label for="setting-speech-personal-best" style="margin: 0; text-align: left"
-                  >Session Personal Best</label
+                <label for="setting-speech-driver-session-best" style="margin: 0; text-align: left"
+                  >Driver Session Best</label
                 >
-                <input type="text" id="setting-speech-personal-best" style="width: 100%" />
+                <input type="text" id="setting-speech-driver-session-best" style="width: 100%" />
                 <button
-                  class="btn preview-btn"
-                  data-target="setting-speech-personal-best"
+                  class="btn btn-secondary btn-preview-speech"
+                  data-target="setting-speech-driver-session-best"
                   style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
                   title="Preview"
                 >
@@ -1060,13 +1060,14 @@
                 <input type="number" id="setting-streak-min-laps" min="2" style="width: 120px" />
 
                 <label for="setting-streak-variance" style="margin: 0; text-align: left"
-                  >Variance Threshold (Seconds)</label
+                  >Variance Threshold (%)</label
                 >
                 <input
                   type="number"
                   id="setting-streak-variance"
-                  step="0.01"
-                  min="0"
+                  step="1"
+                  min="1"
+                  max="100"
                   style="width: 120px"
                 />
 

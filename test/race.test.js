@@ -26,7 +26,7 @@ describe('Race Engine', () => {
     // Setup default mock returns
     db.getSettings.mockReturnValue({ minLapTime: 2.0, maxLapTime: 25.0 });
     db.logLap.mockReturnValue({
-      isPersonalBest: false,
+      isDriverSessionBest: false,
       isCarRecord: false,
       isDriverBestEver: false,
       isDriverCarPR: false
@@ -121,7 +121,7 @@ describe('Race Engine', () => {
     expect(racer.laps[0].lapTime).toBeCloseTo(5.0, 2);
   });
 
-  it('should flag session fastest and personal best correctly', () => {
+  it('should flag session fastest and driver session best correctly', () => {
     let stateRef;
     initSession({ mode: 'practice' }, ({ state }) => {
       stateRef = state;
@@ -135,17 +135,17 @@ describe('Race Engine', () => {
     processCrossing('111111', 6000);
 
     const racer = stateRef.racers['111111'];
-    expect(racer.laps[0].isPersonalBest).toBe(true);
+    expect(racer.laps[0].isDriverSessionBest).toBe(true);
     expect(racer.laps[0].isOverallBest).toBe(true);
 
     // Second lap car 1: 4.0s
     processCrossing('111111', 10000);
-    expect(racer.laps[1].isPersonalBest).toBe(true);
+    expect(racer.laps[1].isDriverSessionBest).toBe(true);
     expect(racer.laps[1].isOverallBest).toBe(true);
 
     // Third lap car 1: 6.0s (slower)
     processCrossing('111111', 16000);
-    expect(racer.laps[2].isPersonalBest).toBe(false);
+    expect(racer.laps[2].isDriverSessionBest).toBe(false);
     expect(racer.laps[2].isOverallBest).toBe(false);
   });
 
@@ -154,7 +154,7 @@ describe('Race Engine', () => {
     db.getSettings.mockReturnValue({
       minLapTime: 2.0,
       maxLapTime: 25.0,
-      streak: { minLaps: 3, varianceThreshold: 0.5, mustBeFast: false }
+      streak: { minLaps: 3, varianceThreshold: 10, mustBeFast: false }
     });
 
     let stateRef;

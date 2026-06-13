@@ -464,14 +464,14 @@ function bindEvents() {
       carRecord: document.getElementById('setting-speech-car-record').value.trim(),
       driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
       sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
-      personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
+      driverSessionBest: document.getElementById('setting-speech-driver-session-best').value.trim(),
       normal: document.getElementById('setting-speech-normal').value.trim(),
       consistent: document.getElementById('setting-speech-consistent').value.trim()
     };
     settings.streak = {
       minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
       varianceThreshold:
-        parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
+        parseFloat(document.getElementById('setting-streak-variance').value) || 10,
       mustBeFast: document.getElementById('setting-streak-fast-only').checked
     };
 
@@ -535,13 +535,13 @@ function populateSettingsView() {
   document.getElementById('setting-speech-car-record').value = ann.carRecord || '';
   document.getElementById('setting-speech-driver-car-pr').value = ann.driverCarPR || '';
   document.getElementById('setting-speech-session-fastest').value = ann.sessionFastest || '';
-  document.getElementById('setting-speech-personal-best').value = ann.personalBest || '';
+  document.getElementById('setting-speech-driver-session-best').value = ann.driverSessionBest || '';
   document.getElementById('setting-speech-normal').value = ann.normal || '';
   document.getElementById('setting-speech-consistent').value = ann.consistent || '';
 
   const streak = settings.streak || {};
   document.getElementById('setting-streak-min-laps').value = streak.minLaps || 3;
-  document.getElementById('setting-streak-variance').value = streak.varianceThreshold || 0.1;
+  document.getElementById('setting-streak-variance').value = streak.varianceThreshold || 10;
   document.getElementById('setting-streak-fast-only').checked = streak.mustBeFast !== false;
 }
 
@@ -723,7 +723,7 @@ function renderLeaderboard({ state, leaderboard }) {
       let lastLapBadgeClass = 'lap-time-badge';
       if (lastLapObj) {
         if (lastLapObj.isOverallBest) lastLapBadgeClass += ' overall-best';
-        else if (lastLapObj.isPersonalBest) lastLapBadgeClass += ' personal-best';
+        else if (lastLapObj.isDriverSessionBest) lastLapBadgeClass += ' driver-session-best';
       }
 
       // Best lap classes
@@ -732,8 +732,8 @@ function renderLeaderboard({ state, leaderboard }) {
         racer.bestLap !== Infinity &&
         racer.laps.some((l) => l.isOverallBest && l.lapTime === racer.bestLap);
       if (isOverallBestLap) bestLapBadgeClass += ' overall-best';
-      else if (racer.laps.some((l) => l.isPersonalBest && l.lapTime === racer.bestLap))
-        bestLapBadgeClass += ' personal-best';
+      else if (racer.laps.some((l) => l.isDriverSessionBest && l.lapTime === racer.bestLap))
+        bestLapBadgeClass += ' driver-session-best';
 
       const isUnknown = racer.carName === 'Unknown Car';
       const carDisplay = isUnknown

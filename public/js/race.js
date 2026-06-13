@@ -260,10 +260,10 @@ export function processCrossing(transponderId, ticks) {
 
   // Record the lap
   const lapNumber = racer.laps.length + 1;
-  const isPersonalBest = lapTimeSeconds < racer.bestLap;
+  const isDriverSessionBest = lapTimeSeconds < racer.bestLap;
   let isOverallBest = false;
 
-  if (isPersonalBest) {
+  if (isDriverSessionBest) {
     racer.bestLap = lapTimeSeconds;
   }
 
@@ -276,7 +276,7 @@ export function processCrossing(transponderId, ticks) {
     lapNumber,
     lapTime: lapTimeSeconds,
     gap: '',
-    isPersonalBest,
+    isDriverSessionBest,
     isOverallBest,
     timestamp: now,
     driverId: assignedDriverId
@@ -360,8 +360,8 @@ function announceLap(racer, lap, dbResult) {
     announcement = formatMsg(ann.driverCarPR);
   } else if (lap.isOverallBest) {
     announcement = formatMsg(ann.sessionFastest);
-  } else if (lap.isPersonalBest) {
-    announcement = formatMsg(ann.personalBest);
+  } else if (lap.isDriverSessionBest) {
+    announcement = formatMsg(ann.driverSessionBest);
   } else {
     announcement = formatMsg(ann.normal);
   }
@@ -369,7 +369,7 @@ function announceLap(racer, lap, dbResult) {
   // Calculate Ongoing Consistency Streak
   const streakSettings = settings.streak || {
     minLaps: 3,
-    varianceThreshold: 0.1,
+    varianceThreshold: 10,
     mustBeFast: true
   };
   const totalLaps = racer.laps.length;
@@ -379,13 +379,15 @@ function announceLap(racer, lap, dbResult) {
     let minLap = lap.lapTime;
     let maxLap = lap.lapTime;
 
+    const allowedVariance = lap.lapTime * (streakSettings.varianceThreshold / 100);
+
     // Scan backward to find consecutive laps within the variance threshold
     for (let i = totalLaps - 2; i >= 0; i--) {
       const prevLap = racer.laps[i].lapTime;
       const newMin = Math.min(minLap, prevLap);
       const newMax = Math.max(maxLap, prevLap);
 
-      if (newMax - newMin <= streakSettings.varianceThreshold) {
+      if (newMax - newMin <= allowedVariance) {
         streakLength++;
         minLap = newMin;
         maxLap = newMax;
