@@ -348,6 +348,13 @@
                 </div>
               </div>
 
+              <div style="margin-bottom: 2rem">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Lap Time Distribution</h3>
+                <div style="position: relative; height: 300px; width: 100%">
+                  <canvas id="driver-overall-chart"></canvas>
+                </div>
+              </div>
+
               <div style="display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem">
                 <div>
                   <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Last 10 Personal Records</h3>
@@ -1110,8 +1117,8 @@
     </footer>
 
     <!-- Application Modules -->
-    <!-- Audio Settings Modal -->
-
-    <script type="module" src="./js/app.js"></script>
+    <!-- Application Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

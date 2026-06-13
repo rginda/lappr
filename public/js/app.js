@@ -79,6 +79,7 @@ const driverLapsBody = document.getElementById('driver-laps-body');
 const deleteDriverConfirm = document.getElementById('delete-driver-confirm');
 const btnDeleteDriver = document.getElementById('btn-delete-driver');
 let selectedDriverId = null;
+let activeDriverChart = null;
 
 // DOM Elements: Car Details Form
 const editCarName = document.getElementById('edit-car-name');
@@ -1068,6 +1069,9 @@ function renderDriverDetails(driverId) {
     });
   }
 
+  // Render the chart
+  renderDriverLapChart(driver);
+
   // Render PRs
   driverPrsBody.innerHTML = '';
   const prs = driver.prs || [];
@@ -1117,6 +1121,163 @@ function renderDriverDetails(driverId) {
       driverLapsBody.appendChild(tr);
     });
   }
+}
+
+/**
+ * Render a combined lap time distribution chart for the driver
+ */
+function renderDriverLapChart(driver) {
+  if (activeDriverChart) {
+    activeDriverChart.destroy();
+    activeDriverChart = null;
+  }
+
+  const canvas = document.getElementById('driver-overall-chart');
+  if (!canvas) return;
+
+  const laps = driver.laps || [];
+  if (laps.length === 0) {
+    return;
+  }
+
+  // Calculate median to trim long tail outliers
+  const sortedTimes = laps.map((l) => l.lapTime).sort((a, b) => a - b);
+  const medianTime = sortedTimes[Math.floor(sortedTimes.length / 2)];
+  const maxAllowedTime = Math.max(medianTime * 1.5, medianTime + 5);
+
+  // Find global min and max
+  let minTime = Infinity;
+  let maxTime = -Infinity;
+  laps.forEach((lap) => {
+    if (lap.lapTime < minTime) minTime = lap.lapTime;
+    if (lap.lapTime > maxTime && lap.lapTime <= maxAllowedTime) {
+      maxTime = lap.lapTime;
+    }
+  });
+
+  if (maxTime === -Infinity) maxTime = sortedTimes[sortedTimes.length - 1];
+
+  // Calculate sensible bucket size based on the spread
+  const spread = maxTime - minTime;
+  let bucketSize = 0.5;
+  if (spread > 20) bucketSize = 1.0;
+  if (spread > 50) bucketSize = 5.0;
+  if (spread <= 5) bucketSize = 0.2;
+
+  // Round boundaries
+  minTime = Math.floor(minTime / bucketSize) * bucketSize;
+  maxTime = Math.ceil(maxTime / bucketSize) * bucketSize;
+
+  const labels = [];
+  for (let t = minTime; t <= maxTime + bucketSize; t += bucketSize) {
+    labels.push(t.toFixed(1) + 's');
+  }
+
+  // Helper to bucket laps
+  const getFrequencies = (lapList) => {
+    const freqs = new Array(labels.length).fill(0);
+    lapList.forEach((lap) => {
+      const bucketIndex = Math.floor((lap.lapTime - minTime) / bucketSize);
+      if (bucketIndex >= 0 && bucketIndex < freqs.length) {
+        freqs[bucketIndex]++;
+      } else if (bucketIndex >= freqs.length) {
+        freqs[freqs.length - 1]++;
+      }
+    });
+    return freqs;
+  };
+
+  const datasets = [];
+
+  // Overall dataset
+  datasets.push({
+    label: 'Overall',
+    data: getFrequencies(laps),
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 2,
+    borderDash: [5, 5],
+    fill: true,
+    tension: 0.4
+  });
+
+  // Per-car datasets
+  const carGroups = {};
+  laps.forEach((lap) => {
+    if (!carGroups[lap.carTransponder]) {
+      carGroups[lap.carTransponder] = {
+        name: lap.car,
+        laps: []
+      };
+    }
+    carGroups[lap.carTransponder].laps.push(lap);
+  });
+
+  const cars = getCars();
+
+  for (const transponder in carGroups) {
+    // if there's only 1 car, don't show an extra overlapping dataset
+    if (Object.keys(carGroups).length === 1) break;
+
+    const group = carGroups[transponder];
+    const carObj = cars.find((c) => c.transponder === transponder);
+    
+    let hexColor = '#888888'; // Fallback gray
+    if (carObj && carObj.color) {
+      hexColor = carObj.color;
+    }
+
+    // Convert hex to rgba for background
+    let r = 136, g = 136, b = 136;
+    if (hexColor.startsWith('#') && hexColor.length === 7) {
+      r = parseInt(hexColor.slice(1, 3), 16);
+      g = parseInt(hexColor.slice(3, 5), 16);
+      b = parseInt(hexColor.slice(5, 7), 16);
+    }
+    const bgStr = `rgba(${r}, ${g}, ${b}, 0.2)`;
+
+    datasets.push({
+      label: group.name,
+      data: getFrequencies(group.laps),
+      borderColor: hexColor,
+      backgroundColor: bgStr,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    });
+  }
+
+  // Create chart
+  activeDriverChart = new window.Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          title: { display: true, text: 'Number of Laps', color: '#94a3b8' }
+        },
+        x: {
+          ticks: { color: '#94a3b8' },
+          grid: { display: false },
+          title: { display: true, text: 'Lap Time', color: '#94a3b8' }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: { color: '#e2e8f0' }
+        }
+      }
+    }
+  });
 }
 
 /**
