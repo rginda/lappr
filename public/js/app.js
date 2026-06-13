@@ -207,11 +207,21 @@ function bindEvents() {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
       if (newName) {
-        saveDriver({ id: selectedDriverId, name: newName });
-        renderDriverList();
-        renderCarList(); // Update dropdowns
-        reinitSessionState(); // Update leaderboard names
-        switchView('view-session'); // Go back to session
+        const drivers = getDrivers();
+        const driverIndex = drivers.findIndex(d => d.id === selectedDriverId);
+        if (driverIndex !== -1) {
+          drivers[driverIndex].name = newName;
+          saveDriver(drivers[driverIndex]);
+          renderDriverList();
+          
+          // Update active session racers dynamically without resetting
+          Object.entries(sessionState.assignments).forEach(([tId, dId]) => {
+            if (dId === selectedDriverId && sessionState.racers[tId]) {
+              sessionState.racers[tId].name = newName;
+            }
+          });
+          renderLeaderboard({ state: sessionState, leaderboard });
+        }
       }
     }
   });
@@ -238,24 +248,30 @@ function bindEvents() {
 
   // Car Details Events
   btnSaveCar.addEventListener('click', () => {
-  if (!selectedCarId) return;
-  const cars = getCars();
-  const carIndex = cars.findIndex(c => c.transponder === selectedCarId);
-  if (carIndex === -1) return;
-  
-  const newName = editCarName.value.trim();
-  const newChassis = editCarChassis.value.trim();
-  const newColor = editCarColor.value;
-  
-  if (newName) {
-    cars[carIndex].name = newName;
-    cars[carIndex].chassis = newChassis;
-    cars[carIndex].color = newColor;
-    saveCar(cars[carIndex]);
-    renderCarList();
-    renderLeaderboard({ state: sessionState, leaderboard }); // update if in session
-  }
-});
+    if (!selectedCarId) return;
+    const cars = getCars();
+    const carIndex = cars.findIndex(c => c.transponder === selectedCarId);
+    if (carIndex === -1) return;
+    
+    const newName = editCarName.value.trim();
+    const newChassis = editCarChassis.value.trim();
+    const newColor = editCarColor.value;
+    
+    if (newName) {
+      cars[carIndex].name = newName;
+      cars[carIndex].chassis = newChassis;
+      cars[carIndex].color = newColor;
+      saveCar(cars[carIndex]);
+      renderCarList();
+      
+      // Update active session racers dynamically
+      if (sessionState.racers[selectedCarId]) {
+        sessionState.racers[selectedCarId].carName = newName;
+        sessionState.racers[selectedCarId].color = newColor;
+      }
+      renderLeaderboard({ state: sessionState, leaderboard }); // update if in session
+    }
+  });
 
   deleteCarConfirm.addEventListener('input', (e) => {
     const car = getCars().find(c => c.transponder === selectedCarId);
