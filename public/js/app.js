@@ -9,11 +9,14 @@ import {
   saveDriver, 
   deleteDriver, 
   getCars,
-  saveCar,
+  updateCar,
   deleteCar,
+  addLap,
+  deleteLap,
+  deleteDriverCarStats,
+  assignLapsToDriver,
   getSettings, 
-  saveSettings,
-  deleteLap
+  saveSettings
 } from './database.js';
 
 import { 
@@ -862,7 +865,14 @@ function renderDriverDetails(driverId) {
         <td class="mono" style="color:var(--color-success); font-weight:bold; text-align: center;">${stat.pr.toFixed(3)}</td>
         <td style="text-align: center;">${stat.lapsRun}</td>
         <td class="mono" style="text-align: center;">${avg.toFixed(3)}</td>
+        <td><button class="btn delete-car-stats-btn" data-carid="${stat.carId}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
+      tr.querySelector('.delete-car-stats-btn').addEventListener('click', () => {
+        if (window.confirm(`Delete all laps for ${stat.carName} by this driver? This action cannot be undone.`)) {
+          deleteDriverCarStats(driverId, stat.carId);
+          renderDriverDetails(driverId);
+        }
+      });
       driverPerCarBody.appendChild(tr);
     });
   }

@@ -212,6 +212,51 @@ export function deleteLap(lapId) {
 }
 
 /**
+ * Delete all laps for a specific driver and car combination.
+ */
+export function deleteDriverCarStats(driverId, carId) {
+  const drivers = getDrivers();
+  const cars = getCars();
+  let changed = false;
+  
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver || !driver.laps) return;
+  
+  // Find all lap IDs for this car
+  const lapIdsToDelete = driver.laps.filter(l => l.carId === carId).map(l => l.id);
+  if (lapIdsToDelete.length === 0) return;
+  
+  // Clean Drivers
+  for (const d of drivers) {
+    if (d.laps) {
+      const originalLen = d.laps.length;
+      d.laps = d.laps.filter(l => !lapIdsToDelete.includes(l.id));
+      if (d.laps.length !== originalLen) {
+        changed = true;
+        d.prs = recalculatePRs(d.laps);
+      }
+    }
+  }
+  
+  // Clean Cars
+  for (const c of cars) {
+    if (c.laps) {
+      const originalLen = c.laps.length;
+      c.laps = c.laps.filter(l => !lapIdsToDelete.includes(l.id));
+      if (c.laps.length !== originalLen) {
+        changed = true;
+        c.prs = recalculatePRs(c.laps);
+      }
+    }
+  }
+  
+  if (changed) {
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
+}
+
+/**
  * Get all registered cars.
  */
 export function getCars() {
