@@ -190,7 +190,7 @@ async function handleConnectClick(e) {
     return;
   }
   
-  if (e.shiftKey) {
+  if (e && e.shiftKey) {
     toggleSimulator(true, onLineReceived, onStatusChange);
     return;
   }
@@ -212,12 +212,10 @@ function onStatusChange(status) {
     connectionBadge.className = 'status-indicator connected';
     connectionBadge.title = 'Click to Disconnect';
     connectionStatusText.textContent = status.name;
-    btnSessionStart.disabled = false;
   } else {
     connectionBadge.className = 'status-indicator disconnected';
     connectionBadge.title = 'Click to Connect';
     connectionStatusText.textContent = 'CONNECT TO HARDWARE';
-    btnSessionStart.disabled = true;
   }
 }
 
@@ -247,10 +245,16 @@ function onLineReceived(line) {
 /**
  * Session Start/Stop Toggle.
  */
-function handleSessionStartToggle() {
+async function handleSessionStartToggle(e) {
   if (currentSessionStatus === 'active') {
     stopSession();
   } else {
+    if (!connectionBadge.classList.contains('connected')) {
+      await handleConnectClick(e);
+      if (!connectionBadge.classList.contains('connected')) {
+        return; // Abort starting session if connection failed
+      }
+    }
     startSession();
   }
 }
