@@ -200,7 +200,9 @@ export async function disconnect(onStatusChange) {
       const disableReport = new Uint8Array([0x00]);
       await hidDevice.sendFeatureReport(0x41, disableReport);
       await hidDevice.close();
-    } catch (e) {}
+    } catch (_e) {
+      // Ignore close errors
+    }
     hidDevice = null;
   }
 

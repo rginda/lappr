@@ -309,7 +309,7 @@ function recalculateRacerStats(racer) {
  */
 function announceLap(racer, lap) {
   const formattedTime = lap.lapTime.toFixed(2);
-  let announcement = '';
+  let announcement;
 
   if (lap.isOverallBest) {
     announcement = `New overall fastest lap! ${racer.name}, ${formattedTime} seconds.`;
@@ -419,6 +419,6 @@ function triggerUnregisteredAlert(transponderId) {
 /**
  * Dynamically assign a transponder to a newly registered profile.
  */
-export function assignUnregisteredRacer(transponderId, name, color, vehicle) {
+export function assignUnregisteredRacer(_transponderId, _name, _color, _vehicle) {
   // Deprecated: reinitSessionState will handle the reload
 }

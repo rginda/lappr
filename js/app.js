@@ -32,7 +32,7 @@ import {
   assignUnregisteredRacer
 } from './race.js';
 
-import { configureSpeech, speak } from './speech.js';
+import { configureSpeech } from './speech.js';
 
 // DOM Elements
 const btnConnect = document.getElementById('btn-connect');
@@ -104,7 +104,7 @@ function loadSettingsUI() {
     volume: activeSettings.speechVolume
   });
 
-  handleSessionModeChange();
+
 }
 
 /**
@@ -269,7 +269,7 @@ function handleSessionStartToggle() {
  * Session Reset.
  */
 function handleSessionReset() {
-  if (confirm('Are you sure you want to clear all lap times and reset the clock?')) {
+  if (window.confirm('Are you sure you want to clear all lap times and reset the clock?')) {
     clearSession();
   }
 }
@@ -316,7 +316,7 @@ function renderLeaderboard({ state, leaderboard }) {
   // Build rows
   leaderboard.forEach((racer, index) => {
     const position = index + 1;
-    const isFirst = position === 1;
+
     const isLeader = racer.gap === 'Leader';
     
     const row = document.createElement('tr');
@@ -462,7 +462,7 @@ function renderDriverList() {
     `;
     
     li.querySelector('.delete-btn').addEventListener('click', (e) => {
-      if (confirm('Delete this driver?')) {
+      if (window.confirm('Delete this driver?')) {
         deleteDriver(e.target.getAttribute('data-id'));
         renderDriverList();
         renderCarList(); // Update dropdowns
@@ -525,7 +525,7 @@ function renderCarList() {
     // Bind delete click
     li.querySelector('.delete-btn').addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
-      if (confirm('Delete this car?')) {
+      if (window.confirm('Delete this car?')) {
         deleteCar(id);
         renderCarList();
         reinitSessionState();
@@ -571,7 +571,7 @@ function displayUnregisteredNotification(transponderId) {
  * Toggle Full-Screen Pit Lane HUD view.
  */
 function toggleHUDMode() {
-  const appRoot = document.getElementById('app-root');
+
   const mainGrid = document.querySelector('.app-grid');
   const sidebar = document.querySelector('.sidebar');
   
@@ -586,7 +586,7 @@ function toggleHUDMode() {
     btnHud.textContent = 'HUD Mode';
     btnHud.className = 'btn btn-secondary';
     sidebar.style.display = 'flex';
-    handleSessionModeChange(); // Restore columns layout
+
     mainGrid.style.gridTemplateColumns = '350px 1fr';
   }
 }

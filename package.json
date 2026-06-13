@@ -1,0 +1,31 @@
+{
+  "name": "lappr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,html,css}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rginda/lappr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rginda/lappr/issues"
+  },
+  "homepage": "https://github.com/rginda/lappr#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.8.4",
+    "vitest": "^4.1.8"
+  }
+}
