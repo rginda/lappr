@@ -231,7 +231,7 @@ export function deleteLap(lapId) {
 /**
  * Delete all laps for a specific driver and car combination.
  */
-export function deleteDriverCarStats(driverId, carId) {
+export function deleteDriverCarStats(driverId, carTransponder) {
   const drivers = getDrivers();
   const cars = getCars();
   let changed = false;
@@ -240,7 +240,9 @@ export function deleteDriverCarStats(driverId, carId) {
   if (!driver || !driver.laps) return;
 
   // Find all lap IDs for this car
-  const lapIdsToDelete = driver.laps.filter((l) => l.carId === carId).map((l) => l.id);
+  const lapIdsToDelete = driver.laps
+    .filter((l) => l.carTransponder === carTransponder)
+    .map((l) => l.id);
   if (lapIdsToDelete.length === 0) return;
 
   // Clean Drivers

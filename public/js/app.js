@@ -1005,15 +1005,16 @@ function renderDriverDetails(driverId) {
   } else {
     const carStats = {};
     laps.forEach((lap) => {
-      if (!carStats[lap.carId]) {
-        carStats[lap.carId] = {
+      if (!carStats[lap.carTransponder]) {
+        carStats[lap.carTransponder] = {
+          carTransponder: lap.carTransponder,
           carName: lap.car,
           lapsRun: 0,
           totalTime: 0,
           pr: lap.lapTime
         };
       }
-      const stat = carStats[lap.carId];
+      const stat = carStats[lap.carTransponder];
       stat.lapsRun++;
       stat.totalTime += lap.lapTime;
       if (lap.lapTime < stat.pr) stat.pr = lap.lapTime;
@@ -1030,7 +1031,7 @@ function renderDriverDetails(driverId) {
         <td class="mono" style="color:var(--color-success); font-weight:bold; text-align: center;">${stat.pr.toFixed(3)}</td>
         <td style="text-align: center;">${stat.lapsRun}</td>
         <td class="mono" style="text-align: center;">${avg.toFixed(3)}</td>
-        <td><button class="btn delete-car-stats-btn" data-carid="${stat.carId}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
+        <td><button class="btn delete-car-stats-btn" data-cartransponder="${stat.carTransponder}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
       tr.querySelector('.delete-car-stats-btn').addEventListener('click', () => {
         if (
@@ -1038,7 +1039,7 @@ function renderDriverDetails(driverId) {
             `Delete all laps for ${stat.carName} by this driver? This action cannot be undone.`
           )
         ) {
-          deleteDriverCarStats(driverId, stat.carId);
+          deleteDriverCarStats(driverId, stat.carTransponder);
           renderDriverDetails(driverId);
         }
       });
