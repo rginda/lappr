@@ -600,3 +600,51 @@ export function refreshActiveRacers() {
   }
   triggerUpdate();
 }
+
+/**
+ * Backs up the current session assignments to localStorage.
+ */
+export function backupSessionState() {
+  if (sessionState.status === 'running' || Object.keys(sessionState.assignments).length > 0) {
+    localStorage.setItem(
+      'lappr-session-backup',
+      JSON.stringify({
+        timestamp: Date.now(),
+        status: sessionState.status,
+        assignments: sessionState.assignments
+      })
+    );
+  } else {
+    localStorage.removeItem('lappr-session-backup');
+  }
+}
+
+/**
+ * Recovers session assignments if less than a minute old.
+ */
+export function recoverSessionState() {
+  try {
+    const data = localStorage.getItem('lappr-session-backup');
+    if (!data) return false;
+
+    const backup = JSON.parse(data);
+    if (Date.now() - backup.timestamp > 60000) {
+      localStorage.removeItem('lappr-session-backup');
+      return false;
+    }
+
+    if (backup.assignments) {
+      for (const [transponder, driverId] of Object.entries(backup.assignments)) {
+        if (driverId) {
+          assignSessionDriver(transponder, driverId);
+        }
+      }
+    }
+
+    // We only recovered assignments. Do not auto-start the timer, let user do that.
+    return true;
+  } catch (err) {
+    console.error('Recovery failed:', err);
+    return false;
+  }
+}

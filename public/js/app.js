@@ -21,6 +21,8 @@ import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './seria
 
 import {
   initSession,
+  backupSessionState,
+  recoverSessionState,
   startSession,
   stopSession,
   clearSession,
@@ -113,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle hardware auto-connect
   if (activeSettings.connectAtStartup) {
+    recoverSessionState();
     if (activeSettings.hardwareType === 'mock') {
       toggleSimulator(true, onLineReceived, onStatusChange);
     } else {
