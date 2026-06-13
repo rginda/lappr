@@ -194,3 +194,31 @@ if (synth) {
     }
   }, 5000);
 }
+
+// Browser Autoplay Policy & Ghost State Workaround
+// If speech is called before the user interacts with the page (e.g. auto-reconnect session reload),
+// Chrome silently drops the audio but permanently freezes the speech queue in a "speaking" state.
+// We must aggressively clear this state upon the first user interaction anywhere on the document.
+let userHasInteracted = false;
+const unlockAudioEngine = () => {
+  if (userHasInteracted || !synth) return;
+  userHasInteracted = true;
+
+  // Clear any invisible hung utterances that were blocked by autoplay policy
+  synth.cancel();
+  if (synth.paused) synth.resume();
+
+  // Play a silent utterance to fully initialize the audio engine context
+  const unlockSpeech = new SpeechSynthesisUtterance('');
+  unlockSpeech.volume = 0;
+  synth.speak(unlockSpeech);
+
+  // Clean up listeners
+  window.removeEventListener('click', unlockAudioEngine);
+  window.removeEventListener('keydown', unlockAudioEngine);
+  window.removeEventListener('touchstart', unlockAudioEngine);
+};
+
+window.addEventListener('click', unlockAudioEngine, { capture: true });
+window.addEventListener('keydown', unlockAudioEngine, { capture: true });
+window.addEventListener('touchstart', unlockAudioEngine, { capture: true });
