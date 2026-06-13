@@ -8,7 +8,7 @@ import { getDrivers, getCars, saveSession } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
-  mode: 'practice',          // 'practice', 'qualifying', 'race'
+  mode: 'practice',
   status: 'ready',           // 'ready', 'warmup', 'active', 'finished'
   startTime: null,           // Browser performance.now()
   endTime: null,
@@ -35,7 +35,7 @@ export function initSession(config, onUpdate, onTimerUpdate) {
   stopSessionTimer();
   
   sessionState = {
-    mode: config.mode || 'practice',
+    mode: 'practice',
     status: 'ready',
     startTime: null,
     endTime: null,
@@ -176,8 +176,8 @@ export function processCrossing(transponderId, ticks) {
   const id = transponderId.toUpperCase();
   const now = performance.now();
 
-  // If session is practice and not explicitly started, start automatically on first crossing
-  if (sessionState.mode === 'practice' && sessionState.status === 'ready') {
+  // Auto-start on first crossing
+  if (sessionState.status === 'ready') {
     startSession();
   }
 
@@ -272,12 +272,6 @@ export function processCrossing(transponderId, ticks) {
   // Announce the lap
   announceLap(racer, lapObject);
 
-  // Check race finish condition (if limit type is Laps and racer completed target laps)
-  if (sessionState.mode === 'race' && sessionState.limitType === 'laps') {
-    if (racer.laps.length >= sessionState.limitValue) {
-      stopSession();
-    }
-  }
 
   triggerUpdate();
 }
@@ -345,19 +339,8 @@ function announceLap(racer, lap) {
 function sortLeaderboard() {
   const racersList = Object.values(sessionState.racers).filter(r => r.isActive);
 
-  // Sorting logic based on mode:
-  // Qualifying/Practice: Sorted by fastest single lap.
-  // Race: Sorted by total laps (descending), then by total race time (ascending).
-  if (sessionState.mode === 'race') {
-    racersList.sort((a, b) => {
-      if (a.laps.length !== b.laps.length) {
-        return b.laps.length - a.laps.length; // More laps is better
-      }
-      return a.totalTime - b.totalTime;       // Less time is better
-    });
-  } else {
-    racersList.sort((a, b) => a.bestLap - b.bestLap); // Lowest lap time is better
-  }
+  // Sorted by fastest single lap
+  racersList.sort((a, b) => a.bestLap - b.bestLap);
 
   // Compute Gaps
   if (racersList.length > 0) {
@@ -366,21 +349,11 @@ function sortLeaderboard() {
     
     for (let i = 1; i < racersList.length; i++) {
       const current = racersList[i];
-      if (sessionState.mode === 'race') {
-        const lapDiff = leader.laps.length - current.laps.length;
-        if (lapDiff > 0) {
-          current.gap = `+${lapDiff} Lap${lapDiff > 1 ? 's' : ''}`;
-        } else {
-          const timeDiff = current.totalTime - leader.totalTime;
-          current.gap = `+${timeDiff.toFixed(2)}s`;
-        }
+      if (current.bestLap === Infinity) {
+        current.gap = '--';
       } else {
-        if (current.bestLap === Infinity) {
-          current.gap = '--';
-        } else {
-          const gapTime = current.bestLap - leader.bestLap;
-          current.gap = `+${gapTime.toFixed(3)}s`;
-        }
+        const gapTime = current.bestLap - leader.bestLap;
+        current.gap = `+${gapTime.toFixed(3)}s`;
       }
     }
   }
@@ -418,22 +391,6 @@ function startSessionTimer() {
     
     if (timerCallback) {
       timerCallback(elapsedMs);
-    }
-
-    // Time-based finish condition
-    if (sessionState.limitType === 'time' && sessionState.mode !== 'practice') {
-      const targetMs = sessionState.limitValue * 60 * 1000;
-      
-      // Countdown announcements at specific times
-      const remainingSec = Math.floor((targetMs - elapsedMs) / 1000);
-      if (remainingSec === 120 && elapsedMs % 1000 < 20) speak("2 minutes remaining.");
-      if (remainingSec === 60 && elapsedMs % 1000 < 20) speak("1 minute remaining.");
-      if (remainingSec === 30 && elapsedMs % 1000 < 20) speak("30 seconds remaining.");
-      if (remainingSec === 10 && elapsedMs % 1000 < 20) speak("10... 9... 8... 7... 6... 5... 4... 3... 2... 1...");
-
-      if (elapsedMs >= targetMs) {
-        stopSession();
-      }
     }
   }, 50); // Fast enough updates for smooth clocks
 }

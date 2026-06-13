@@ -26,10 +26,7 @@ const DEFAULT_SETTINGS = {
   minLapTime: 3.0,
   speechEnabled: true,
   speechVolume: 0.8,
-  baudRate: 115200,
-  limitType: 'time',
-  limitValue: 5,
-  sessionMode: 'practice'
+  baudRate: 115200
 };
 
 /**

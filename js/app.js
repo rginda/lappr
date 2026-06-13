@@ -39,11 +39,7 @@ const btnConnect = document.getElementById('btn-connect');
 const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
-const sessionModeSelect = document.getElementById('session-mode-select');
-const raceSettingsSubpanel = document.getElementById('race-settings-subpanel');
-const sessionLimitType = document.getElementById('session-limit-type');
-const sessionLimitLabel = document.getElementById('session-limit-label');
-const sessionLimitVal = document.getElementById('session-limit-val');
+
 const minLapTime = document.getElementById('min-lap-time');
 const btnSessionStart = document.getElementById('btn-session-start');
 const btnSessionReset = document.getElementById('btn-session-reset');
@@ -98,9 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load settings from database and update UI components.
  */
 function loadSettingsUI() {
-  sessionModeSelect.value = activeSettings.sessionMode;
-  sessionLimitType.value = activeSettings.limitType;
-  sessionLimitVal.value = activeSettings.limitValue;
   minLapTime.value = activeSettings.minLapTime;
   
   speechToggle.checked = activeSettings.speechEnabled;
@@ -122,20 +115,6 @@ function bindEvents() {
   btnConnect.addEventListener('click', handleConnectClick);
   
   // Session Settings Events
-  sessionModeSelect.addEventListener('change', () => {
-    handleSessionModeChange();
-    saveActiveSettings();
-    reinitSessionState();
-  });
-  sessionLimitType.addEventListener('change', () => {
-    handleLimitTypeChange();
-    saveActiveSettings();
-    reinitSessionState();
-  });
-  sessionLimitVal.addEventListener('change', () => {
-    saveActiveSettings();
-    reinitSessionState();
-  });
   minLapTime.addEventListener('change', () => {
     saveActiveSettings();
     reinitSessionState();
@@ -175,9 +154,9 @@ function bindEvents() {
  */
 function reinitSessionState() {
   const config = {
-    mode: sessionModeSelect.value,
-    limitType: sessionLimitType.value,
-    limitValue: parseFloat(sessionLimitVal.value),
+    mode: 'practice',
+    limitType: 'time',
+    limitValue: 0,
     minLapTime: parseFloat(minLapTime.value)
   };
   
@@ -195,9 +174,6 @@ function reinitSessionState() {
  */
 function saveActiveSettings() {
   const settings = {
-    sessionMode: sessionModeSelect.value,
-    limitType: sessionLimitType.value,
-    limitValue: parseFloat(sessionLimitVal.value),
     minLapTime: parseFloat(minLapTime.value),
     speechEnabled: speechToggle.checked,
     speechVolume: parseFloat(speechVolume.value)
@@ -205,31 +181,7 @@ function saveActiveSettings() {
   activeSettings = saveSettings(settings);
 }
 
-/**
- * Handles UI layout updates when session mode changes.
- */
-function handleSessionModeChange() {
-  const mode = sessionModeSelect.value;
-  if (mode === 'practice') {
-    raceSettingsSubpanel.style.display = 'none';
-  } else {
-    raceSettingsSubpanel.style.display = 'block';
-  }
-}
 
-/**
- * Handles UI layout updates when limit type changes (Time vs Laps).
- */
-function handleLimitTypeChange() {
-  const type = sessionLimitType.value;
-  if (type === 'time') {
-    sessionLimitLabel.textContent = 'Duration (Minutes)';
-    sessionLimitVal.value = 5;
-  } else {
-    sessionLimitLabel.textContent = 'Target Laps';
-    sessionLimitVal.value = 50;
-  }
-}
 
 /**
  * Hardware Connection Click.
@@ -428,15 +380,7 @@ function renderLeaderboard({ state, leaderboard }) {
 function updateTimerDisplay(elapsedMs) {
   let displayMs = elapsedMs;
 
-  // If session is a Time-limited Race/Qualifying, show count-down instead of count-up
-  const mode = sessionModeSelect.value;
-  const limitType = sessionLimitType.value;
-  const limitVal = parseFloat(sessionLimitVal.value);
-  
-  if (mode !== 'practice' && limitType === 'time') {
-    const maxMs = limitVal * 60 * 1000;
-    displayMs = Math.max(0, maxMs - elapsedMs);
-  }
+  // Practice mode shows count-up timer
 
   const minutes = Math.floor(displayMs / 60000);
   const seconds = Math.floor((displayMs % 60000) / 1000);
