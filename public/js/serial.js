@@ -119,7 +119,7 @@ async function internalConnect(device, baudRate, onLineCallback, onStatusChange)
           data.byteOffset,
           Math.min(actualLen, available)
         );
-        processUartBytes(uartBytes, onLineCallback);
+        handleBinaryData(uartBytes, onLineCallback);
       }
     }
   };
