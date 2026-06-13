@@ -646,6 +646,20 @@ export function recoverSessionState() {
     }
 
     if (backup.racers) {
+      let restoredBestLap = Infinity;
+      for (const r of Object.values(backup.racers)) {
+        if (r.bestLap === null) {
+          r.bestLap = Infinity;
+        }
+        if (r.bestLap < restoredBestLap) {
+          restoredBestLap = r.bestLap;
+        }
+      }
+
+      // I need to set the global overallBestLap. Since it's not exported, I can just assign it.
+      // Wait! Is overallBestLap in scope? Yes, it's at the top of race.js.
+      overallBestLap = restoredBestLap;
+
       sessionState.racers = backup.racers;
       sessionState.lapsLogged = backup.lapsLogged || 0;
       if (backup.sessionElapsedTime != null) {
