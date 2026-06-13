@@ -85,6 +85,46 @@ function handleLegacyAsciiLine(text, onLineCallback) {
  * @param {Function} onLineCallback - Callback for received lines.
  * @param {Function} onStatusChange - Callback for connection status updates.
  */
+
+async function internalConnect(device, baudRate, onLineCallback, onStatusChange) {
+  hidDevice = device;
+  await hidDevice.open();
+
+  const configData = new Uint8Array(8);
+  configData[0] = (baudRate >> 24) & 0xff;
+  configData[1] = (baudRate >> 16) & 0xff;
+  configData[2] = (baudRate >> 8) & 0xff;
+  configData[3] = baudRate & 0xff;
+  configData[4] = 0x00;
+  configData[5] = 0x00;
+  configData[6] = 0x03;
+  configData[7] = 0x00;
+
+  await hidDevice.sendFeatureReport(0x50, configData);
+
+  const enableReport = new Uint8Array([0x01]);
+  await hidDevice.sendFeatureReport(0x41, enableReport);
+
+  isConnected = true;
+  onStatusChange({ connected: true, type: 'hid', name: hidDevice.productName || 'CP2110 HID' });
+
+  hidDevice.oninputreport = (event) => {
+    const { reportId, data } = event;
+    if (reportId >= 0x01 && reportId <= 0x3f) {
+      const actualLen = reportId;
+      const available = data.byteLength;
+      if (actualLen > 0 && available > 0) {
+        const uartBytes = new Uint8Array(
+          data.buffer,
+          data.byteOffset,
+          Math.min(actualLen, available)
+        );
+        processUartBytes(uartBytes, onLineCallback);
+      }
+    }
+  };
+}
+
 export async function connectHID(baudRate, onLineCallback, onStatusChange) {
   if (!navigator.hid) {
     throw new Error('WebHID API is not supported in this browser. Try Chrome, Edge, or Opera.');
@@ -206,4 +246,18 @@ export async function disconnect(onStatusChange) {
   }
 
   onStatusChange({ connected: false, type: 'offline', name: 'Hardware Offline' });
+}
+
+export async function autoConnectHID(baudRate, onLineCallback, onStatusChange) {
+  if (!navigator.hid) return false;
+  try {
+    const devices = await navigator.hid.getDevices();
+    const easyLap = devices.find((d) => d.vendorId === 0x10c4 && d.productId === 0x86b9);
+    if (!easyLap) return false;
+    await internalConnect(easyLap, baudRate, onLineCallback, onStatusChange);
+    return true;
+  } catch (err) {
+    console.error('Auto connect HID failed:', err);
+    return false;
+  }
 }

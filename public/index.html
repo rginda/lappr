@@ -91,6 +91,7 @@
                 <ul class="tree-list">
                   <li class="nav-item" data-target="view-settings-session">Session</li>
                   <li class="nav-item" data-target="view-settings-speech">Speech</li>
+                  <li class="nav-item" data-target="view-settings-hardware">Hardware</li>
                   <li class="nav-item" data-target="view-settings-streaks">Streaks</li>
                 </ul>
               </div>
@@ -987,6 +988,47 @@
                 >
                   ▶️
                 </button>
+              </div>
+            </section>
+          </main>
+
+          <!-- View: Settings (Hardware) -->
+          <main id="view-settings-hardware" class="view-panel">
+            <section class="card glass-panel">
+              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">Hardware Settings</h2>
+
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem">
+                Configure your timing system connection.
+              </p>
+
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: auto 1fr;
+                  gap: 1rem 1.5rem;
+                  max-width: 500px;
+                  margin-bottom: 2rem;
+                  align-items: center;
+                "
+              >
+                <label for="setting-hardware-type" style="margin: 0; text-align: left"
+                  >Hardware Type</label
+                >
+                <select id="setting-hardware-type" style="width: 100%">
+                  <option value="robotronic">Robitronic Compatible</option>
+                  <option value="mock">Mock Hardware</option>
+                </select>
+
+                <label for="setting-hardware-autoconnect" style="margin: 0; text-align: left"
+                  >Connect at Startup</label
+                >
+                <div style="display: flex; align-items: center">
+                  <input
+                    type="checkbox"
+                    id="setting-hardware-autoconnect"
+                    style="width: 20px; height: 20px; margin: 0; cursor: pointer"
+                  />
+                </div>
               </div>
             </section>
           </main>

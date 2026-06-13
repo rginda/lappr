@@ -17,7 +17,7 @@ import {
   saveSettings
 } from './database.js';
 
-import { connectHID, toggleSimulator, disconnect } from './serial.js';
+import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './serial.js';
 
 import {
   initSession,
@@ -110,6 +110,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event listeners
   bindEvents();
+
+  // Handle hardware auto-connect
+  if (activeSettings.connectAtStartup) {
+    if (activeSettings.hardwareType === 'mock') {
+      toggleSimulator(true, onLineReceived, onStatusChange);
+    } else {
+      autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
+        if (!connected) {
+          console.warn('Auto-connect HID failed. User gesture may be required first.');
+        }
+      });
+    }
+  }
 });
 
 /**
@@ -122,6 +135,12 @@ function loadSettingsUI() {
   speechToggle.checked = activeSettings.speechEnabled;
   speechVolume.value = activeSettings.speechVolume || 0.8;
   if (speechVolumeSlider) speechVolumeSlider.value = activeSettings.speechVolume || 0.8;
+
+  const hardwareType = document.getElementById('setting-hardware-type');
+  if (hardwareType) hardwareType.value = activeSettings.hardwareType || 'robotronic';
+
+  const autoconnect = document.getElementById('setting-hardware-autoconnect');
+  if (autoconnect) autoconnect.checked = !!activeSettings.connectAtStartup;
 
   if (modalSpeechVoice) modalSpeechVoice.value = activeSettings.speechVoice || '';
   if (modalSpeechPitch) modalSpeechPitch.value = activeSettings.speechPitch || 1.0;
@@ -396,6 +415,12 @@ function bindEvents() {
     // Save new speech engine values
     settings.speechEnabled = speechToggle.checked;
     settings.speechVolume = parseFloat(speechVolume.value);
+    const hardwareType = document.getElementById('setting-hardware-type');
+    if (hardwareType) settings.hardwareType = hardwareType.value;
+
+    const autoconnect = document.getElementById('setting-hardware-autoconnect');
+    if (autoconnect) settings.connectAtStartup = autoconnect.checked;
+
     settings.speechVoice = modalSpeechVoice.value;
     settings.speechPitch = parseFloat(modalSpeechPitch.value);
     settings.speechRate = parseFloat(modalSpeechRate.value);
