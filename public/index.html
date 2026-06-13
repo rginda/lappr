@@ -387,6 +387,27 @@
             <div class="form-group" style="margin-bottom: 0;">
               <label for="setting-speech-consistent">Consistency Streak</label>
               <input type="text" id="setting-speech-consistent" style="width: 100%;">
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Use <code>{streak}</code> for the number of laps.</div>
+            </div>
+          </div>
+          
+          <h3 style="color: var(--text-primary); font-size: 1.1rem; margin-bottom: 1rem;">Consistency Streak Logic</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+            Configure when a driver is considered to be on a "consistent streak".
+          </p>
+          
+          <div style="display: grid; gap: 1rem; max-width: 600px; margin-bottom: 2rem;">
+            <div class="form-group" style="margin-bottom: 0; display: flex; gap: 1rem; align-items: center;">
+              <label for="setting-streak-min-laps" style="flex: 1;">Minimum Streak Length (Laps)</label>
+              <input type="number" id="setting-streak-min-laps" min="2" style="width: 80px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; display: flex; gap: 1rem; align-items: center;">
+              <label for="setting-streak-variance" style="flex: 1;">Variance Threshold (Seconds)</label>
+              <input type="number" id="setting-streak-variance" step="0.01" min="0" style="width: 80px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; display: flex; gap: 1rem; align-items: center;">
+              <label for="setting-streak-fast-only" style="flex: 1;">Require Faster Than Average</label>
+              <input type="checkbox" id="setting-streak-fast-only" style="width: 20px; height: 20px;">
             </div>
           </div>
           

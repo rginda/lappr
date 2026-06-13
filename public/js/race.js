@@ -322,12 +322,13 @@ function announceLap(racer, lap, dbResult) {
   const ann = settings.announcements || {};
   
   // Helper to replace tokens
-  const formatMsg = (template) => {
+  const formatMsg = (template, streakLen = 0) => {
     if (!template) return '';
     return template
       .replace(/{driver}/g, racer.name)
       .replace(/{car}/g, racer.carName)
-      .replace(/{time}/g, formattedTime);
+      .replace(/{time}/g, formattedTime)
+      .replace(/{streak}/g, streakLen);
   };
 
   if (isDriverBestEver) {
@@ -344,15 +345,39 @@ function announceLap(racer, lap, dbResult) {
     announcement = formatMsg(ann.normal);
   }
 
-  // Check 3-consecutive fast lap streak
+  // Calculate Ongoing Consistency Streak
+  const streakSettings = settings.streak || { minLaps: 3, varianceThreshold: 0.1, mustBeFast: true };
   const totalLaps = racer.laps.length;
-  if (totalLaps >= 3) {
-    const last3 = racer.laps.slice(-3);
-    const maxDiff = Math.max(...last3.map(l => l.lapTime)) - Math.min(...last3.map(l => l.lapTime));
-    // If the difference between fastest and slowest of the last 3 laps is < 0.1s
-    if (maxDiff < 0.1 && lap.lapTime < racer.averageLap) {
-      if (ann.consistent) {
-        announcement += ` ${formatMsg(ann.consistent)}`;
+  
+  if (totalLaps >= streakSettings.minLaps) {
+    let streakLength = 1;
+    let minLap = lap.lapTime;
+    let maxLap = lap.lapTime;
+    
+    // Scan backward to find consecutive laps within the variance threshold
+    for (let i = totalLaps - 2; i >= 0; i--) {
+      const prevLap = racer.laps[i].lapTime;
+      const newMin = Math.min(minLap, prevLap);
+      const newMax = Math.max(maxLap, prevLap);
+      
+      if (newMax - newMin <= streakSettings.varianceThreshold) {
+        streakLength++;
+        minLap = newMin;
+        maxLap = newMax;
+      } else {
+        break;
+      }
+    }
+    
+    // Check if streak meets criteria
+    if (streakLength >= streakSettings.minLaps) {
+      let qualifies = true;
+      if (streakSettings.mustBeFast && lap.lapTime >= racer.averageLap) {
+        qualifies = false;
+      }
+      
+      if (qualifies && ann.consistent) {
+        announcement += ` ${formatMsg(ann.consistent, streakLength)}`;
       }
     }
   }

@@ -276,7 +276,12 @@ export function getSettings() {
       sessionFastest: 'Session fastest lap! {driver}, {time} seconds',
       personalBest: 'Personal best for {driver}, {time} seconds',
       normal: '{driver}, {time}',
-      consistent: 'Consistent streak!'
+      consistent: '{streak} laps consistent!'
+    },
+    streak: {
+      minLaps: 3,
+      varianceThreshold: 0.1,
+      mustBeFast: true
     }
   };
   
@@ -288,7 +293,8 @@ export function getSettings() {
     return {
       ...defaultSettings,
       ...parsed,
-      announcements: { ...defaultSettings.announcements, ...(parsed.announcements || {}) }
+      announcements: { ...defaultSettings.announcements, ...(parsed.announcements || {}) },
+      streak: { ...defaultSettings.streak, ...(parsed.streak || {}) }
     };
   } catch (e) {
     return defaultSettings;

@@ -302,6 +302,12 @@ function bindEvents() {
       normal: document.getElementById('setting-speech-normal').value.trim(),
       consistent: document.getElementById('setting-speech-consistent').value.trim()
     };
+    settings.streak = {
+      minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
+      varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
+      mustBeFast: document.getElementById('setting-streak-fast-only').checked
+    };
+    
     saveSettings(settings);
     
     const notif = document.createElement('div');
@@ -344,6 +350,11 @@ function populateSettingsView() {
   document.getElementById('setting-speech-personal-best').value = ann.personalBest || '';
   document.getElementById('setting-speech-normal').value = ann.normal || '';
   document.getElementById('setting-speech-consistent').value = ann.consistent || '';
+  
+  const streak = settings.streak || {};
+  document.getElementById('setting-streak-min-laps').value = streak.minLaps || 3;
+  document.getElementById('setting-streak-variance').value = streak.varianceThreshold || 0.1;
+  document.getElementById('setting-streak-fast-only').checked = streak.mustBeFast !== false;
 }
 
 /**
