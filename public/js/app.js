@@ -14,7 +14,6 @@ import {
 
   deleteLap,
   deleteDriverCarStats,
-  assignLapsToDriver,
   getSettings, 
   saveSettings
 } from './database.js';
