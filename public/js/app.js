@@ -46,11 +46,13 @@ const addDriverForm = document.getElementById('add-driver-form');
 const driverNameInput = document.getElementById('driver-name');
 const driverList = document.getElementById('driver-list');
 
+// DOM Elements: Car Form
 const addCarForm = document.getElementById('add-car-form');
-const carNameInput = document.getElementById('car-name');
 const carTransponderInput = document.getElementById('car-transponder');
-const carColorSelect = document.getElementById('car-color');
-const carList = document.getElementById('car-list');
+const carNameInput = document.getElementById('car-name');
+const carChassisInput = document.getElementById('car-chassis');
+const carColorInput = document.getElementById('car-color');
+const carChips = document.querySelectorAll('#add-car-form .color-chip');
 
 const sessionTitle = document.getElementById('session-title');
 const sessionSubtitle = document.getElementById('session-subtitle');
@@ -73,11 +75,12 @@ const deleteDriverConfirm = document.getElementById('delete-driver-confirm');
 const btnDeleteDriver = document.getElementById('btn-delete-driver');
 let selectedDriverId = null;
 
-// Car Details
+// DOM Elements: Car Details Form
 const editCarName = document.getElementById('edit-car-name');
 const editCarTransponder = document.getElementById('edit-car-transponder');
+const editCarChassis = document.getElementById('edit-car-chassis');
 const editCarColor = document.getElementById('edit-car-color');
-const editCarDriver = document.getElementById('edit-car-driver');
+const editCarChips = document.querySelectorAll('#view-car-details .color-chip');
 const btnSaveCar = document.getElementById('btn-save-car');
 const deleteCarConfirm = document.getElementById('delete-car-confirm');
 const btnDeleteCar = document.getElementById('btn-delete-car');
@@ -235,22 +238,24 @@ function bindEvents() {
 
   // Car Details Events
   btnSaveCar.addEventListener('click', () => {
-    if (selectedCarId) {
-      const name = editCarName.value.trim();
-      const color = editCarColor.value;
-      
-      if (name) {
-        saveCar({
-          transponder: selectedCarId,
-          name,
-          color
-        });
-        renderCarList();
-        reinitSessionState();
-        switchView('view-session');
-      }
-    }
-  });
+  if (!selectedCarId) return;
+  const cars = getCars();
+  const carIndex = cars.findIndex(c => c.transponder === selectedCarId);
+  if (carIndex === -1) return;
+  
+  const newName = editCarName.value.trim();
+  const newChassis = editCarChassis.value.trim();
+  const newColor = editCarColor.value;
+  
+  if (newName) {
+    cars[carIndex].name = newName;
+    cars[carIndex].chassis = newChassis;
+    cars[carIndex].color = newColor;
+    saveCar(cars[carIndex]);
+    renderCarList();
+    renderLeaderboard({ state: sessionState, leaderboard }); // update if in session
+  }
+});
 
   deleteCarConfirm.addEventListener('input', (e) => {
     const car = getCars().find(c => c.transponder === selectedCarId);
@@ -595,11 +600,13 @@ function handleAddCar(e) {
   
   const name = document.getElementById('car-name').value.trim();
   const transponder = document.getElementById('car-transponder').value.trim().toUpperCase();
+  const chassis = document.getElementById('car-chassis').value.trim();
   const color = document.getElementById('car-color').value;
   
   const car = {
     name,
     transponder,
+    chassis,
     color,
     driverId: ''
   };
@@ -782,6 +789,7 @@ function renderCarDetails(transponder) {
   
   editCarName.value = car.name;
   editCarTransponder.value = car.transponder;
+  document.getElementById('edit-car-chassis').value = car.chassis || '';
   editCarColor.value = car.color;
   
   deleteCarConfirm.value = '';
