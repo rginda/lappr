@@ -625,7 +625,7 @@ export function backupSessionState() {
 export function recoverSessionState() {
   try {
     const data = localStorage.getItem('lappr-session-backup');
-    if (!data) return false;
+    if (!data) return { recovered: false, wasRunning: false };
 
     const backup = JSON.parse(data);
     if (Date.now() - backup.timestamp > 60000) {
@@ -642,9 +642,9 @@ export function recoverSessionState() {
     }
 
     // We only recovered assignments. Do not auto-start the timer, let user do that.
-    return true;
+    return { recovered: true, wasRunning: backup.status === 'running' };
   } catch (err) {
     console.error('Recovery failed:', err);
-    return false;
+    return { recovered: false, wasRunning: false };
   }
 }

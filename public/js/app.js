@@ -115,7 +115,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle hardware auto-connect
   if (activeSettings.connectAtStartup) {
-    recoverSessionState();
+    const recovery = recoverSessionState();
+    if (recovery && recovery.wasRunning) {
+      // Small timeout to allow DOM to settle
+      setTimeout(() => {
+        const btnSessionStart = document.getElementById('btn-session-start');
+        if (btnSessionStart && btnSessionStart.textContent.includes('Start')) {
+          btnSessionStart.click();
+        }
+      }, 100);
+    }
+
     if (activeSettings.hardwareType === 'mock') {
       toggleSimulator(true, onLineReceived, onStatusChange);
     } else {
