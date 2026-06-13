@@ -88,7 +88,9 @@ function handleLegacyAsciiLine(text, onLineCallback) {
 
 async function internalConnect(device, baudRate, onLineCallback, onStatusChange) {
   hidDevice = device;
-  await hidDevice.open();
+  if (!hidDevice.opened) {
+    await hidDevice.open();
+  }
 
   const configData = new Uint8Array(8);
   configData[0] = (baudRate >> 24) & 0xff;
@@ -140,7 +142,9 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
     }
 
     hidDevice = devices[0];
-    await hidDevice.open();
+    if (!hidDevice.opened) {
+      await hidDevice.open();
+    }
 
     // 1. Configure UART parameters (Report ID 0x50)
     // Format: baudRate (4 bytes big-endian), parity (1 byte: 0=None), flowControl (1 byte: 0=None), dataBits (1 byte: 3=8bits), stopBits (1 byte: 0=1 stop)

@@ -134,8 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
       autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
         if (!connected) {
           console.warn('Auto-connect HID failed. User gesture may be required first.');
+          if (recovery && recovery.wasRunning) {
+            stopSession();
+            alert('Hardware auto-connect failed. The recovered session has been paused. Please connect hardware and resume.');
+          }
+        } else {
+          resumeIfNeeded();
         }
-        resumeIfNeeded();
       });
     }
   }
