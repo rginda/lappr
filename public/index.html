@@ -790,27 +790,29 @@
                       type="checkbox"
                       id="speech-toggle"
                       checked=""
-                      style="
-                        accent-color: var(--accent-primary);
-                        cursor: pointer;
-                        width: 20px;
-                        height: 20px;
-                        margin: 0px;
-                      "
+                      style="cursor: pointer; width: 20px; height: 20px; margin: 0px"
                     />
                   </div>
                   <label for="speech-volume" style="margin: 0px; text-align: left"
                     >Voice Volume</label
                   >
-                  <div>
+                  <div style="display: flex; gap: 0.5rem; align-items: center">
                     <input
                       type="range"
-                      id="speech-volume"
+                      id="speech-volume-slider"
                       min="0"
                       max="1"
                       step="0.1"
                       value="0.8"
-                      style="width: 100%; accent-color: var(--accent-primary)"
+                      style="flex: 1"
+                    />
+                    <input
+                      type="number"
+                      id="speech-volume"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      style="width: 80px"
                     />
                   </div>
                   <label for="modal-speech-voice" style="margin: 0; text-align: left">Voice</label

@@ -61,6 +61,7 @@ const countLapsDisplay = document.getElementById('leaderboard-count-laps');
 
 const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
+const speechVolumeSlider = document.getElementById('speech-volume-slider');
 const modalSpeechVoice = document.getElementById('modal-speech-voice');
 const modalSpeechPitch = document.getElementById('modal-speech-pitch');
 const modalSpeechPitchSlider = document.getElementById('modal-speech-pitch-slider');
@@ -119,7 +120,14 @@ function loadSettingsUI() {
   maxLapTime.value = activeSettings.maxLapTime || 25.0;
 
   speechToggle.checked = activeSettings.speechEnabled;
-  speechVolume.value = activeSettings.speechVolume;
+  speechVolume.value = activeSettings.speechVolume || 0.8;
+  if (speechVolumeSlider) speechVolumeSlider.value = activeSettings.speechVolume || 0.8;
+
+  if (modalSpeechVoice) modalSpeechVoice.value = activeSettings.speechVoice || '';
+  if (modalSpeechPitch) modalSpeechPitch.value = activeSettings.speechPitch || 1.0;
+  if (modalSpeechPitchSlider) modalSpeechPitchSlider.value = activeSettings.speechPitch || 1.0;
+  if (modalSpeechRate) modalSpeechRate.value = activeSettings.speechRate || 1.1;
+  if (modalSpeechRateSlider) modalSpeechRateSlider.value = activeSettings.speechRate || 1.1;
 
   configureSpeech({
     enabled: activeSettings.speechEnabled,
@@ -196,6 +204,7 @@ function bindEvents() {
     input.addEventListener('input', () => (slider.value = input.value));
   }
 
+  linkSliderAndInput(speechVolumeSlider, speechVolume);
   linkSliderAndInput(modalSpeechPitchSlider, modalSpeechPitch);
   linkSliderAndInput(modalSpeechRateSlider, modalSpeechRate);
 
