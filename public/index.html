@@ -409,23 +409,15 @@
               Configure when a driver is considered to be on a "consistent streak".
             </p>
             
-            <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 500px; margin-bottom: 2rem;">
-              <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; justify-content: space-between;">
-                <label for="setting-streak-min-laps" style="margin: 0; text-align: left; width: 60%;">Minimum Streak Length (Laps)</label>
-                <input type="number" id="setting-streak-min-laps" min="2" style="width: 120px; text-align: right;">
-              </div>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 500px; margin-bottom: 2rem; align-items: center;">
+              <label for="setting-streak-min-laps" style="margin: 0; text-align: left;">Minimum Streak Length (Laps)</label>
+              <input type="number" id="setting-streak-min-laps" min="2" style="width: 120px;">
               
-              <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; justify-content: space-between;">
-                <label for="setting-streak-variance" style="margin: 0; text-align: left; width: 60%;">Variance Threshold (Seconds)</label>
-                <input type="number" id="setting-streak-variance" step="0.01" min="0" style="width: 120px; text-align: right;">
-              </div>
+              <label for="setting-streak-variance" style="margin: 0; text-align: left;">Variance Threshold (Seconds)</label>
+              <input type="number" id="setting-streak-variance" step="0.01" min="0" style="width: 120px;">
               
-              <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; justify-content: space-between;">
-                <label for="setting-streak-fast-only" style="margin: 0; text-align: left; width: 60%;">Require Faster Than Average</label>
-                <div style="width: 120px; text-align: right;">
-                  <input type="checkbox" id="setting-streak-fast-only" style="width: 20px; height: 20px; vertical-align: middle;">
-                </div>
-              </div>
+              <label for="setting-streak-fast-only" style="margin: 0; text-align: left;">Require Faster Than Average</label>
+              <input type="checkbox" id="setting-streak-fast-only" style="width: 20px; height: 20px;">
             </div>
             
             <button id="btn-save-settings-streaks" class="btn btn-primary btn-save-settings">Save Settings</button>
