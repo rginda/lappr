@@ -291,34 +291,41 @@ function bindEvents() {
   onUnregisteredAlert(displayUnregisteredNotification);
   
   // Settings Events
-  document.getElementById('btn-save-settings').addEventListener('click', () => {
-    const settings = getSettings();
-    settings.announcements = {
-      driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
-      carRecord: document.getElementById('setting-speech-car-record').value.trim(),
-      driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
-      sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
-      personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
-      normal: document.getElementById('setting-speech-normal').value.trim(),
-      consistent: document.getElementById('setting-speech-consistent').value.trim()
-    };
-    settings.streak = {
-      minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
-      varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
-      mustBeFast: document.getElementById('setting-streak-fast-only').checked
-    };
-    
-    saveSettings(settings);
-    
-    const notif = document.createElement('div');
-    notif.className = 'status-indicator connected';
-    notif.textContent = 'Settings Saved';
-    notif.style.position = 'fixed';
-    notif.style.bottom = '20px';
-    notif.style.right = '20px';
-    notif.style.zIndex = '9999';
-    document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 2000);
+  document.querySelectorAll('.btn-save-settings').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const settings = getSettings();
+      settings.announcements = {
+        driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
+        carRecord: document.getElementById('setting-speech-car-record').value.trim(),
+        driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
+        sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
+        personalBest: document.getElementById('setting-speech-personal-best').value.trim(),
+        normal: document.getElementById('setting-speech-normal').value.trim(),
+        consistent: document.getElementById('setting-speech-consistent').value.trim()
+      };
+      settings.streak = {
+        minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
+        varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
+        mustBeFast: document.getElementById('setting-streak-fast-only').checked
+      };
+      
+      saveSettings(settings);
+      
+      const notif = document.createElement('div');
+      notif.style.position = 'fixed';
+      notif.style.bottom = '80px';
+      notif.style.left = '50%';
+      notif.style.transform = 'translateX(-50%)';
+      notif.style.background = 'var(--accent-primary)';
+      notif.style.color = '#fff';
+      notif.style.padding = '0.75rem 1.5rem';
+      notif.style.borderRadius = 'var(--radius-md)';
+      notif.style.zIndex = '1000';
+      notif.textContent = 'Settings Saved!';
+      
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 2500);
+    });
   });
 }
 
@@ -335,7 +342,8 @@ function switchView(viewId) {
   const tab = document.querySelector(`.nav-tab[data-target="${viewId}"]`);
   if (tab) tab.classList.add('active');
   
-  if (viewId === 'view-settings') {
+  // Populate settings view if entering a settings panel
+  if (viewId.startsWith('view-settings-')) {
     populateSettingsView();
   }
 }
