@@ -382,18 +382,22 @@ function announceLap(racer, lap, dbResult) {
     }
   }
   
-  // Append Driver Custom PR Callout if it is a notable PR
-  if (isDriverBestEver || isCarRecord || isDriverCarPR) {
-    const driverId = sessionState.assignments[racer.transponder];
-    if (driverId) {
-      const driver = getDrivers().find(d => d.id === driverId);
-      if (driver && driver.customCallout) {
+  // Append Driver Custom PR Callout and apply Audio Overrides
+  let speechOptions = {};
+  const driverId = sessionState.assignments[racer.transponder];
+  if (driverId) {
+    const driver = getDrivers().find(d => d.id === driverId);
+    if (driver) {
+      if ((isDriverBestEver || isCarRecord || isDriverCarPR) && driver.customCallout) {
         announcement += ` ${driver.customCallout}`;
+      }
+      if (driver.speechOverride) {
+        speechOptions = driver.speechOverride;
       }
     }
   }
 
-  speak(announcement);
+  speak(announcement, false, speechOptions);
 }
 
 /**

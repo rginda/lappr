@@ -26,6 +26,9 @@ const DEFAULT_SETTINGS = {
   minLapTime: 3.0,
   speechEnabled: true,
   speechVolume: 0.8,
+  speechVoice: '',
+  speechPitch: 1.0,
+  speechRate: 1.1,
   baudRate: 115200
 };
 
@@ -314,6 +317,9 @@ export function getSettings() {
   const defaultSettings = {
     speechEnabled: true,
     speechVolume: 0.8,
+    speechVoice: '',
+    speechPitch: 1.0,
+    speechRate: 1.1,
     announcements: {
       driverBestEver: '{driver} best lap ever! {time}',
       carRecord: '{car} record! {time}',

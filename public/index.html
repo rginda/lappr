@@ -194,6 +194,28 @@
               </div>
             </div>
             <div style="margin-bottom: 2rem;">
+              <h3 style="margin-bottom: 1rem; font-size: 1rem;">Speech Audio Override</h3>
+              <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; align-items: center;">
+                <label for="edit-driver-voice" style="margin: 0; text-align: left;">Voice</label>
+                <select id="edit-driver-voice" style="width: 100%;">
+                  <option value="">System Default</option>
+                </select>
+                
+                <label for="edit-driver-pitch" style="margin: 0; text-align: left;">Pitch</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <input type="range" id="edit-driver-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
+                  <input type="number" id="edit-driver-pitch" min="0" max="2" step="0.1" style="width: 60px;">
+                </div>
+                
+                <label for="edit-driver-rate" style="margin: 0; text-align: left;">Rate</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <input type="range" id="edit-driver-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
+                  <input type="number" id="edit-driver-rate" min="0.5" max="2.5" step="0.1" style="width: 60px;">
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
               <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Per-Car Statistics</h3>
               <div style="overflow-x: auto;">
                 <table class="leaderboard-table" style="font-size: 0.85rem; width: 100%;">
@@ -381,34 +403,64 @@
           <section class="card glass-panel">
             <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem;">Speech Settings</h2>
             
+            <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem;">Audio Engine</h3>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; margin-bottom: 2rem; align-items: center;">
+              <label for="setting-speech-voice" style="margin: 0; text-align: left;">Voice</label>
+              <select id="setting-speech-voice" style="width: 100%;">
+                <option value="">Default (Auto)</option>
+              </select>
+              
+              <label for="setting-speech-pitch" style="margin: 0; text-align: left;">Pitch</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="range" id="setting-speech-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
+                <input type="number" id="setting-speech-pitch" min="0" max="2" step="0.1" style="width: 60px;">
+              </div>
+              
+              <label for="setting-speech-rate" style="margin: 0; text-align: left;">Rate</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="range" id="setting-speech-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
+                <input type="number" id="setting-speech-rate" min="0.5" max="2.5" step="0.1" style="width: 60px;">
+              </div>
+            </div>
+
+            <hr style="border-top: 1px solid var(--border-color); border-bottom: none; margin-bottom: 2rem;">
+
+            <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem;">Templates</h3>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
               Customize the text used for text-to-speech. Use <code>{driver}</code>, <code>{car}</code>, and <code>{time}</code> as placeholders.
             </p>
             
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; margin-bottom: 2rem; align-items: center;">
+            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 1rem 1.5rem; max-width: 650px; margin-bottom: 2rem; align-items: center;">
               <label for="setting-speech-best-ever" style="margin: 0; text-align: left;">Driver Best Lap Ever</label>
               <input type="text" id="setting-speech-best-ever" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-best-ever" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-car-record" style="margin: 0; text-align: left;">Overall Car Record</label>
               <input type="text" id="setting-speech-car-record" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-car-record" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-driver-car-pr" style="margin: 0; text-align: left;">Driver Car P.R.</label>
               <input type="text" id="setting-speech-driver-car-pr" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-driver-car-pr" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-session-fastest" style="margin: 0; text-align: left;">Session Fastest</label>
               <input type="text" id="setting-speech-session-fastest" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-session-fastest" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-personal-best" style="margin: 0; text-align: left;">Session Personal Best</label>
               <input type="text" id="setting-speech-personal-best" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-personal-best" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-normal" style="margin: 0; text-align: left;">Normal Lap</label>
               <input type="text" id="setting-speech-normal" style="width: 100%;">
+              <button class="btn preview-btn" data-target="setting-speech-normal" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
               
               <label for="setting-speech-consistent" style="margin: 0; text-align: left; align-self: flex-start; padding-top: 0.5rem;">Consistency Streak</label>
               <div>
                 <input type="text" id="setting-speech-consistent" style="width: 100%;">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Use <code>{streak}</code> for the number of laps.</div>
               </div>
+              <button class="btn preview-btn" data-target="setting-speech-consistent" style="padding: 0.4rem; font-size: 0.8rem; align-self: flex-start; background: transparent;" title="Preview">▶️</button>
             </div>
             
             <button id="btn-save-settings-speech" class="btn btn-primary btn-save-settings">Save Settings</button>

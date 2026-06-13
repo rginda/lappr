@@ -5,6 +5,10 @@
 
 let isEnabled = true;
 let volume = 0.8;
+let defaultVoiceName = '';
+let defaultPitch = 1.0;
+let defaultRate = 1.1;
+
 let synth = window.speechSynthesis;
 let currentUtterance = null;
 let speechQueue = [];
@@ -16,6 +20,9 @@ let speechQueue = [];
 export function configureSpeech(config) {
   if (config.enabled !== undefined) isEnabled = config.enabled;
   if (config.volume !== undefined) volume = Math.max(0, Math.min(1, config.volume));
+  if (config.voiceName !== undefined) defaultVoiceName = config.voiceName;
+  if (config.pitch !== undefined) defaultPitch = config.pitch;
+  if (config.rate !== undefined) defaultRate = config.rate;
   
   if (!isEnabled) {
     cancelSpeech();
@@ -28,7 +35,7 @@ export function configureSpeech(config) {
  * @param {string} text - Text to speak.
  * @param {boolean} priority - If true, cancels ongoing speech to announce immediately.
  */
-export function speak(text, priority = false) {
+export function speak(text, priority = false, options = {}) {
   if (!isEnabled || !synth) return;
 
   // For high-priority event announcements (e.g. race start, race finish), clear queue
@@ -44,17 +51,27 @@ export function speak(text, priority = false) {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.volume = volume;
-  utterance.rate = 1.1; // Slightly faster to keep up with fast-paced racing
-  utterance.pitch = 1.0;
+  utterance.rate = options.rate !== undefined ? options.rate : defaultRate;
+  utterance.pitch = options.pitch !== undefined ? options.pitch : defaultPitch;
 
-  // Try to find a natural-sounding English voice
+  const targetVoiceName = options.voiceName !== undefined ? options.voiceName : defaultVoiceName;
   const voices = synth.getVoices();
-  const preferredVoice = voices.find(voice => 
-    voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural'))
-  ) || voices.find(voice => voice.lang.startsWith('en'));
   
-  if (preferredVoice) {
-    utterance.voice = preferredVoice;
+  let selectedVoice = null;
+  
+  if (targetVoiceName) {
+    selectedVoice = voices.find(voice => voice.name === targetVoiceName);
+  }
+  
+  if (!selectedVoice) {
+    // Try to find a natural-sounding English voice
+    selectedVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural'))
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+  }
+  
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
   }
 
   utterance.onend = () => {

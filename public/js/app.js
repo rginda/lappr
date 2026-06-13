@@ -68,11 +68,21 @@ const countLapsDisplay = document.getElementById('leaderboard-count-laps');
 
 const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
+const speechVoice = document.getElementById('setting-speech-voice');
+const speechPitch = document.getElementById('setting-speech-pitch');
+const speechPitchSlider = document.getElementById('setting-speech-pitch-slider');
+const speechRate = document.getElementById('setting-speech-rate');
+const speechRateSlider = document.getElementById('setting-speech-rate-slider');
 const notificationsContainer = document.getElementById('notifications');
 
 // Driver Details
 const editDriverName = document.getElementById('edit-driver-name');
 const editDriverCallout = document.getElementById('edit-driver-callout');
+const editDriverVoice = document.getElementById('edit-driver-voice');
+const editDriverPitch = document.getElementById('edit-driver-pitch');
+const editDriverPitchSlider = document.getElementById('edit-driver-pitch-slider');
+const editDriverRate = document.getElementById('edit-driver-rate');
+const editDriverRateSlider = document.getElementById('edit-driver-rate-slider');
 const btnSaveDriverName = document.getElementById('btn-save-driver-name');
 const driverPrsBody = document.getElementById('driver-prs-body');
 const driverLapsBody = document.getElementById('driver-laps-body');
@@ -126,11 +136,39 @@ function loadSettingsUI() {
   
   configureSpeech({
     enabled: activeSettings.speechEnabled,
-    volume: activeSettings.speechVolume
+    volume: activeSettings.speechVolume,
+    voiceName: activeSettings.speechVoice,
+    pitch: activeSettings.speechPitch,
+    rate: activeSettings.speechRate
   });
-
-
 }
+
+/**
+ * Populate Speech Voice dropdowns with available voices
+ */
+function populateVoiceDropdowns() {
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) return;
+  
+  const optionsHtml = `<option value="">Default (Auto)</option>` + 
+    voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+    
+  if (speechVoice) {
+    const prevVal = speechVoice.value || activeSettings.speechVoice;
+    speechVoice.innerHTML = optionsHtml;
+    speechVoice.value = prevVal;
+  }
+  
+  if (editDriverVoice) {
+    const prevVal = editDriverVoice.value;
+    editDriverVoice.innerHTML = optionsHtml;
+    editDriverVoice.value = prevVal;
+  }
+}
+
+// Initial populate of voices, and re-populate when loaded
+populateVoiceDropdowns();
+window.speechSynthesis.onvoiceschanged = populateVoiceDropdowns;
 
 /**
  * Bind DOM Event Listeners.
@@ -165,6 +203,43 @@ function bindEvents() {
     activeSettings.speechVolume = vol;
     saveActiveSettings();
     configureSpeech({ volume: vol });
+  });
+  
+  // Link sliders to inputs for Speech Engine
+  function linkSliderAndInput(slider, input) {
+    if (!slider || !input) return;
+    slider.addEventListener('input', () => input.value = slider.value);
+    input.addEventListener('input', () => slider.value = input.value);
+  }
+  
+  linkSliderAndInput(speechPitchSlider, speechPitch);
+  linkSliderAndInput(speechRateSlider, speechRate);
+  linkSliderAndInput(editDriverPitchSlider, editDriverPitch);
+  linkSliderAndInput(editDriverRateSlider, editDriverRate);
+
+  // Preview Buttons
+  document.querySelectorAll('.preview-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input && input.value) {
+        // Mock replacements for preview
+        const previewText = input.value
+          .replace(/{driver}/g, "John Doe")
+          .replace(/{car}/g, "Red Racer")
+          .replace(/{time}/g, "9.5")
+          .replace(/{streak}/g, "5");
+          
+        // Pull current un-saved values for accurate preview
+        import('./speech.js').then(speech => {
+          speech.speak(previewText, false, {
+            voiceName: speechVoice.value,
+            pitch: parseFloat(speechPitch.value),
+            rate: parseFloat(speechRate.value)
+          });
+        });
+      }
+    });
   });
   
   // View Routing
@@ -214,12 +289,20 @@ function bindEvents() {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
       const newCallout = editDriverCallout.value.trim();
+      
+      const speechOverride = {
+        voiceName: editDriverVoice.value,
+        pitch: parseFloat(editDriverPitch.value),
+        rate: parseFloat(editDriverRate.value)
+      };
+
       if (newName) {
         const drivers = getDrivers();
         const driverIndex = drivers.findIndex(d => d.id === selectedDriverId);
         if (driverIndex !== -1) {
           drivers[driverIndex].name = newName;
           drivers[driverIndex].customCallout = newCallout;
+          drivers[driverIndex].speechOverride = speechOverride;
           saveDriver(drivers[driverIndex]);
           renderDriverList();
           
@@ -355,6 +438,13 @@ function switchView(viewId) {
 
 function populateSettingsView() {
   const settings = getSettings();
+  
+  speechVoice.value = settings.speechVoice || '';
+  speechPitch.value = settings.speechPitch || 1.0;
+  speechPitchSlider.value = settings.speechPitch || 1.0;
+  speechRate.value = settings.speechRate || 1.1;
+  speechRateSlider.value = settings.speechRate || 1.1;
+  
   const ann = settings.announcements || {};
   document.getElementById('setting-speech-best-ever').value = ann.driverBestEver || '';
   document.getElementById('setting-speech-car-record').value = ann.carRecord || '';
@@ -397,7 +487,10 @@ function saveActiveSettings() {
   const settings = {
     minLapTime: parseFloat(minLapTime.value),
     speechEnabled: speechToggle.checked,
-    speechVolume: parseFloat(speechVolume.value)
+    speechVolume: parseFloat(speechVolume.value),
+    speechVoice: speechVoice.value,
+    speechPitch: parseFloat(speechPitch.value),
+    speechRate: parseFloat(speechRate.value)
   };
   activeSettings = saveSettings(settings);
 }
@@ -826,6 +919,13 @@ function renderDriverDetails(driverId) {
   selectedDriverId = driver.id;
   editDriverName.value = driver.name;
   editDriverCallout.value = driver.customCallout || '';
+  
+  const speechOverride = driver.speechOverride || {};
+  editDriverVoice.value = speechOverride.voiceName || '';
+  editDriverPitch.value = speechOverride.pitch || 1.0;
+  editDriverPitchSlider.value = speechOverride.pitch || 1.0;
+  editDriverRate.value = speechOverride.rate || 1.1;
+  editDriverRateSlider.value = speechOverride.rate || 1.1;
   
   deleteDriverConfirm.value = '';
   btnDeleteDriver.disabled = true;
