@@ -9,7 +9,7 @@ import {
   saveDriver, 
   deleteDriver, 
   getCars,
-  updateCar,
+  saveCar,
   deleteCar,
 
   deleteLap,
