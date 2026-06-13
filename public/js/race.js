@@ -43,6 +43,7 @@ export function initSession(config, onUpdate, onTimerUpdate) {
     limitType: config.limitType || 'time',
     limitValue: parseFloat(config.limitValue) || 5,
     minLapTime: parseFloat(config.minLapTime) || 3.0,
+    maxLapTime: parseFloat(config.maxLapTime) || 25.0,
     lapsLogged: 0,
     assignments: {},
     racers: {}
@@ -237,9 +238,15 @@ export function processCrossing(transponderId, ticks) {
     return;
   }
 
-  // Update crossing references
+  // Update crossing references for all valid single-triggers
   racer.lastCrossingTicks = ticks;
   racer.lastCrossingTime = now;
+
+  // Max lap time filter: reject if slower than maximum threshold (e.g. flipped, pitted)
+  if (sessionState.maxLapTime > 0 && lapTimeSeconds > sessionState.maxLapTime) {
+    console.log(`[Filter] Rejected slow lap for ID ${id}: ${lapTimeSeconds}s`);
+    return;
+  }
 
   // Record the lap
   const lapNumber = racer.laps.length + 1;

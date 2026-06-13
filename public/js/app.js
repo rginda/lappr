@@ -41,7 +41,8 @@ const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
 
-const minLapTime = document.getElementById('min-lap-time');
+const minLapTime = document.getElementById('setting-min-lap-time');
+const maxLapTime = document.getElementById('setting-max-lap-time');
 const btnSessionStart = document.getElementById('btn-session-start');
 const btnSessionReset = document.getElementById('btn-session-reset');
 
@@ -134,7 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load settings from database and update UI components.
  */
 function loadSettingsUI() {
-  minLapTime.value = activeSettings.minLapTime;
+  minLapTime.value = activeSettings.minLapTime || 3.0;
+  maxLapTime.value = activeSettings.maxLapTime || 25.0;
   
   speechToggle.checked = activeSettings.speechEnabled;
   speechVolume.value = activeSettings.speechVolume;
@@ -178,6 +180,11 @@ function bindEvents() {
   
   // Session Settings Events
   minLapTime.addEventListener('change', () => {
+    saveActiveSettings();
+    reinitSessionState();
+  });
+  
+  maxLapTime.addEventListener('change', () => {
     saveActiveSettings();
     reinitSessionState();
   });
@@ -530,7 +537,8 @@ function reinitSessionState() {
     mode: 'practice',
     limitType: 'time',
     limitValue: 0,
-    minLapTime: parseFloat(minLapTime.value)
+    minLapTime: parseFloat(minLapTime.value) || 3.0,
+    maxLapTime: parseFloat(maxLapTime.value) || 25.0
   };
   
   initSession(config, renderLeaderboard, updateTimerDisplay);
@@ -547,7 +555,8 @@ function reinitSessionState() {
  */
 function saveActiveSettings() {
   const settings = {
-    minLapTime: parseFloat(minLapTime.value),
+    minLapTime: parseFloat(minLapTime.value) || 3.0,
+    maxLapTime: parseFloat(maxLapTime.value) || 25.0,
     speechEnabled: speechToggle.checked,
     speechVolume: parseFloat(speechVolume.value),
     speechVoice: activeSettings.speechVoice,
