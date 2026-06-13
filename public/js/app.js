@@ -443,83 +443,90 @@ function renderLeaderboard({ state, leaderboard }) {
       </tr>`;
     countCarsDisplay.textContent = '0';
     countLapsDisplay.textContent = '0';
-    return;
+  } else {
+    countCarsDisplay.textContent = leaderboard.length;
+    countLapsDisplay.textContent = state.lapsLogged;
+
+    // Build rows
+    leaderboard.forEach((racer, index) => {
+      const position = index + 1;
+
+      const isLeader = racer.gap === 'Leader';
+      
+      const row = document.createElement('tr');
+      row.className = `leaderboard-row position-${position}`;
+      
+      // Style left border color of row based on racer theme color
+      row.style.borderLeft = `4px solid ${racer.color}`;
+
+      // Last lap classes (PB / Overall Best highlights)
+      const lastLapObj = racer.laps.slice(-1)[0];
+      let lastLapBadgeClass = 'lap-time-badge';
+      if (lastLapObj) {
+        if (lastLapObj.isOverallBest) lastLapBadgeClass += ' overall-best';
+        else if (lastLapObj.isPersonalBest) lastLapBadgeClass += ' personal-best';
+      }
+
+      // Best lap classes
+      let bestLapBadgeClass = 'lap-time-badge';
+      const isOverallBestLap = racer.bestLap !== Infinity && racer.laps.some(l => l.isOverallBest && l.lapTime === racer.bestLap);
+      if (isOverallBestLap) bestLapBadgeClass += ' overall-best';
+      else if (racer.laps.some(l => l.isPersonalBest && l.lapTime === racer.bestLap)) bestLapBadgeClass += ' personal-best';
+
+      const isUnknown = racer.carName === 'Unknown Car';
+      const carDisplay = isUnknown
+        ? `<div style="font-weight:600;">${racer.carName}</div><div style="font-size:0.75rem; color:var(--text-muted);">${racer.transponder}</div>`
+        : `<div style="font-weight:600;">${racer.carName}</div>`;
+
+      // Build assignment dropdown
+      let driverOptions = `<option value="">-- Unassigned --</option>`;
+      getDrivers().forEach(d => {
+        const selected = (state.assignments[racer.transponder] === d.id) ? 'selected' : '';
+        driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
+      });
+
+      row.innerHTML = `
+        <td><span class="pos-badge">${position}</span></td>
+        <td>
+          <select class="leaderboard-driver-assign" data-transponder="${racer.transponder}" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 0.2rem; font-size: 0.85rem; width: 100%;">
+            ${driverOptions}
+          </select>
+        </td>
+        <td>
+          ${carDisplay}
+        </td>
+        <td style="text-align: center;" class="mono">${racer.laps.length}</td>
+        <td class="mono">
+          ${lastLapObj ? `<span class="${lastLapBadgeClass}">${lastLapObj.lapTime.toFixed(2)}</span>` : '--'}
+        </td>
+        <td class="mono">
+          ${racer.bestLap !== Infinity ? `<span class="${bestLapBadgeClass}">${racer.bestLap.toFixed(3)}</span>` : '--'}
+        </td>
+        <td style="text-align: center;">
+          ${racer.laps.length >= 3 ? `<span style="color:var(--color-success); font-weight:bold;">&check;</span>` : '--'}
+        </td>
+        <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
+        <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
+      `;
+      
+      // Bind assignment change
+      row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
+        import('./race.js').then(module => {
+          module.assignSessionDriver(racer.transponder, e.target.value);
+        });
+      });
+      
+      leaderboardBody.appendChild(row);
+    });
   }
 
-  countCarsDisplay.textContent = leaderboard.length;
-  countLapsDisplay.textContent = state.lapsLogged;
-
-  // Build rows
-  leaderboard.forEach((racer, index) => {
-    const position = index + 1;
-
-    const isLeader = racer.gap === 'Leader';
-    
-    const row = document.createElement('tr');
-    row.className = `leaderboard-row position-${position}`;
-    
-    // Style left border color of row based on racer theme color
-    row.style.borderLeft = `4px solid ${racer.color}`;
-
-    // Last lap classes (PB / Overall Best highlights)
-    const lastLapObj = racer.laps.slice(-1)[0];
-    let lastLapBadgeClass = 'lap-time-badge';
-    if (lastLapObj) {
-      if (lastLapObj.isOverallBest) lastLapBadgeClass += ' overall-best';
-      else if (lastLapObj.isPersonalBest) lastLapBadgeClass += ' personal-best';
-    }
-
-    // Best lap classes
-    let bestLapBadgeClass = 'lap-time-badge';
-    const isOverallBestLap = racer.bestLap !== Infinity && racer.laps.some(l => l.isOverallBest && l.lapTime === racer.bestLap);
-    if (isOverallBestLap) bestLapBadgeClass += ' overall-best';
-    else if (racer.laps.some(l => l.isPersonalBest && l.lapTime === racer.bestLap)) bestLapBadgeClass += ' personal-best';
-
-    const isUnknown = racer.carName === 'Unknown Car';
-    const carDisplay = isUnknown
-      ? `<div style="font-weight:600;">${racer.carName}</div><div style="font-size:0.75rem; color:var(--text-muted);">${racer.transponder}</div>`
-      : `<div style="font-weight:600;">${racer.carName}</div>`;
-
-    // Build assignment dropdown
-    let driverOptions = `<option value="">-- Unassigned --</option>`;
-    getDrivers().forEach(d => {
-      const selected = (state.assignments[racer.transponder] === d.id) ? 'selected' : '';
-      driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
-    });
-
-    row.innerHTML = `
-      <td><span class="pos-badge">${position}</span></td>
-      <td>
-        <select class="leaderboard-driver-assign" data-transponder="${racer.transponder}" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 0.2rem; font-size: 0.85rem; width: 100%;">
-          ${driverOptions}
-        </select>
-      </td>
-      <td>
-        ${carDisplay}
-      </td>
-      <td style="text-align: center;" class="mono">${racer.laps.length}</td>
-      <td class="mono">
-        ${lastLapObj ? `<span class="${lastLapBadgeClass}">${lastLapObj.lapTime.toFixed(2)}</span>` : '--'}
-      </td>
-      <td class="mono">
-        ${racer.bestLap !== Infinity ? `<span class="${bestLapBadgeClass}">${racer.bestLap.toFixed(3)}</span>` : '--'}
-      </td>
-      <td style="text-align: center;">
-        ${racer.laps.length >= 3 ? `<span style="color:var(--color-success); font-weight:bold;">&check;</span>` : '--'}
-      </td>
-      <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
-      <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
-    `;
-    
-    // Bind assignment change
-    row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
-      import('./race.js').then(module => {
-        module.assignSessionDriver(racer.transponder, e.target.value);
-      });
-    });
-    
-    leaderboardBody.appendChild(row);
-  });
+  // Live update details panels if visible
+  if (document.getElementById('view-driver-details').classList.contains('active') && selectedDriverId) {
+    renderDriverDetails(selectedDriverId);
+  }
+  if (document.getElementById('view-car-details').classList.contains('active') && selectedCarId) {
+    renderCarDetails(selectedCarId);
+  }
 }
 
 /**
