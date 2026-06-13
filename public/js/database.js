@@ -272,7 +272,7 @@ export function getSettings() {
     announcements: {
       driverBestEver: '{driver} best lap ever! {time}',
       carRecord: '{car} record! {time}',
-      driverCarPR: '{driver} car p.r.! {time}',
+      driverCarPR: '{driver} {car} p.r.! {time}',
       sessionFastest: 'Session fastest lap! {driver}, {time} seconds',
       personalBest: 'Personal best for {driver}, {time} seconds',
       normal: '{driver}, {time}',
