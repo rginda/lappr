@@ -65,13 +65,24 @@ const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
 const notificationsContainer = document.getElementById('notifications');
 
-const driverDetailsPanel = document.getElementById('driver-details-panel');
+// Driver Details
 const editDriverName = document.getElementById('edit-driver-name');
 const btnSaveDriverName = document.getElementById('btn-save-driver-name');
-const btnCloseDriverDetails = document.getElementById('btn-close-driver-details');
 const driverPrsBody = document.getElementById('driver-prs-body');
 const driverLapsBody = document.getElementById('driver-laps-body');
+const deleteDriverConfirm = document.getElementById('delete-driver-confirm');
+const btnDeleteDriver = document.getElementById('btn-delete-driver');
 let selectedDriverId = null;
+
+// Car Details
+const editCarName = document.getElementById('edit-car-name');
+const editCarTransponder = document.getElementById('edit-car-transponder');
+const editCarColor = document.getElementById('edit-car-color');
+const editCarDriver = document.getElementById('edit-car-driver');
+const btnSaveCar = document.getElementById('btn-save-car');
+const deleteCarConfirm = document.getElementById('delete-car-confirm');
+const btnDeleteCar = document.getElementById('btn-delete-car');
+let selectedCarId = null;
 
 // Application State
 let activeSettings = {};
@@ -150,28 +161,33 @@ function bindEvents() {
   });
   
   // View Routing
-  const navTabs = document.querySelectorAll('.nav-tab');
-  const viewPanels = document.querySelectorAll('.view-panel');
-
+  const navTabs = document.querySelectorAll('.nav-tab[data-target]');
   navTabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      // Deactivate all
-      navTabs.forEach(t => t.classList.remove('active'));
-      viewPanels.forEach(p => p.classList.remove('active'));
-      
-      // Activate clicked
-      tab.classList.add('active');
-      const targetId = tab.getAttribute('data-target');
-      document.getElementById(targetId).classList.add('active');
+      switchView(tab.getAttribute('data-target'));
+    });
+  });
+
+  // Tree Toggles
+  const treeHeaders = document.querySelectorAll('.tree-header');
+  treeHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+      const targetId = header.getAttribute('data-tree');
+      const content = document.getElementById(targetId);
+      header.classList.toggle('collapsed');
+      content.classList.toggle('collapsed');
+    });
+  });
+
+  // Nav Action Buttons (+ New Driver, + New Car)
+  const navActionBtns = document.querySelectorAll('.nav-action-btn');
+  navActionBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchView(btn.getAttribute('data-target'));
     });
   });
   
   // Driver Details Events
-  btnCloseDriverDetails.addEventListener('click', () => {
-    driverDetailsPanel.style.display = 'none';
-    selectedDriverId = null;
-  });
-  
   btnSaveDriverName.addEventListener('click', () => {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
@@ -180,13 +196,87 @@ function bindEvents() {
         renderDriverList();
         renderCarList(); // Update dropdowns
         reinitSessionState(); // Update leaderboard names
-        // Note: we'd ideally not wipe session just for a name change, but it ensures consistency
+        switchView('view-session'); // Go back to session
       }
+    }
+  });
+
+  deleteDriverConfirm.addEventListener('input', (e) => {
+    const driver = getDrivers().find(d => d.id === selectedDriverId);
+    if (driver && e.target.value === driver.name) {
+      btnDeleteDriver.disabled = false;
+    } else {
+      btnDeleteDriver.disabled = true;
+    }
+  });
+
+  btnDeleteDriver.addEventListener('click', () => {
+    if (selectedDriverId && !btnDeleteDriver.disabled) {
+      deleteDriver(selectedDriverId);
+      selectedDriverId = null;
+      renderDriverList();
+      renderCarList();
+      reinitSessionState();
+      switchView('view-session');
+    }
+  });
+
+  // Car Details Events
+  btnSaveCar.addEventListener('click', () => {
+    if (selectedCarId) {
+      const name = editCarName.value.trim();
+      const color = editCarColor.value;
+      const driverId = editCarDriver.value;
+      
+      if (name) {
+        saveCar({
+          transponder: selectedCarId,
+          name,
+          color,
+          driverId
+        });
+        renderCarList();
+        reinitSessionState();
+        switchView('view-session');
+      }
+    }
+  });
+
+  deleteCarConfirm.addEventListener('input', (e) => {
+    const car = getCars().find(c => c.transponder === selectedCarId);
+    if (car && e.target.value === car.name) {
+      btnDeleteCar.disabled = false;
+    } else {
+      btnDeleteCar.disabled = true;
+    }
+  });
+
+  btnDeleteCar.addEventListener('click', () => {
+    if (selectedCarId && !btnDeleteCar.disabled) {
+      deleteCar(selectedCarId);
+      selectedCarId = null;
+      renderCarList();
+      reinitSessionState();
+      switchView('view-session');
     }
   });
 
   // Unregistered transponder callback hooks
   onUnregisteredAlert(displayUnregisteredNotification);
+}
+
+function switchView(targetId) {
+  const viewPanels = document.querySelectorAll('.view-panel');
+  viewPanels.forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+  
+  // Reset active state on nav elements
+  document.querySelectorAll('.nav-tab[data-target]').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tree-list li').forEach(t => t.classList.remove('active'));
+  
+  // Add active state to matching nav tab if it's a top level
+  const tab = document.querySelector(`.nav-tab[data-target="${targetId}"]`);
+  if (tab) tab.classList.add('active');
 }
 
 /**
@@ -442,13 +532,14 @@ function updateTimerDisplay(elapsedMs) {
 function handleAddDriver(e) {
   e.preventDefault();
   
-  const name = driverNameInput.value.trim();
+  const name = document.getElementById('driver-name').value.trim();
   const id = 'd_' + Date.now().toString(36);
   
   saveDriver({ id, name });
-  addDriverForm.reset();
+  document.getElementById('add-driver-form').reset();
   renderDriverList();
   renderCarList(); // Re-render cars so the new driver shows in dropdowns
+  switchView('view-session');
 }
 
 /**
@@ -457,9 +548,9 @@ function handleAddDriver(e) {
 function handleAddCar(e) {
   e.preventDefault();
   
-  const name = carNameInput.value.trim();
-  const transponder = carTransponderInput.value.trim().toUpperCase();
-  const color = carColorSelect.value;
+  const name = document.getElementById('car-name').value.trim();
+  const transponder = document.getElementById('car-transponder').value.trim().toUpperCase();
+  const color = document.getElementById('car-color').value;
   
   const car = {
     name,
@@ -469,56 +560,37 @@ function handleAddCar(e) {
   };
   
   saveCar(car);
-  addCarForm.reset();
+  document.getElementById('add-car-form').reset();
   renderCarList();
   
   // Hot-reload profile in the active timing engine
   assignUnregisteredRacer(transponder, name, color, 'Mini-Z');
   reinitSessionState();
+  switchView('view-session');
 }
 
 /**
  * Render list of drivers.
  */
 function renderDriverList() {
+  const driverList = document.getElementById('driver-list');
   driverList.innerHTML = '';
   const drivers = getDrivers();
   
   if (drivers.length === 0) {
-    driverList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); text-align:center;">No drivers added.</li>`;
+    driverList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); cursor:default; pointer-events:none;">No drivers added.</li>`;
     return;
   }
   
   drivers.forEach(d => {
     const li = document.createElement('li');
-    li.style.display = 'flex';
-    li.style.justifyContent = 'space-between';
-    li.style.alignItems = 'center';
-    li.style.padding = '0.5rem 0.75rem';
-    li.style.background = 'rgba(255,255,255,0.02)';
-    li.style.border = '1px solid var(--border-color)';
-    li.style.borderRadius = 'var(--radius-sm)';
+    li.textContent = d.name;
     
-    li.innerHTML = `
-      <div style="font-weight:600; font-size:0.9rem; cursor:pointer;" class="driver-name-label">${d.name}</div>
-      <button class="btn btn-secondary delete-btn" data-id="${d.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">Remove</button>
-    `;
-    
-    li.querySelector('.driver-name-label').addEventListener('click', () => {
+    li.addEventListener('click', () => {
+      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      li.classList.add('active');
       renderDriverDetails(d.id);
-    });
-    
-    li.querySelector('.delete-btn').addEventListener('click', (e) => {
-      if (window.confirm('Delete this driver?')) {
-        deleteDriver(e.target.getAttribute('data-id'));
-        if (selectedDriverId === d.id) {
-          driverDetailsPanel.style.display = 'none';
-          selectedDriverId = null;
-        }
-        renderDriverList();
-        renderCarList(); // Update dropdowns
-        reinitSessionState();
-      }
+      switchView('view-driver-details');
     });
     
     driverList.appendChild(li);
@@ -529,58 +601,24 @@ function renderDriverList() {
  * Render lists of cars in the configuration manager.
  */
 function renderCarList() {
+  const carList = document.getElementById('car-list');
   carList.innerHTML = '';
   const cars = getCars();
-  const drivers = getDrivers();
   
   if (cars.length === 0) {
-    carList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); text-align:center;">No cars added.</li>`;
+    carList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); cursor:default; pointer-events:none;">No cars added.</li>`;
     return;
   }
   
   cars.forEach(c => {
     const li = document.createElement('li');
-    li.style.display = 'flex';
-    li.style.justifyContent = 'space-between';
-    li.style.alignItems = 'center';
-    li.style.padding = '0.5rem 0.75rem';
-    li.style.background = 'rgba(255,255,255,0.02)';
-    li.style.border = '1px solid var(--border-color)';
-    li.style.borderRadius = 'var(--radius-sm)';
-    li.style.borderLeft = `4px solid ${c.color}`;
+    li.textContent = c.name;
     
-    // Create Driver Dropdown Options
-    let driverOptions = `<option value="">-- No Driver --</option>`;
-    drivers.forEach(d => {
-      const selected = (c.driverId === d.id) ? 'selected' : '';
-      driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
-    });
-    
-    li.innerHTML = `
-      <div style="flex: 1;">
-        <div style="font-weight:600; font-size:0.9rem;">${c.name}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; margin-bottom: 0.25rem;">${c.transponder}</div>
-        <select class="driver-select" data-transponder="${c.transponder}" style="font-size: 0.75rem; padding: 0.1rem 0.25rem; width: 100%; max-width: 150px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm);">
-          ${driverOptions}
-        </select>
-      </div>
-      <button class="btn btn-secondary delete-btn" data-id="${c.transponder}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent;">Remove</button>
-    `;
-    
-    // Bind driver assignment change
-    li.querySelector('.driver-select').addEventListener('change', (e) => {
-      assignDriverToCar(c.transponder, e.target.value);
-      reinitSessionState();
-    });
-    
-    // Bind delete click
-    li.querySelector('.delete-btn').addEventListener('click', (e) => {
-      const id = e.target.getAttribute('data-id');
-      if (window.confirm('Delete this car?')) {
-        deleteCar(id);
-        renderCarList();
-        reinitSessionState();
-      }
+    li.addEventListener('click', () => {
+      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      li.classList.add('active');
+      renderCarDetails(c.transponder);
+      switchView('view-car-details');
     });
     
     carList.appendChild(li);
@@ -630,8 +668,10 @@ function renderDriverDetails(driverId) {
   if (!driver) return;
   
   selectedDriverId = driver.id;
-  driverDetailsPanel.style.display = 'block';
   editDriverName.value = driver.name;
+  
+  deleteDriverConfirm.value = '';
+  btnDeleteDriver.disabled = true;
   
   // Render PRs
   driverPrsBody.innerHTML = '';
@@ -676,6 +716,31 @@ function renderDriverDetails(driverId) {
       driverLapsBody.appendChild(tr);
     });
   }
+}
+
+/**
+ * Render Car Details Panel
+ */
+function renderCarDetails(transponder) {
+  const cars = getCars();
+  const car = cars.find(c => c.transponder === transponder);
+  if (!car) return;
+  
+  selectedCarId = car.transponder;
+  
+  editCarName.value = car.name;
+  editCarTransponder.value = car.transponder;
+  editCarColor.value = car.color;
+  
+  // Populate Driver Select
+  editCarDriver.innerHTML = '<option value="">-- No Driver --</option>';
+  getDrivers().forEach(d => {
+    const selected = (car.driverId === d.id) ? 'selected' : '';
+    editCarDriver.innerHTML += `<option value="${d.id}" ${selected}>${d.name}</option>`;
+  });
+  
+  deleteCarConfirm.value = '';
+  btnDeleteCar.disabled = true;
 }
 
 /**

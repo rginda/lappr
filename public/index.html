@@ -42,8 +42,32 @@
       <aside class="sidebar">
         <nav class="sidebar-nav">
           <button class="nav-tab active" data-target="view-session">Session</button>
-          <button class="nav-tab" data-target="view-drivers">Drivers</button>
-          <button class="nav-tab" data-target="view-cars">Cars</button>
+          
+          <div class="nav-tree">
+            <button class="nav-tab tree-header" data-tree="drivers-tree">
+              <span>Drivers</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div id="drivers-tree" class="tree-content expanded">
+              <ul id="driver-list" class="tree-list">
+                <!-- Dynamically populated -->
+              </ul>
+              <button class="btn btn-secondary nav-action-btn" data-target="view-driver-form">+ New Driver</button>
+            </div>
+          </div>
+          
+          <div class="nav-tree">
+            <button class="nav-tab tree-header" data-tree="cars-tree">
+              <span>Cars</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div id="cars-tree" class="tree-content expanded">
+              <ul id="car-list" class="tree-list">
+                <!-- Dynamically populated -->
+              </ul>
+              <button class="btn btn-secondary nav-action-btn" data-target="view-car-form">+ New Car</button>
+            </div>
+          </div>
         </nav>
       </aside>
       
@@ -121,86 +145,84 @@
           </section>
         </main>
 
-        <!-- View: Drivers -->
-        <main id="view-drivers" class="view-panel">
-          <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; align-items: start;">
-            <!-- Left: Driver List -->
-            <section class="card glass-panel" id="drivers-panel">
-              <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Driver Roster</h2>
-              
-              <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
-                <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
-              </form>
-              
-              <div style="max-height: 600px; overflow-y: auto; padding-right: 0.25rem;">
-                <ul id="driver-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
-                  <!-- Dynamically populated -->
-                </ul>
-              </div>
-            </section>
-            
-            <!-- Right: Driver Details -->
-            <section class="card glass-panel" id="driver-details-panel" style="display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h2 style="color: var(--accent-primary);">Driver Profile</h2>
-                <button id="btn-close-driver-details" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem;">Close</button>
-              </div>
-              
-              <div style="margin-bottom: 2rem; display: flex; gap: 0.5rem;">
-                <input type="text" id="edit-driver-name" style="flex: 1; max-width: 300px;" placeholder="Driver Name">
-                <button id="btn-save-driver-name" class="btn btn-primary">Save Name</button>
-              </div>
-
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div>
-                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Last 10 Personal Records</h3>
-                  <div style="max-height: 400px; overflow-y: auto;">
-                    <table class="leaderboard-table" style="font-size: 0.85rem;">
-                      <thead>
-                        <tr>
-                          <th>Time</th>
-                          <th>Car</th>
-                          <th>Date</th>
-                          <th style="width: 50px;"></th>
-                        </tr>
-                      </thead>
-                      <tbody id="driver-prs-body"></tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Recent Laps (up to 100)</h3>
-                  <div style="max-height: 400px; overflow-y: auto;">
-                    <table class="leaderboard-table" style="font-size: 0.85rem;">
-                      <thead>
-                        <tr>
-                          <th>Time</th>
-                          <th>Car</th>
-                          <th>Date</th>
-                        </tr>
-                      </thead>
-                      <tbody id="driver-laps-body"></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
+        <!-- View: New Driver Form -->
+        <main id="view-driver-form" class="view-panel">
+          <section class="card glass-panel" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Add New Driver</h2>
+            <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+              <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
+              <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Create Driver</button>
+            </form>
+          </section>
         </main>
 
-        <!-- View: Cars -->
-        <main id="view-cars" class="view-panel">
-          <section class="card glass-panel" id="cars-panel" style="max-width: 600px;">
-            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Car Fleet</h2>
+        <!-- View: Driver Details -->
+        <main id="view-driver-details" class="view-panel">
+          <section class="card glass-panel" id="driver-details-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+              <h2 style="color: var(--accent-primary);">Driver Profile</h2>
+            </div>
             
-            <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+            <div style="margin-bottom: 2rem; display: flex; gap: 0.5rem;">
+              <input type="text" id="edit-driver-name" style="flex: 1; max-width: 300px;" placeholder="Driver Name">
+              <button id="btn-save-driver-name" class="btn btn-primary">Save Name</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+              <div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Last 10 Personal Records</h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                  <table class="leaderboard-table" style="font-size: 0.85rem;">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Car</th>
+                        <th>Date</th>
+                        <th style="width: 50px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="driver-prs-body"></tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Recent Laps (up to 100)</h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                  <table class="leaderboard-table" style="font-size: 0.85rem;">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Car</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody id="driver-laps-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <div class="danger-zone">
+              <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem;">Danger Zone</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">To delete this driver, please type their exact name to confirm.</p>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="delete-driver-confirm" placeholder="Type name to confirm" style="flex: 1; max-width: 300px;">
+                <button id="btn-delete-driver" class="btn btn-danger" disabled>Delete Driver</button>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- View: New Car Form -->
+        <main id="view-car-form" class="view-panel">
+          <section class="card glass-panel" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Add New Car</h2>
+            <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="car-name">Car Name</label>
                 <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
               </div>
-              
               <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
                 <div class="form-group" style="margin-bottom: 0;">
                   <label for="car-transponder">Transponder ID</label>
@@ -218,14 +240,52 @@
                   </select>
                 </div>
               </div>
-              
-              <button type="submit" class="btn btn-secondary">Add Car</button>
+              <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Create Car</button>
             </form>
+          </section>
+        </main>
+        
+        <!-- View: Car Details -->
+        <main id="view-car-details" class="view-panel">
+          <section class="card glass-panel" id="car-details-panel" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1rem; color: var(--accent-primary);">Car Profile</h2>
             
-            <div style="max-height: 500px; overflow-y: auto; padding-right: 0.25rem;">
-              <ul id="car-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
-                <!-- Dynamically populated -->
-              </ul>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="edit-car-name">Car Name</label>
+                <input type="text" id="edit-car-name" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="edit-car-transponder">Transponder ID (Read-only)</label>
+                <input type="text" id="edit-car-transponder" readonly style="opacity: 0.7;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="edit-car-color">Theme</label>
+                <select id="edit-car-color">
+                  <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
+                  <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
+                  <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
+                  <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
+                  <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
+                  <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="edit-car-driver">Assigned Driver</label>
+                <select id="edit-car-driver">
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+              <button id="btn-save-car" class="btn btn-primary" style="margin-top: 1rem;">Save Car Details</button>
+            </div>
+            
+            <div class="danger-zone">
+              <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem;">Danger Zone</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">To delete this car, please type its exact name to confirm.</p>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="delete-car-confirm" placeholder="Type name to confirm" style="flex: 1; max-width: 300px;">
+                <button id="btn-delete-car" class="btn btn-danger" disabled>Delete Car</button>
+              </div>
             </div>
           </section>
         </main>
