@@ -284,6 +284,7 @@ function bindEvents() {
   document.querySelectorAll('.preview-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-target');
+      const context = btn.getAttribute('data-context');
       const input = document.getElementById(targetId);
       if (input && input.value) {
         const previewText = input.value
@@ -292,12 +293,21 @@ function bindEvents() {
           .replace(/{time}/g, "9.5")
           .replace(/{streak}/g, "5");
           
+        let speechOpts = {
+          voiceName: activeSettings.speechVoice,
+          pitch: activeSettings.speechPitch,
+          rate: activeSettings.speechRate
+        };
+        
+        if (context === 'driver' && selectedDriverId) {
+          const driver = getDrivers().find(d => d.id === selectedDriverId);
+          if (driver && driver.speechOverride) {
+            speechOpts = driver.speechOverride;
+          }
+        }
+          
         import('./speech.js').then(speech => {
-          speech.speak(previewText, true, {
-            voiceName: activeSettings.speechVoice,
-            pitch: activeSettings.speechPitch,
-            rate: activeSettings.speechRate
-          });
+          speech.speak(previewText, true, speechOpts);
         });
       }
     });

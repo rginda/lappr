@@ -177,25 +177,25 @@
               <h2 style="color: var(--accent-primary);">Driver Profile</h2>
             </div>
             
-            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.5rem;">
-              <div class="form-group" style="margin-bottom: 0; flex: 1; max-width: 300px;">
+            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap;">
+              <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px; max-width: 250px;">
                 <label for="edit-driver-name" style="margin-bottom: 0.5rem;">Driver Name</label>
                 <input type="text" id="edit-driver-name" style="width: 100%;" placeholder="Driver Name">
               </div>
               
-              <div class="form-group" style="margin-bottom: 0; flex: 1; max-width: 400px;">
+              <div class="form-group" style="margin-bottom: 0; flex: 2; min-width: 350px;">
                 <label for="edit-driver-callout" style="margin-bottom: 0.5rem;">Custom PR Speech Callout</label>
-                <input type="text" id="edit-driver-callout" style="width: 100%;" placeholder="e.g. Kachow!">
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <input type="text" id="edit-driver-callout" style="flex: 1;" placeholder="e.g. Kachow!">
+                  <button class="btn preview-btn" data-target="edit-driver-callout" data-context="driver" style="padding: 0.5rem 0.75rem; flex-shrink: 0;" title="Preview">▶️</button>
+                  <button id="btn-config-driver-audio" class="btn btn-secondary" style="flex-shrink: 0;">⚙️ Voice</button>
+                </div>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Appended to announcements when setting a PR.</div>
               </div>
               
-              <div style="padding-top: 1.75rem;">
+              <div style="padding-top: 1.75rem; flex-shrink: 0;">
                 <button id="btn-save-driver-name" class="btn btn-primary">Save Profile</button>
               </div>
-            </div>
-            <div style="margin-bottom: 2rem;">
-              <h3 style="margin-bottom: 1rem; font-size: 1rem;">Speech Audio Override</h3>
-              <button id="btn-config-driver-audio" class="btn btn-secondary">⚙️ Configure Driver Voice</button>
             </div>
 
             <div style="margin-bottom: 2rem;">
