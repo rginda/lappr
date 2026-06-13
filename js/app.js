@@ -13,7 +13,6 @@ import {
 } from './database.js';
 
 import { 
-  connectSerial, 
   connectHID, 
   toggleSimulator, 
   disconnect 
@@ -32,10 +31,7 @@ import {
 import { configureSpeech, speak } from './speech.js';
 
 // DOM Elements
-const baudRateSelect = document.getElementById('baud-rate-select');
-const btnConnectSerial = document.getElementById('btn-connect-serial');
-const btnConnectHID = document.getElementById('btn-connect-hid');
-const simulatorToggle = document.getElementById('simulator-toggle');
+const btnConnect = document.getElementById('btn-connect');
 const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
@@ -93,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load settings from database and update UI components.
  */
 function loadSettingsUI() {
-  baudRateSelect.value = activeSettings.baudRate;
   sessionModeSelect.value = activeSettings.sessionMode;
   sessionLimitType.value = activeSettings.limitType;
   sessionLimitVal.value = activeSettings.limitValue;
@@ -115,9 +110,7 @@ function loadSettingsUI() {
  */
 function bindEvents() {
   // Connection Events
-  btnConnectSerial.addEventListener('click', handleConnectSerial);
-  btnConnectHID.addEventListener('click', handleConnectHID);
-  simulatorToggle.addEventListener('change', handleSimulatorToggle);
+  btnConnect.addEventListener('click', handleConnectClick);
   
   // Session Settings Events
   sessionModeSelect.addEventListener('change', () => {
@@ -192,7 +185,6 @@ function reinitSessionState() {
  */
 function saveActiveSettings() {
   const settings = {
-    baudRate: parseInt(baudRateSelect.value),
     sessionMode: sessionModeSelect.value,
     limitType: sessionLimitType.value,
     limitValue: parseFloat(sessionLimitVal.value),
@@ -230,55 +222,27 @@ function handleLimitTypeChange() {
 }
 
 /**
- * Hardware Serial Connection Click.
+ * Hardware Connection Click.
  */
-async function handleConnectSerial() {
-  if (btnConnectSerial.textContent === 'Disconnect') {
+async function handleConnectClick(e) {
+  if (btnConnect.textContent === 'Disconnect') {
     await disconnect(onStatusChange);
     return;
   }
   
-  const baud = parseInt(baudRateSelect.value);
-  btnConnectSerial.disabled = true;
-  btnConnectSerial.textContent = 'Connecting...';
-  
-  try {
-    await connectSerial(baud, onLineReceived, onStatusChange);
-  } catch (err) {
-    alert(`Web Serial failed: ${err.message}`);
-    btnConnectSerial.disabled = false;
-    btnConnectSerial.textContent = 'Web Serial';
-  }
-}
-
-/**
- * Hardware WebHID Connection Click.
- */
-async function handleConnectHID() {
-  if (btnConnectHID.textContent === 'Disconnect') {
-    await disconnect(onStatusChange);
+  if (e.shiftKey) {
+    toggleSimulator(true, onLineReceived, onStatusChange);
     return;
   }
   
-  btnConnectHID.disabled = true;
-  btnConnectHID.textContent = 'Connecting...';
-  
-  const baud = parseInt(baudRateSelect.value);
+  const baud = 38400; // Hardcoded default for EasyLap
   try {
     await connectHID(baud, onLineReceived, onStatusChange);
   } catch (err) {
     alert(`WebHID connection failed: ${err.message}`);
-    btnConnectHID.disabled = false;
-    btnConnectHID.textContent = 'WebHID (CP2110)';
+    btnConnect.disabled = false;
+    btnConnect.textContent = 'Connect Lap Counter';
   }
-}
-
-/**
- * Simulator Checkbox toggle logic.
- */
-function handleSimulatorToggle(e) {
-  const isChecked = e.target.checked;
-  toggleSimulator(isChecked, onLineReceived, onStatusChange);
 }
 
 /**
@@ -291,37 +255,17 @@ function onStatusChange(status) {
     connectionStatusText.textContent = status.name;
     btnSessionStart.disabled = false;
     
-    if (status.type === 'serial') {
-      btnConnectSerial.textContent = 'Disconnect';
-      btnConnectSerial.className = 'btn btn-danger';
-      btnConnectSerial.disabled = false;
-      btnConnectHID.disabled = true;
-      simulatorToggle.checked = false;
-    } else if (status.type === 'hid') {
-      btnConnectHID.textContent = 'Disconnect';
-      btnConnectHID.className = 'btn btn-danger';
-      btnConnectHID.disabled = false;
-      btnConnectSerial.disabled = true;
-      simulatorToggle.checked = false;
-    } else if (status.type === 'simulator') {
-      btnConnectSerial.disabled = true;
-      btnConnectHID.disabled = true;
-      simulatorToggle.checked = true;
-    }
+    btnConnect.textContent = 'Disconnect';
+    btnConnect.className = 'btn btn-danger';
+    btnConnect.disabled = false;
   } else {
     connectionBadge.className = 'status-indicator disconnected';
     connectionStatusText.textContent = 'Hardware Offline';
     btnSessionStart.disabled = true;
     
-    btnConnectSerial.textContent = 'Web Serial';
-    btnConnectSerial.className = 'btn btn-primary';
-    btnConnectSerial.disabled = false;
-    
-    btnConnectHID.textContent = 'WebHID (CP2110)';
-    btnConnectHID.className = 'btn btn-secondary';
-    btnConnectHID.disabled = false;
-    
-    simulatorToggle.checked = false;
+    btnConnect.textContent = 'Connect Lap Counter';
+    btnConnect.className = 'btn btn-primary';
+    btnConnect.disabled = false;
   }
 }
 

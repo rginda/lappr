@@ -5,8 +5,7 @@
 
 import { startSimulator, stopSimulator } from './simulator.js';
 
-let serialPort = null;
-let serialReader = null;
+
 let hidDevice = null;
 let isConnected = false;
 let inputBuffer = '';
@@ -81,68 +80,7 @@ function handleLegacyAsciiLine(text, onLineCallback) {
   }
 }
 
-/**
- * Connect to decoder via Web Serial API.
- * @param {number} baudRate - The baud rate (e.g. 115200).
- * @param {Function} onLineCallback - Callback for received lines.
- * @param {Function} onStatusChange - Callback for connection status updates.
- */
-export async function connectSerial(baudRate, onLineCallback, onStatusChange) {
-  if (!navigator.serial) {
-    throw new Error('Web Serial API is not supported in this browser. Try Chrome, Edge, or Opera.');
-  }
 
-  try {
-    serialPort = await navigator.serial.requestPort();
-    await serialPort.open({ baudRate });
-    
-    isConnected = true;
-    onStatusChange({ connected: true, type: 'serial', name: 'Serial Port' });
-    
-    // Start reading loop
-    readSerialLoop(onLineCallback, onStatusChange);
-  } catch (err) {
-    console.error('Serial connection failed:', err);
-    disconnect(onStatusChange);
-    throw err;
-  }
-}
-
-/**
- * Reading loop for Web Serial.
- */
-async function readSerialLoop(onLineCallback, onStatusChange) {
-  const decoder = new TextDecoder();
-  
-  while (serialPort && serialPort.readable && isConnected) {
-    try {
-      serialReader = serialPort.readable.getReader();
-      
-      while (isConnected) {
-        const { value, done } = await serialReader.read();
-        if (done) {
-          break;
-        }
-        if (value) {
-          handleBinaryData(value, onLineCallback);
-        }
-      }
-    } catch (err) {
-      console.error('Error reading serial stream:', err);
-      break;
-    } finally {
-      if (serialReader) {
-        serialReader.releaseLock();
-        serialReader = null;
-      }
-    }
-  }
-  
-  // If we exit loop but were supposed to be connected, it means hardware was pulled
-  if (isConnected) {
-    disconnect(onStatusChange);
-  }
-}
 
 /**
  * Connect to Silicon Labs CP2110 via WebHID.
@@ -253,19 +191,7 @@ export async function disconnect(onStatusChange) {
   // Stop simulator if active
   stopSimulator();
 
-  // Close Web Serial port
-  if (serialReader) {
-    try {
-      await serialReader.cancel();
-    } catch (e) {}
-    serialReader = null;
-  }
-  if (serialPort) {
-    try {
-      await serialPort.close();
-    } catch (e) {}
-    serialPort = null;
-  }
+
 
   // Close WebHID device
   if (hidDevice) {
