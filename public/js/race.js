@@ -390,7 +390,7 @@ function announceLap(racer, lap, dbResult) {
   if (driverId) {
     const driver = getDrivers().find(d => d.id === driverId);
     if (driver) {
-      if ((isDriverBestEver || isCarRecord || isDriverCarPR) && driver.customCallout) {
+      if ((isDriverBestEver || isCarRecord || isDriverCarPR || lap.isOverallBest) && driver.customCallout) {
         customCallout = driver.customCallout;
       }
       if (driver.speechOverride) {
