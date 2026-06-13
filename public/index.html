@@ -274,7 +274,7 @@
                   type="text"
                   id="driver-name"
                   placeholder="Driver Name"
-                  required
+                  required=""
                   style="
                     flex: 1;
                     min-width: 0;
@@ -326,39 +326,6 @@
                     style="width: 100%"
                     placeholder="Driver Name"
                   />
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0; flex: 2; min-width: 350px">
-                  <label for="edit-driver-callout" style="margin-bottom: 0.5rem"
-                    >Custom PR Speech Callout</label
-                  >
-                  <div style="display: flex; gap: 0.5rem; align-items: center">
-                    <input
-                      type="text"
-                      id="edit-driver-callout"
-                      style="flex: 1"
-                      placeholder="e.g. Kachow!"
-                    />
-                    <button
-                      class="btn preview-btn"
-                      data-target="edit-driver-callout"
-                      data-context="driver"
-                      style="padding: 0.5rem 0.75rem; flex-shrink: 0"
-                      title="Preview"
-                    >
-                      ▶️
-                    </button>
-                    <button
-                      id="btn-config-driver-audio"
-                      class="btn btn-secondary"
-                      style="flex-shrink: 0"
-                    >
-                      ⚙️ Voice
-                    </button>
-                  </div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem">
-                    Appended to announcements when setting a PR.
-                  </div>
                 </div>
               </div>
 
@@ -430,7 +397,7 @@
                     placeholder="Type name to confirm"
                     style="flex: 1; max-width: 300px"
                   />
-                  <button id="btn-delete-driver" class="btn btn-danger" disabled>
+                  <button id="btn-delete-driver" class="btn btn-danger" disabled="">
                     Delete Driver
                   </button>
                 </div>
@@ -452,12 +419,12 @@
                       placeholder="e.g. CDFD4C"
                       pattern="^[0-9A-Fa-f]{6}$"
                       title="6-character hex ID"
-                      required
+                      required=""
                     />
                   </div>
                   <div class="form-group" style="margin-bottom: 0; flex: 1">
                     <label for="car-name">Car Name</label>
-                    <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required />
+                    <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required="" />
                   </div>
                   <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
                     <label for="car-chassis">Chassis</label>
@@ -569,13 +536,13 @@
                   <input
                     type="text"
                     id="edit-car-transponder"
-                    readonly
+                    readonly=""
                     style="opacity: 0.7; font-family: monospace; text-align: center"
                   />
                 </div>
                 <div class="form-group" style="margin-bottom: 0; flex: 1">
                   <label for="edit-car-name">Car Name</label>
-                  <input type="text" id="edit-car-name" required />
+                  <input type="text" id="edit-car-name" required="" />
                 </div>
                 <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
                   <label for="edit-car-chassis">Chassis</label>
@@ -724,7 +691,7 @@
                     placeholder="Type name to confirm"
                     style="flex: 1; max-width: 300px"
                   />
-                  <button id="btn-delete-car" class="btn btn-danger" disabled>Delete Car</button>
+                  <button id="btn-delete-car" class="btn btn-danger" disabled="">Delete Car</button>
                 </div>
               </div>
             </section>
@@ -805,9 +772,89 @@
                 Audio Engine
               </h3>
               <div style="margin-bottom: 2rem">
-                <button id="btn-config-global-audio" class="btn btn-secondary">
-                  ⚙️ Configure Audio Engine
-                </button>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: max-content 1fr;
+                    gap: 1rem 1.5rem;
+                    align-items: center;
+                    margin-bottom: 2rem;
+                    max-width: 500px;
+                  "
+                >
+                  <label for="speech-toggle" style="margin: 0px; text-align: left"
+                    >Voice Callouts</label
+                  >
+                  <div style="display: flex; align-items: center">
+                    <input
+                      type="checkbox"
+                      id="speech-toggle"
+                      checked=""
+                      style="
+                        accent-color: var(--accent-primary);
+                        cursor: pointer;
+                        width: 20px;
+                        height: 20px;
+                        margin: 0px;
+                      "
+                    />
+                  </div>
+                  <label for="speech-volume" style="margin: 0px; text-align: left"
+                    >Voice Volume</label
+                  >
+                  <div>
+                    <input
+                      type="range"
+                      id="speech-volume"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value="0.8"
+                      style="width: 100%; accent-color: var(--accent-primary)"
+                    />
+                  </div>
+                  <label for="modal-speech-voice" style="margin: 0; text-align: left">Voice</label
+                  ><select id="modal-speech-voice" style="width: 100%">
+                    <option value="">Default (Auto)</option></select
+                  ><label for="modal-speech-pitch" style="margin: 0; text-align: left">Pitch</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center">
+                    <input
+                      type="range"
+                      id="modal-speech-pitch-slider"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value="1.0"
+                      style="flex: 1"
+                    /><input
+                      type="number"
+                      id="modal-speech-pitch"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      style="width: 80px"
+                    />
+                  </div>
+                  <label for="modal-speech-rate" style="margin: 0; text-align: left">Rate</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center">
+                    <input
+                      type="range"
+                      id="modal-speech-rate-slider"
+                      min="0.5"
+                      max="2.5"
+                      step="0.1"
+                      value="1.1"
+                      style="flex: 1"
+                    /><input
+                      type="number"
+                      id="modal-speech-rate"
+                      min="0.5"
+                      max="2.5"
+                      step="0.1"
+                      style="width: 80px"
+                    />
+                  </div>
+                </div>
               </div>
 
               <hr
@@ -1013,148 +1060,12 @@
       "
     >
       <div>
-        <span>Lappr v1.0.0 &bull; Offline Ready</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 1.5rem">
-        <div style="display: flex; align-items: center; gap: 0.5rem">
-          <label
-            for="speech-volume"
-            style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem"
-            >Voice volume</label
-          >
-          <input
-            type="range"
-            id="speech-volume"
-            min="0"
-            max="1"
-            step="0.1"
-            value="0.8"
-            style="width: 80px; accent-color: var(--accent-primary)"
-          />
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem">
-          <label
-            for="speech-toggle"
-            style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem"
-            >Voice Callouts</label
-          >
-          <input
-            type="checkbox"
-            id="speech-toggle"
-            checked
-            style="accent-color: var(--accent-primary); cursor: pointer"
-          />
-        </div>
+        <span>Lappr v1.0.0 • Offline Ready</span>
       </div>
     </footer>
 
     <!-- Application Modules -->
     <!-- Audio Settings Modal -->
-    <div
-      id="audio-settings-modal"
-      class="modal"
-      style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-      "
-    >
-      <div
-        class="card glass-panel"
-        style="width: 90%; max-width: 500px; padding: 2rem; position: relative"
-      >
-        <h2
-          id="audio-settings-modal-title"
-          style="color: var(--accent-primary); margin-bottom: 1.5rem"
-        >
-          Audio Engine
-        </h2>
-
-        <div
-          style="
-            display: grid;
-            grid-template-columns: max-content 1fr;
-            gap: 1rem 1.5rem;
-            align-items: center;
-            margin-bottom: 2rem;
-          "
-        >
-          <label for="modal-speech-voice" style="margin: 0; text-align: left">Voice</label>
-          <select id="modal-speech-voice" style="width: 100%">
-            <option value="">Default (Auto)</option>
-          </select>
-
-          <label for="modal-speech-pitch" style="margin: 0; text-align: left">Pitch</label>
-          <div style="display: flex; gap: 0.5rem; align-items: center">
-            <input
-              type="range"
-              id="modal-speech-pitch-slider"
-              min="0"
-              max="2"
-              step="0.1"
-              value="1.0"
-              style="flex: 1"
-            />
-            <input
-              type="number"
-              id="modal-speech-pitch"
-              min="0"
-              max="2"
-              step="0.1"
-              style="width: 80px"
-            />
-          </div>
-
-          <label for="modal-speech-rate" style="margin: 0; text-align: left">Rate</label>
-          <div style="display: flex; gap: 0.5rem; align-items: center">
-            <input
-              type="range"
-              id="modal-speech-rate-slider"
-              min="0.5"
-              max="2.5"
-              step="0.1"
-              value="1.1"
-              style="flex: 1"
-            />
-            <input
-              type="number"
-              id="modal-speech-rate"
-              min="0.5"
-              max="2.5"
-              step="0.1"
-              style="width: 80px"
-            />
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <button id="btn-modal-audio-revert" class="btn btn-secondary" style="font-size: 0.85rem">
-            Revert to Default
-          </button>
-          <div style="display: flex; gap: 0.5rem">
-            <button
-              id="btn-modal-audio-cancel"
-              class="btn"
-              style="
-                background: transparent;
-                color: var(--text-primary);
-                border: 1px solid var(--border-color);
-              "
-            >
-              Cancel
-            </button>
-            <button id="btn-modal-audio-save" class="btn btn-primary">Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <script type="module" src="./js/app.js"></script>
   </body>
