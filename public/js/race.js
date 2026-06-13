@@ -605,7 +605,7 @@ export function refreshActiveRacers() {
  * Backs up the current session assignments to localStorage.
  */
 export function backupSessionState() {
-  if (sessionState.status === 'active' || Object.keys(sessionState.assignments).length > 0) {
+  if (sessionState.status === 'active') {
     localStorage.setItem(
       'lappr-session-backup',
       JSON.stringify({
@@ -632,7 +632,7 @@ export function recoverSessionState() {
     if (!data) return { recovered: false, wasRunning: false };
 
     const backup = JSON.parse(data);
-    if (Date.now() - backup.timestamp > 60000) {
+    if (Date.now() - backup.timestamp > 60000 || backup.status !== 'active') {
       localStorage.removeItem('lappr-session-backup');
       return { recovered: false, wasRunning: false };
     }
