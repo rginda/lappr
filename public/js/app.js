@@ -29,7 +29,8 @@ import {
   clearSession, 
   processCrossing,
   onUnregisteredAlert,
-  assignUnregisteredRacer
+  assignUnregisteredRacer,
+  refreshActiveRacers
 } from './race.js';
 
 import { configureSpeech } from './speech.js';
@@ -215,12 +216,7 @@ function bindEvents() {
           renderDriverList();
           
           // Update active session racers dynamically without resetting
-          Object.entries(sessionState.assignments).forEach(([tId, dId]) => {
-            if (dId === selectedDriverId && sessionState.racers[tId]) {
-              sessionState.racers[tId].name = newName;
-            }
-          });
-          renderLeaderboard({ state: sessionState, leaderboard });
+          refreshActiveRacers();
         }
       }
     }
@@ -265,11 +261,7 @@ function bindEvents() {
       renderCarList();
       
       // Update active session racers dynamically
-      if (sessionState.racers[selectedCarId]) {
-        sessionState.racers[selectedCarId].carName = newName;
-        sessionState.racers[selectedCarId].color = newColor;
-      }
-      renderLeaderboard({ state: sessionState, leaderboard }); // update if in session
+      refreshActiveRacers();
     }
   });
 

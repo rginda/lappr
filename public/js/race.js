@@ -482,3 +482,29 @@ export function assignSessionDriver(transponder, driverId) {
   
   triggerUpdate();
 }
+
+/**
+ * Re-sync the names and colors of active racers in the session
+ * with the latest data from the database.
+ */
+export function refreshActiveRacers() {
+  const drivers = getDrivers();
+  const cars = getCars();
+  
+  for (const [id, racer] of Object.entries(sessionState.racers)) {
+    const car = cars.find(c => c.transponder === id);
+    if (car) {
+      racer.carName = car.name;
+      racer.color = car.color;
+    }
+    
+    const driverId = sessionState.assignments[id];
+    if (driverId) {
+      const driver = drivers.find(d => d.id === driverId);
+      if (driver) {
+        racer.name = driver.name;
+      }
+    }
+  }
+  triggerUpdate();
+}
