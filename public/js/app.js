@@ -11,7 +11,6 @@ import {
   getCars,
   saveCar,
   deleteCar,
-  assignDriverToCar,
   getSettings, 
   saveSettings,
   deleteDriverPr
@@ -186,6 +185,19 @@ function bindEvents() {
       switchView(btn.getAttribute('data-target'));
     });
   });
+
+  // Color Chips
+  const colorChips = document.querySelectorAll('.color-chip');
+  colorChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const color = chip.getAttribute('data-color');
+      // For car details color picker
+      const picker = chip.closest('.form-group').querySelector('input[type="color"]');
+      if (picker) {
+        picker.value = color;
+      }
+    });
+  });
   
   // Driver Details Events
   btnSaveDriverName.addEventListener('click', () => {
@@ -226,14 +238,12 @@ function bindEvents() {
     if (selectedCarId) {
       const name = editCarName.value.trim();
       const color = editCarColor.value;
-      const driverId = editCarDriver.value;
       
       if (name) {
         saveCar({
           transponder: selectedCarId,
           name,
-          color,
-          driverId
+          color
         });
         renderCarList();
         reinitSessionState();
@@ -470,10 +480,19 @@ function renderLeaderboard({ state, leaderboard }) {
       ? `<div style="font-weight:600;">${racer.carName}</div><div style="font-size:0.75rem; color:var(--text-muted);">${racer.transponder}</div>`
       : `<div style="font-weight:600;">${racer.carName}</div>`;
 
+    // Build assignment dropdown
+    let driverOptions = `<option value="">-- Unassigned --</option>`;
+    getDrivers().forEach(d => {
+      const selected = (state.assignments[racer.transponder] === d.id) ? 'selected' : '';
+      driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
+    });
+
     row.innerHTML = `
       <td><span class="pos-badge">${position}</span></td>
       <td>
-        <div style="font-weight:700;">${racer.name}</div>
+        <select class="leaderboard-driver-assign" data-transponder="${racer.transponder}" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 0.2rem; font-size: 0.85rem; width: 100%;">
+          ${driverOptions}
+        </select>
       </td>
       <td>
         ${carDisplay}
@@ -492,14 +511,11 @@ function renderLeaderboard({ state, leaderboard }) {
       <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
     `;
     
-    row.style.cursor = 'pointer';
-    row.title = 'Click to edit this car in the fleet manager';
-    row.addEventListener('click', () => {
-      carNameInput.value = racer.carName;
-      carTransponderInput.value = racer.transponder;
-      carColorSelect.value = racer.color;
-      carNameInput.focus();
-      carNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Bind assignment change
+    row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
+      import('./race.js').then(module => {
+        module.assignSessionDriver(racer.transponder, e.target.value);
+      });
     });
     
     leaderboardBody.appendChild(row);
@@ -732,15 +748,61 @@ function renderCarDetails(transponder) {
   editCarTransponder.value = car.transponder;
   editCarColor.value = car.color;
   
-  // Populate Driver Select
-  editCarDriver.innerHTML = '<option value="">-- No Driver --</option>';
-  getDrivers().forEach(d => {
-    const selected = (car.driverId === d.id) ? 'selected' : '';
-    editCarDriver.innerHTML += `<option value="${d.id}" ${selected}>${d.name}</option>`;
-  });
-  
   deleteCarConfirm.value = '';
   btnDeleteCar.disabled = true;
+
+  // Render Best Lap per Driver
+  const carDriversBody = document.getElementById('car-drivers-body');
+  carDriversBody.innerHTML = '';
+  
+  const laps = car.laps || [];
+  
+  if (laps.length === 0) {
+    carDriversBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
+  } else {
+    // Group by driverId
+    const driverBests = {};
+    laps.forEach(lap => {
+      const dId = lap.driverId || 'unknown';
+      if (!driverBests[dId] || lap.lapTime < driverBests[dId].lapTime) {
+        driverBests[dId] = lap;
+      }
+    });
+    
+    // Sort drivers by best time
+    const sortedBests = Object.values(driverBests).sort((a, b) => a.lapTime - b.lapTime);
+    
+    sortedBests.forEach(best => {
+      const tr = document.createElement('tr');
+      const dateStr = new Date(best.timestamp).toLocaleString();
+      tr.innerHTML = `
+        <td>${best.driverName}</td>
+        <td class="mono" style="color:var(--color-success); font-weight:bold;">${best.lapTime.toFixed(3)}</td>
+        <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+      `;
+      carDriversBody.appendChild(tr);
+    });
+  }
+
+  // Render Top 10 Laps
+  const carPrsBody = document.getElementById('car-prs-body');
+  carPrsBody.innerHTML = '';
+  const prs = car.prs || [];
+  if (prs.length === 0) {
+    carPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
+  } else {
+    prs.slice(0, 10).forEach(pr => {
+      const tr = document.createElement('tr');
+      const dateStr = new Date(pr.timestamp).toLocaleString();
+      tr.innerHTML = `
+        <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
+        <td>${pr.driverName}</td>
+        <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+        <td></td>
+      `;
+      carPrsBody.appendChild(tr);
+    });
+  }
 }
 
 /**

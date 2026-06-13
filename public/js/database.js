@@ -18,8 +18,8 @@ const DEFAULT_DRIVERS = [
 ];
 
 const DEFAULT_CARS = [
-  { transponder: 'CDFD4C', name: 'Red Mini-Z RWD', color: '#ef4444', driverId: 'driver-1' },
-  { transponder: '00FFAB', name: 'Blue Mini-Z AWD', color: '#06b6d4', driverId: 'driver-2' }
+  { transponder: 'CDFD4C', name: 'Red Mini-Z RWD', color: '#ef4444', laps: [], prs: [] },
+  { transponder: '00FFAB', name: 'Blue Mini-Z AWD', color: '#06b6d4', laps: [], prs: [] }
 ];
 
 const DEFAULT_SETTINGS = {
@@ -64,71 +64,84 @@ export function deleteDriver(id) {
   drivers = drivers.filter(d => d.id !== id);
   localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
   
-  // Clear assignments for deleted driver
-  const cars = getCars();
-  let carsUpdated = false;
-  cars.forEach(c => {
-    if (c.driverId === id) {
-      c.driverId = '';
-      carsUpdated = true;
-    }
-  });
-  if (carsUpdated) {
-    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
-  }
-  
-  
   return drivers;
 }
 
 /**
- * Log a lap for a driver. Maintains last 100 laps and a history of PRs.
+ * Log a lap to both driver and car history. Maintains last 100 laps and a history of PRs for both.
  */
-export function logDriverLap(driverId, carName, lapTime) {
+export function logLap(driverId, transponder, lapTime) {
+  const now = Date.now();
+  const lapId = 'lap_' + now.toString(36) + Math.random().toString(36).substr(2, 5);
+  
+  let driverResult = { driver: null, isPR: false };
+  let carResult = { car: null, isPR: false };
+  
   const drivers = getDrivers();
+  const cars = getCars();
+  
+  const carIndex = cars.findIndex(c => c.transponder.toUpperCase() === transponder.toUpperCase());
   const driverIndex = drivers.findIndex(d => d.id === driverId);
   
-  if (driverIndex === -1) return null;
-  
-  const driver = drivers[driverIndex];
-  if (!driver.laps) driver.laps = [];
-  if (!driver.prs) driver.prs = [];
-  
-  const now = Date.now();
-  const lapEntry = { car: carName, timestamp: now, lapTime: lapTime, id: 'lap_' + now.toString(36) + Math.random().toString(36).substr(2, 5) };
-  
-  // Add to laps list (keep last 100)
-  driver.laps.unshift(lapEntry); // prepend so newest is first
-  if (driver.laps.length > 100) {
-    driver.laps.pop();
-  }
-  
-  // Check PR
-  // A lap is a PR if it's faster than the current absolute best PR.
-  // The current absolute best PR is the lapTime of the LAST element in the prs array (if any).
-  // Wait, if they beat their best, add a new entry.
-  let isPR = false;
-  if (driver.prs.length === 0) {
-    isPR = true;
-  } else {
-    // The most recent PR is at index 0 (if we unshift) or last (if we push).
-    // Let's keep newest PRs at index 0 to match laps array.
-    const currentBest = driver.prs[0].lapTime;
-    if (lapTime < currentBest) {
+  const car = carIndex !== -1 ? cars[carIndex] : null;
+  const driver = driverIndex !== -1 ? drivers[driverIndex] : null;
+
+  // 1. Log for Driver (if assigned and known)
+  if (driver && car) {
+    if (!driver.laps) driver.laps = [];
+    if (!driver.prs) driver.prs = [];
+    
+    const driverLapEntry = { car: car.name, carTransponder: transponder, timestamp: now, lapTime: lapTime, id: lapId };
+    
+    driver.laps.unshift(driverLapEntry);
+    if (driver.laps.length > 100) driver.laps.pop();
+    
+    let isPR = false;
+    if (driver.prs.length === 0) {
       isPR = true;
+    } else {
+      const currentBest = driver.prs[0].lapTime;
+      if (lapTime < currentBest) isPR = true;
     }
+    
+    if (isPR) {
+      driver.prs.unshift(driverLapEntry);
+      if (driver.prs.length > 15) driver.prs.pop();
+    }
+    
+    driverResult = { driver, isPR };
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  }
+
+  // 2. Log for Car (always logged even if no driver, but here we require transponder to be valid)
+  if (car) {
+    if (!car.laps) car.laps = [];
+    if (!car.prs) car.prs = [];
+    
+    // We store driverId to be able to group by driver on the car profile
+    const carLapEntry = { driverId: driver ? driver.id : null, driverName: driver ? driver.name : 'Unknown', timestamp: now, lapTime: lapTime, id: lapId };
+    
+    car.laps.unshift(carLapEntry);
+    if (car.laps.length > 100) car.laps.pop();
+    
+    let isPR = false;
+    if (car.prs.length === 0) {
+      isPR = true;
+    } else {
+      const currentBest = car.prs[0].lapTime;
+      if (lapTime < currentBest) isPR = true;
+    }
+    
+    if (isPR) {
+      car.prs.unshift(carLapEntry);
+      if (car.prs.length > 15) car.prs.pop();
+    }
+    
+    carResult = { car, isPR };
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
   }
   
-  if (isPR) {
-    driver.prs.unshift(lapEntry); // prepend newest PR
-    // keep more than 10 so if they delete we have backups (user asked to drop oldest when > 11)
-    if (driver.prs.length > 15) {
-      driver.prs.pop();
-    }
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
-  return { driver, isPR };
+  return { driverResult, carResult };
 }
 
 /**
@@ -196,17 +209,7 @@ export function deleteCar(transponder) {
   return cars;
 }
 
-/**
- * Assign a driver to a car.
- */
-export function assignDriverToCar(transponder, driverId) {
-  const cars = getCars();
-  const car = cars.find(c => c.transponder.toUpperCase() === transponder.toUpperCase());
-  if (car) {
-    car.driverId = driverId;
-    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
-  }
-}
+
 
 /**
  * Save settings to storage.

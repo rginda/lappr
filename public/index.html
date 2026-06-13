@@ -122,7 +122,7 @@
                 <thead>
                   <tr>
                     <th style="width: 60px;">Pos</th>
-                    <th>Driver</th>
+                    <th style="min-width: 150px;">Driver / Assign</th>
                     <th>Car</th>
                     <th style="width: 80px; text-align: center;">Laps</th>
                     <th>Last Lap</th>
@@ -219,25 +219,28 @@
           <section class="card glass-panel" style="max-width: 600px;">
             <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Add New Car</h2>
             <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="car-name">Car Name</label>
-                <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
-                <div class="form-group" style="margin-bottom: 0;">
+              <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
                   <label for="car-transponder">Transponder ID</label>
                   <input type="text" id="car-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                  <label for="car-name">Car Name</label>
+                  <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0;">
                   <label for="car-color">Theme</label>
-                  <select id="car-color">
-                    <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
-                    <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
-                    <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
-                    <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
-                    <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
-                    <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
-                  </select>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <input type="color" id="car-color" value="#ef4444" style="width: 100%; height: 38px; padding: 0; cursor: pointer; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: transparent;">
+                    <div class="color-chips" style="display: flex; gap: 0.35rem;">
+                      <div class="color-chip" data-color="#8b5cf6" style="background:#8b5cf6; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                      <div class="color-chip" data-color="#06b6d4" style="background:#06b6d4; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                      <div class="color-chip" data-color="#10b981" style="background:#10b981; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                      <div class="color-chip" data-color="#f59e0b" style="background:#f59e0b; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                      <div class="color-chip" data-color="#ec4899" style="background:#ec4899; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                      <div class="color-chip" data-color="#ef4444" style="background:#ef4444; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Create Car</button>
@@ -250,33 +253,63 @@
           <section class="card glass-panel" id="car-details-panel" style="max-width: 600px;">
             <h2 style="margin-bottom: 1rem; color: var(--accent-primary);">Car Profile</h2>
             
-            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;">
-              <div class="form-group" style="margin-bottom: 0;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
+                <label for="edit-car-transponder">Transponder ID</label>
+                <input type="text" id="edit-car-transponder" readonly style="opacity: 0.7; font-family: monospace; text-align: center;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0; flex: 1;">
                 <label for="edit-car-name">Car Name</label>
                 <input type="text" id="edit-car-name" required>
               </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="edit-car-transponder">Transponder ID (Read-only)</label>
-                <input type="text" id="edit-car-transponder" readonly style="opacity: 0.7;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
+              <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0;">
                 <label for="edit-car-color">Theme</label>
-                <select id="edit-car-color">
-                  <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
-                  <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
-                  <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
-                  <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
-                  <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
-                  <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
-                </select>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <input type="color" id="edit-car-color" value="#ef4444" style="width: 100%; height: 38px; padding: 0; cursor: pointer; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: transparent;">
+                  <div class="color-chips" style="display: flex; gap: 0.35rem;">
+                    <div class="color-chip" data-color="#8b5cf6" style="background:#8b5cf6; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    <div class="color-chip" data-color="#06b6d4" style="background:#06b6d4; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    <div class="color-chip" data-color="#10b981" style="background:#10b981; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    <div class="color-chip" data-color="#f59e0b" style="background:#f59e0b; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    <div class="color-chip" data-color="#ec4899" style="background:#ec4899; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                    <div class="color-chip" data-color="#ef4444" style="background:#ef4444; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+                  </div>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="edit-car-driver">Assigned Driver</label>
-                <select id="edit-car-driver">
-                  <!-- Dynamically populated -->
-                </select>
+            </div>
+            <button id="btn-save-car" class="btn btn-primary" style="margin-bottom: 2rem;">Save Car Details</button>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+              <!-- Best Lap per Driver -->
+              <div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Best Lap per Driver</h3>
+                <table class="leaderboard-table" style="font-size: 0.85rem;">
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Best Time</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="car-drivers-body"></tbody>
+                </table>
               </div>
-              <button id="btn-save-car" class="btn btn-primary" style="margin-top: 1rem;">Save Car Details</button>
+              
+              <!-- Top 10 Laps -->
+              <div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Top 10 Laps (Car + Driver)</h3>
+                <table class="leaderboard-table" style="font-size: 0.85rem;">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Driver</th>
+                      <th>Date</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="car-prs-body"></tbody>
+                </table>
+              </div>
             </div>
             
             <div class="danger-zone">

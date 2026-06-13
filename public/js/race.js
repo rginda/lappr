@@ -4,7 +4,7 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getDrivers, getCars, saveSession, logDriverLap } from './database.js';
+import { getDrivers, getCars, saveSession, logLap } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
@@ -16,7 +16,8 @@ let sessionState = {
   limitValue: 5,             // 5 minutes or 50 laps
   minLapTime: 3.0,           // Filter out double triggers
   lapsLogged: 0,
-  racers: {}                 // Map of TransponderID -> RacerSessionState
+  assignments: {},           // Map of transponder -> driverId
+  racers: {}                 // Map of transponder -> RacerSessionState
 };
 
 let leaderboard = [];
@@ -43,6 +44,7 @@ export function initSession(config, onUpdate, onTimerUpdate) {
     limitValue: parseFloat(config.limitValue) || 5,
     minLapTime: parseFloat(config.minLapTime) || 3.0,
     lapsLogged: 0,
+    assignments: {},
     racers: {}
   };
 
@@ -53,12 +55,10 @@ export function initSession(config, onUpdate, onTimerUpdate) {
 
   // Pre-load all registered profiles
   const cars = getCars();
-  const drivers = getDrivers();
   cars.forEach(c => {
-    const driver = drivers.find(d => d.id === c.driverId) || { name: 'Unknown Driver' };
-    const sessionKey = `${c.driverId}_${c.transponder.toUpperCase()}`;
-    sessionState.racers[sessionKey] = createRacerSessionData({
-      driverName: driver.name,
+    // Initial assignments are empty (unassigned)
+    sessionState.racers[c.transponder.toUpperCase()] = createRacerSessionData({
+      driverName: 'Unknown Driver',
       carName: c.name,
       transponder: c.transponder.toUpperCase(),
       color: c.color
@@ -186,13 +186,13 @@ export function processCrossing(transponderId, ticks) {
 
   const cars = getCars();
   const drivers = getDrivers();
-  const car = cars.find(c => c.transponder.toUpperCase() === id) || { name: 'Unknown Car', color: '#ef4444', driverId: 'unknown' };
-  const driver = drivers.find(d => d.id === car.driverId) || { name: 'Unknown Driver' };
+  const car = cars.find(c => c.transponder.toUpperCase() === id) || { name: 'Unknown Car', color: '#ef4444' };
   
-  const sessionKey = `${car.driverId}_${id}`;
-
+  const assignedDriverId = sessionState.assignments[id] || null;
+  const driver = drivers.find(d => d.id === assignedDriverId) || { name: 'Unknown Driver' };
+  
   // Retrieve or create racer profile (in case of unregistered transponder)
-  let racer = sessionState.racers[sessionKey];
+  let racer = sessionState.racers[id];
   if (!racer) {
     racer = createRacerSessionData({
       driverName: driver.name,
@@ -200,7 +200,7 @@ export function processCrossing(transponderId, ticks) {
       transponder: id,
       color: car.color
     });
-    sessionState.racers[sessionKey] = racer;
+    sessionState.racers[id] = racer;
     
     // Fire unregistered notification callback
     if (car.name === 'Unknown Car') {
@@ -255,26 +255,25 @@ export function processCrossing(transponderId, ticks) {
     isOverallBest = true;
   }
 
-  const lapObject = {
-    lapNum: lapNumber,
+  const lapInfo = {
+    lapNumber,
     lapTime: lapTimeSeconds,
-    crossingTime: now - sessionState.startTime,
+    gap: '',
     isPersonalBest,
-    isOverallBest
+    isOverallBest,
+    timestamp: now,
+    driverId: assignedDriverId
   };
-
-  racer.laps.push(lapObject);
+  racer.laps.push(lapInfo);
   sessionState.lapsLogged++;
 
-  // Log to persistent driver stats
-  logDriverLap(car.driverId, car.name, lapTimeSeconds);
-
+  // Log to database
+  logLap(assignedDriverId, id, lapTimeSeconds);
+  
   // Recalculate Racer Statistics
   recalculateRacerStats(racer);
-
-  // Announce the lap
-  announceLap(racer, lapObject);
-
+  
+  announceLap(racer, lapInfo);
 
   triggerUpdate();
 }
@@ -424,4 +423,41 @@ function triggerUnregisteredAlert(transponderId) {
  */
 export function assignUnregisteredRacer(_transponderId, _name, _color, _vehicle) {
   // Deprecated: reinitSessionState will handle the reload
+}
+
+/**
+ * Assign a driver to a car for the current session.
+ * Retroactively credits unassigned laps to the new driver.
+ */
+export function assignSessionDriver(transponder, driverId) {
+  const drivers = getDrivers();
+  const driver = drivers.find(d => d.id === driverId);
+  const id = transponder.toUpperCase();
+  
+  if (!driver) {
+    // Unassign
+    sessionState.assignments[id] = null;
+    if (sessionState.racers[id]) {
+      sessionState.racers[id].name = 'Unknown Driver';
+    }
+    triggerUpdate();
+    return;
+  }
+  
+  sessionState.assignments[id] = driverId;
+  
+  if (sessionState.racers[id]) {
+    const racer = sessionState.racers[id];
+    racer.name = driver.name;
+    
+    // Retroactively credit laps that have NO driver assigned yet
+    racer.laps.forEach(lap => {
+      if (!lap.driverId) {
+        lap.driverId = driverId;
+        logLap(driverId, id, lap.lapTime);
+      }
+    });
+  }
+  
+  triggerUpdate();
 }
