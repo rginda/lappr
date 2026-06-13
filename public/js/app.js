@@ -231,7 +231,7 @@ function bindEvents() {
           
         // Pull current un-saved values for accurate preview
         import('./speech.js').then(speech => {
-          speech.speak(previewText, false, {
+          speech.speak(previewText, true, {
             voiceName: speechVoice.value,
             pitch: parseFloat(speechPitch.value),
             rate: parseFloat(speechRate.value)
@@ -397,6 +397,15 @@ function bindEvents() {
       };
       
       saveSettings(settings);
+      
+      // Also save the active settings (Voice, Pitch, Rate, Volume, minLapTime, etc.)
+      saveActiveSettings();
+      // Apply them immediately to speech engine
+      configureSpeech({
+        voiceName: speechVoice.value,
+        pitch: parseFloat(speechPitch.value),
+        rate: parseFloat(speechRate.value)
+      });
       
       const notif = document.createElement('div');
       notif.style.position = 'fixed';

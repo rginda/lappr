@@ -41,6 +41,11 @@ export function speak(text, priority = false, options = {}) {
   // For high-priority event announcements (e.g. race start, race finish), clear queue
   if (priority) {
     cancelSpeech();
+    // Chrome bug: calling speak() immediately after cancel() can fail silently.
+    setTimeout(() => {
+      speak(text, false, options);
+    }, 50);
+    return;
   }
 
   // To prevent the audio announcements from lagging behind real-time race events,
@@ -51,8 +56,8 @@ export function speak(text, priority = false, options = {}) {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.volume = volume;
-  utterance.rate = options.rate !== undefined ? options.rate : defaultRate;
-  utterance.pitch = options.pitch !== undefined ? options.pitch : defaultPitch;
+  utterance.rate = (options.rate !== undefined && !isNaN(options.rate)) ? options.rate : defaultRate;
+  utterance.pitch = (options.pitch !== undefined && !isNaN(options.pitch)) ? options.pitch : defaultPitch;
 
   const targetVoiceName = options.voiceName !== undefined ? options.voiceName : defaultVoiceName;
   const voices = synth.getVoices();
