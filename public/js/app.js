@@ -848,6 +848,7 @@ function handleAddDriver(e) {
   document.getElementById('add-driver-form').reset();
   renderDriverList();
   renderCarList(); // Re-render cars so the new driver shows in dropdowns
+  refreshActiveRacers(); // Update the leaderboard dropdowns
   switchView('view-session');
 }
 
