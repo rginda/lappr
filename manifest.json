@@ -1,0 +1,24 @@
+{
+  "short_name": "Lappr",
+  "name": "Lappr - RC Lap Counter",
+  "description": "Sleek, static web-based RC lap timing and race management system compatible with EasyLap/Robitronic protocol.",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22192%22 height=%22192%22><rect width=%22100%%22 height=%22100%%22 rx=%2240%22 fill=%22%238b5cf6%22/><text x=%2250%%22 y=%2250%%22 font-size=%22120%22 font-family=%22Outfit%22 font-weight=%22800%22 fill=%22%23fff%22 dominant-baseline=%22central%22 text-anchor=%22middle%22>A</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22512%22 height=%22512%22><rect width=%22100%%22 height=%22100%%22 rx=%22100%22 fill=%22%238b5cf6%22/><text x=%2250%%22 y=%2250%%22 font-size=%22320%22 font-family=%22Outfit%22 font-weight=%22800%22 fill=%22%23fff%22 dominant-baseline=%22central%22 text-anchor=%22middle%22>A</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0d0e12",
+  "theme_color": "#0d0e12",
+  "display": "standalone",
+  "orientation": "any"
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sleek, static web-based RC lap timing and race management system compatible with EasyLap/Robitronic protocol.">
+  <title>Lappr - RC Lap Counter</title>
+  
+  <link rel="stylesheet" href="index.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0e12">
+  
+  <!-- Favicon placeholder or icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%238b5cf6%22/><text x=%2250%%22 y=%2250%%22 font-size=%2260%22 font-family=%22Outfit%22 font-weight=%22800%22 fill=%22%23fff%22 dominant-baseline=%22central%22 text-anchor=%22middle%22>L</text></svg>">
+</head>
+<body>
+
+  <div id="app-root" class="container">
+    
+    <!-- Application Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">L</div>
+        <div class="logo-text">
+          <h1>Lappr</h1>
+          <span>RC Lap Counter</span>
+        </div>
+      </div>
+      
+      <div class="header-controls">
+        <div id="connection-badge" class="status-indicator disconnected">
+          <span class="status-dot"></span>
+          <span id="connection-status-text">Hardware Offline</span>
+        </div>
+        <button id="btn-hud" class="btn btn-secondary" title="Toggle pit lane big screen mode">
+          HUD Mode
+        </button>
+      </div>
+    </header>
+    
+    <!-- Main Application Grid -->
+    <div class="app-grid">
+      
+      <!-- Left Sidebar: Controls & Configuration -->
+      <aside class="sidebar">
+        
+        <!-- Hardware Setup Card -->
+        <section class="card glass-panel" id="hardware-panel">
+          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Decoder Setup</h2>
+          
+          <div class="form-group">
+            <label for="baud-rate-select">Baud Rate</label>
+            <select id="baud-rate-select">
+              <option value="115200">115200</option>
+              <option value="9600">9600 (Legacy Robitronic)</option>
+              <option value="38400" selected>38400 (Default EasyLap)</option>
+            </select>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+            <button id="btn-connect-serial" class="btn btn-primary">Web Serial</button>
+            <button id="btn-connect-hid" class="btn btn-secondary">WebHID (CP2110)</button>
+          </div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-top: 1px solid var(--border-color);">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Mock Simulator</span>
+            <input type="checkbox" id="simulator-toggle" style="cursor: pointer; width: 20px; height: 20px; accent-color: var(--accent-primary);">
+          </div>
+        </section>
+        
+        <!-- Session Settings Card -->
+        <section class="card glass-panel" id="session-panel">
+          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Session Controls</h2>
+          
+          <div class="form-group">
+            <label for="session-mode-select">Session Mode</label>
+            <select id="session-mode-select">
+              <option value="practice" selected>Practice Mode</option>
+              <option value="qualifying">Qualifying Session</option>
+              <option value="race">Race Session</option>
+            </select>
+          </div>
+          
+          <div id="race-settings-subpanel" style="display: none; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="session-limit-type">Limit By</label>
+              <select id="session-limit-type">
+                <option value="time" selected>Time (Minutes)</option>
+                <option value="laps">Laps</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label id="session-limit-label" for="session-limit-val">Duration</label>
+              <input type="number" id="session-limit-val" value="5" min="1" max="999">
+            </div>
+            
+            <div class="form-group">
+              <label for="min-lap-time">Min Lap Filter (Seconds)</label>
+              <input type="number" id="min-lap-time" value="3.0" step="0.1" min="0.5" max="30">
+            </div>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button id="btn-session-start" class="btn btn-success" disabled>Start Session</button>
+            <button id="btn-session-reset" class="btn btn-secondary">Clear Laps</button>
+          </div>
+        </section>
+        
+        <!-- Racer Manager Card -->
+        <section class="card glass-panel" id="racers-panel">
+          <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Racer Manager</h2>
+          
+          <form id="add-racer-form" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="racer-name">Name</label>
+              <input type="text" id="racer-name" placeholder="Driver Name" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 100px; gap: 0.5rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="racer-transponder">Transponder ID</label>
+                <input type="text" id="racer-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="racer-color">Theme</label>
+                <select id="racer-color">
+                  <option value="#8b5cf6" style="background:#8b5cf6; color:#fff;">Purple</option>
+                  <option value="#06b6d4" style="background:#06b6d4; color:#fff;">Teal</option>
+                  <option value="#10b981" style="background:#10b981; color:#fff;">Green</option>
+                  <option value="#f59e0b" style="background:#f59e0b; color:#fff;">Yellow</option>
+                  <option value="#ec4899" style="background:#ec4899; color:#fff;">Pink</option>
+                  <option value="#ef4444" style="background:#ef4444; color:#fff;">Red</option>
+                </select>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-secondary">Add Racer</button>
+          </form>
+          
+          <!-- Racer List -->
+          <div style="max-height: 200px; overflow-y: auto;">
+            <ul id="racer-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </section>
+        
+      </aside>
+      
+      <!-- Right Main Panel: Timer & Leaderboard -->
+      <main class="main-content">
+        
+        <!-- Timer Dashboard -->
+        <section class="card glass-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
+          <div>
+            <h2 id="session-title" style="font-weight: 500; font-size: 1.25rem;">Practice Session</h2>
+            <p id="session-subtitle" style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Ready to run</p>
+          </div>
+          
+          <div id="session-timer-display" class="session-timer mono">00:00.00</div>
+        </section>
+        
+        <!-- Starting Lights Overlay (For Races) -->
+        <section id="starting-lights" style="display: none; justify-content: center; gap: 1rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+          <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
+        </section>
+        
+        <!-- Live Leaderboard Board -->
+        <section class="card" style="flex: 1; min-height: 450px;">
+          <div class="leaderboard-header">
+            <h2 style="font-weight: 600;">Leaderboard</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 1rem;">
+              <span>Total Cars: <strong id="leaderboard-count-cars" class="mono">0</strong></span>
+              <span>Laps Logged: <strong id="leaderboard-count-laps" class="mono">0</strong></span>
+            </div>
+          </div>
+          
+          <div style="overflow-x: auto;">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Pos</th>
+                  <th>Racer</th>
+                  <th style="width: 80px; text-align: center;">Laps</th>
+                  <th>Last Lap</th>
+                  <th>Best Lap</th>
+                  <th>3-Fast Streak</th>
+                  <th>Consistency</th>
+                  <th style="width: 100px; text-align: right;">Gap</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <!-- Dynamically populated row elements -->
+                <tr id="empty-leaderboard-row">
+                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
+                    No lap data recorded yet. Pass a transponder under the bridge or start the mock simulator!
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        
+      </main>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Floating notification container for unregistered transponder alerts -->
+  <div id="notifications" class="notification-container"></div>
+  
+  <!-- Audio & Speech Toggle Panel in Footer -->
+  <footer style="margin-top: 2rem; padding: 1.5rem 0; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+    <div>
+      <span>Lappr v1.0.0 &bull; Offline Ready</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <label for="speech-volume" style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">Voice volume</label>
+        <input type="range" id="speech-volume" min="0" max="1" step="0.1" value="0.8" style="width: 80px; accent-color: var(--accent-primary);">
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <label for="speech-toggle" style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">Voice Callouts</label>
+        <input type="checkbox" id="speech-toggle" checked style="accent-color: var(--accent-primary); cursor: pointer;">
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
