@@ -611,7 +611,11 @@ export function backupSessionState() {
       JSON.stringify({
         timestamp: Date.now(),
         status: sessionState.status,
-        assignments: sessionState.assignments
+        assignments: sessionState.assignments,
+        racers: sessionState.racers,
+        lapsLogged: sessionState.lapsLogged,
+        sessionElapsedTime:
+          sessionState.status === 'active' ? performance.now() - sessionState.startTime : null
       })
     );
   } else {
@@ -630,7 +634,7 @@ export function recoverSessionState() {
     const backup = JSON.parse(data);
     if (Date.now() - backup.timestamp > 60000) {
       localStorage.removeItem('lappr-session-backup');
-      return false;
+      return { recovered: false, wasRunning: false };
     }
 
     if (backup.assignments) {
@@ -641,7 +645,16 @@ export function recoverSessionState() {
       }
     }
 
-    // We only recovered assignments. Do not auto-start the timer, let user do that.
+    if (backup.racers) {
+      sessionState.racers = backup.racers;
+      sessionState.lapsLogged = backup.lapsLogged || 0;
+      if (backup.sessionElapsedTime != null) {
+        sessionState.startTime = performance.now() - backup.sessionElapsedTime;
+      }
+      sortLeaderboard();
+      triggerUpdate();
+    }
+
     return { recovered: true, wasRunning: backup.status === 'active' };
   } catch (err) {
     console.error('Recovery failed:', err);
