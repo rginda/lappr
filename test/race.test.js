@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { initSession, processCrossing, startSession } from '../js/race.js';
-import * as db from '../js/database.js';
+import { initSession, processCrossing, startSession } from '../public/js/race.js';
+import * as db from '../public/js/database.js';
 
 // Mock database functions
-vi.mock('../js/database.js', () => ({
+vi.mock('../public/js/database.js', () => ({
   getCars: vi.fn(),
   getDrivers: vi.fn(),
   getSettings: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('../js/database.js', () => ({
 }));
 
 // Mock speech functions
-vi.mock('../js/speech.js', () => ({
+vi.mock('../public/js/speech.js', () => ({
   speak: vi.fn(),
   configureSpeech: vi.fn(),
 }));

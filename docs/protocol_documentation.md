@@ -68,11 +68,13 @@ When a transponder crosses the sensor loop, the decoder validates the signal and
   - `Bytes 11-12`: Footer / Additional data
 
 ### 2.3 Clock Calculation & Rollover
-- **Timer Frequency**: The hardware clock ticks once every **1/4 millisecond (0.25 ms)**.
+- **Timer Frequency**: The hardware clock ticks once every **1 millisecond (1.0 ms)**.
 - **Elapsed Time**:
-  $$\text{Time (seconds)} = \text{Ticks} \times 0.00025$$
-- **Rollover**: The timer is a 32-bit counter.
-  - The timer rolls over back to `0` at $2^{32}$ ticks (approx. 12.4 days).
-  - **Rollover Handling Formula**:
+  $$\text{Time (seconds)} = \text{Ticks} \times 0.001$$
+- **Rollover**: The timer is a counter that eventually rolls over.
+  - The serial protocol transmits 32 bits (4 bytes) for the timestamp.
+  - However, in testing, the system appears to behave as if it overflows at 24 bits ($2^{24}$ or `16,777,216` ticks).
+  - *Note: We are guessing about the rollover behavior. The current code assumes a 24-bit rollover.*
+  - **Rollover Handling Formula (Assuming 24-bit)**:
     If $\text{Ticks}_{\text{current}} < \text{Ticks}_{\text{previous}}$, compute the tick delta as:
-    $$\Delta\text{Ticks} = (\text{Ticks}_{\text{current}} - \text{Ticks}_{\text{previous}}) + 4,294,967,296$$
+    $$\Delta\text{Ticks} = (\text{Ticks}_{\text{current}} - \text{Ticks}_{\text{previous}}) + 16,777,216$$

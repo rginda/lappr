@@ -221,8 +221,8 @@ export function processCrossing(transponderId, ticks) {
   }
 
   // CASE 2: Subsequent crossing - Calculate lap time
-  // Robitronic ticks are in 0.25ms units.
-  // Handle 24-bit timer rollover (if ticks overflowed, calculate correct delta)
+  // Hardware ticks are 1.0ms units.
+  // Handle timer rollover (assuming 24-bit timer, but hardware might be 32-bit. We use 24-bit handling as a guess)
   let tickDelta = ticks - racer.lastCrossingTicks;
   if (tickDelta < 0) {
     // 24-bit integer rollover (16,777,216 ticks)

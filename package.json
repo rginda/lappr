@@ -5,6 +5,7 @@
   "main": "sw.js",
   "type": "module",
   "scripts": {
+    "start": "python3 -m http.server 8000 --directory public",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "lint": "eslint .",
