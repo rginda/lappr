@@ -455,6 +455,16 @@ export function assignSessionDriver(transponder, driverId) {
     return;
   }
   
+  // If the driver is already assigned to another car, unassign them from that car
+  for (const [tId, dId] of Object.entries(sessionState.assignments)) {
+    if (dId === driverId && tId !== id) {
+      sessionState.assignments[tId] = null;
+      if (sessionState.racers[tId]) {
+        sessionState.racers[tId].name = 'Unknown Driver';
+      }
+    }
+  }
+  
   sessionState.assignments[id] = driverId;
   
   if (sessionState.racers[id]) {
