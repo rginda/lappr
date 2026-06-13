@@ -491,19 +491,33 @@ function renderLeaderboard({ state, leaderboard }) {
         ? `<div style="font-weight:600;">${racer.carName}</div><div style="font-size:0.75rem; color:var(--text-muted);">${racer.transponder}</div>`
         : `<div style="font-weight:600;">${racer.carName}</div>`;
 
-      // Build assignment dropdown
-      let driverOptions = `<option value="">-- Unassigned --</option>`;
-      getDrivers().forEach(d => {
-        const selected = (state.assignments[racer.transponder] === d.id) ? 'selected' : '';
-        driverOptions += `<option value="${d.id}" ${selected}>${d.name}</option>`;
-      });
+      // Build driver display
+      let driverCellContent = '';
+      const assignedDriverId = state.assignments[racer.transponder];
+      
+      if (assignedDriverId) {
+        driverCellContent = `
+          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <a href="#" class="leaderboard-driver-link" data-driverid="${assignedDriverId}" style="color: var(--accent-secondary); text-decoration: none; font-weight: 600; cursor: pointer;" title="View driver profile">${racer.name}</a>
+            <button class="btn leaderboard-driver-unassign" data-transponder="${racer.transponder}" style="padding: 0; background: transparent; color: var(--color-error); border: none; font-size: 1rem; line-height: 1; cursor: pointer; margin-left: 0.5rem;" title="Unassign driver">&times;</button>
+          </div>
+        `;
+      } else {
+        let driverOptions = `<option value="">-- Unassigned --</option>`;
+        getDrivers().forEach(d => {
+          driverOptions += `<option value="${d.id}">${d.name}</option>`;
+        });
+        driverCellContent = `
+          <select class="leaderboard-driver-assign" data-transponder="${racer.transponder}" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 0.2rem; font-size: 0.85rem; width: 100%;">
+            ${driverOptions}
+          </select>
+        `;
+      }
 
       row.innerHTML = `
         <td><span class="pos-badge">${position}</span></td>
         <td>
-          <select class="leaderboard-driver-assign" data-transponder="${racer.transponder}" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 0.2rem; font-size: 0.85rem; width: 100%;">
-            ${driverOptions}
-          </select>
+          ${driverCellContent}
         </td>
         <td>
           ${carDisplay}
@@ -522,12 +536,26 @@ function renderLeaderboard({ state, leaderboard }) {
         <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
       `;
       
-      // Bind assignment change
-      row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
-        import('./race.js').then(module => {
-          module.assignSessionDriver(racer.transponder, e.target.value);
+      // Bind driver column events
+      if (assignedDriverId) {
+        row.querySelector('.leaderboard-driver-link').addEventListener('click', (e) => {
+          e.preventDefault();
+          renderDriverDetails(assignedDriverId);
+          switchView('view-driver-details');
         });
-      });
+        
+        row.querySelector('.leaderboard-driver-unassign').addEventListener('click', (e) => {
+          import('./race.js').then(module => {
+            module.assignSessionDriver(racer.transponder, "");
+          });
+        });
+      } else {
+        row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
+          import('./race.js').then(module => {
+            module.assignSessionDriver(racer.transponder, e.target.value);
+          });
+        });
+      }
       
       // Make car cell clickable to edit
       const carCell = row.children[2];
