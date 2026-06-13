@@ -268,12 +268,12 @@ export function processCrossing(transponderId, ticks) {
   sessionState.lapsLogged++;
 
   // Log to database
-  logLap(assignedDriverId, id, lapTimeSeconds);
+  const dbResult = logLap(assignedDriverId, id, lapTimeSeconds);
   
   // Recalculate Racer Statistics
   recalculateRacerStats(racer);
   
-  announceLap(racer, lapInfo);
+  announceLap(racer, lapInfo, dbResult);
 
   triggerUpdate();
 }
@@ -308,13 +308,24 @@ function recalculateRacerStats(racer) {
  * Perform speech synthesis audio callouts.
  * @param {Object} racer 
  * @param {Object} lap 
+ * @param {Object} dbResult
  */
-function announceLap(racer, lap) {
+function announceLap(racer, lap, dbResult) {
   const formattedTime = lap.lapTime.toFixed(2);
   let announcement;
+  
+  const isCarRecord = dbResult?.carResult?.isPR;
+  const isDriverBestEver = dbResult?.driverResult?.isPR;
+  const isDriverCarPR = dbResult?.driverResult?.isDriverCarPR;
 
-  if (lap.isOverallBest) {
-    announcement = `New overall fastest lap! ${racer.name}, ${formattedTime} seconds.`;
+  if (isDriverBestEver) {
+    announcement = `${racer.name} best lap ever! ${formattedTime}.`;
+  } else if (isCarRecord) {
+    announcement = `${racer.carName} record! ${formattedTime}.`;
+  } else if (isDriverCarPR) {
+    announcement = `${racer.name} car p.r.! ${formattedTime}.`;
+  } else if (lap.isOverallBest) {
+    announcement = `Session fastest lap! ${racer.name}, ${formattedTime} seconds.`;
   } else if (lap.isPersonalBest) {
     announcement = `Personal best for ${racer.name}, ${formattedTime} seconds.`;
   } else {

@@ -109,7 +109,17 @@ export function logLap(driverId, transponder, lapTime) {
       if (driver.prs.length > 15) driver.prs.pop();
     }
     
-    driverResult = { driver, isPR };
+    let isDriverCarPR = false;
+    // previous laps on this specific car excluding the one we just unshifted
+    const previousDriverCarLaps = driver.laps.filter(l => l.carTransponder === transponder && l.id !== lapId);
+    if (previousDriverCarLaps.length === 0) {
+      isDriverCarPR = true;
+    } else {
+      const bestDriverCarLap = Math.min(...previousDriverCarLaps.map(l => l.lapTime));
+      if (lapTime < bestDriverCarLap) isDriverCarPR = true;
+    }
+    
+    driverResult = { driver, isPR, isDriverCarPR };
     localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
   }
 
