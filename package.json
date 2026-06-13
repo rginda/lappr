@@ -8,6 +8,7 @@
     "start": "python3 -m http.server 8000 --directory public",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,html,css}\""
   },
@@ -24,6 +25,7 @@
   "homepage": "https://github.com/rginda/lappr#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^10.5.0",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.4",
