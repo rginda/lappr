@@ -135,6 +135,43 @@ function processQueue() {
   if (!synth || currentUtterance || speechQueue.length === 0) return;
 
   currentUtterance = speechQueue.shift();
+
+  // Watchdog timeout: If onend/onerror doesn't fire within 10s, force clear it
+  // This handles Chrome bugs where speech synthesis silently hangs
+  const watchdog = setTimeout(() => {
+    if (currentUtterance) {
+      console.warn('[Speech] Utterance watchdog triggered - forcing queue progression');
+      synth.cancel();
+      currentUtterance = null;
+      processQueue();
+    }
+  }, 10000);
+
+  // Wrap existing onend/onerror to clear the watchdog
+  const origOnEnd = currentUtterance.onend;
+  currentUtterance.onend = (e) => {
+    clearTimeout(watchdog);
+    if (origOnEnd) origOnEnd(e);
+  };
+
+  const origOnError = currentUtterance.onerror;
+  currentUtterance.onerror = (e) => {
+    clearTimeout(watchdog);
+    if (origOnError) origOnError(e);
+  };
+
+  // Chrome GC bug workaround: keep utterance in a global array until it finishes
+  if (!window._utterances) window._utterances = [];
+  window._utterances.push(currentUtterance);
+
+  // Also clean up the global array on end
+  const cleanupGc = () => {
+    const idx = window._utterances.indexOf(currentUtterance);
+    if (idx !== -1) window._utterances.splice(idx, 1);
+  };
+  currentUtterance.addEventListener('end', cleanupGc);
+  currentUtterance.addEventListener('error', cleanupGc);
+
   synth.speak(currentUtterance);
 }
 
@@ -146,4 +183,14 @@ if (synth) {
       synth.getVoices();
     };
   }
+
+  // Chrome specific bug: long-running or repeated speech can randomly pause itself
+  // Periodically "jiggling" the pause/resume state keeps the engine alive without
+  // interrupting the actual audio playback noticeably.
+  setInterval(() => {
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
+      synth.resume();
+    }
+  }, 5000);
 }
