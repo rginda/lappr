@@ -4,20 +4,27 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getDrivers, getCars, saveSession, logLap, assignHistoricalLaps, getSettings } from './database.js';
+import {
+  getDrivers,
+  getCars,
+  saveSession,
+  logLap,
+  assignHistoricalLaps,
+  getSettings
+} from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
   mode: 'practice',
-  status: 'ready',           // 'ready', 'warmup', 'active', 'finished'
-  startTime: null,           // Browser performance.now()
+  status: 'ready', // 'ready', 'warmup', 'active', 'finished'
+  startTime: null, // Browser performance.now()
   endTime: null,
-  limitType: 'time',         // 'time', 'laps'
-  limitValue: 5,             // 5 minutes or 50 laps
-  minLapTime: 3.0,           // Filter out double triggers
+  limitType: 'time', // 'time', 'laps'
+  limitValue: 5, // 5 minutes or 50 laps
+  minLapTime: 3.0, // Filter out double triggers
   lapsLogged: 0,
-  assignments: {},           // Map of transponder -> driverId
-  racers: {}                 // Map of transponder -> RacerSessionState
+  assignments: {}, // Map of transponder -> driverId
+  racers: {} // Map of transponder -> RacerSessionState
 };
 
 let leaderboard = [];
@@ -34,7 +41,7 @@ let overallBestLap = Infinity;
  */
 export function initSession(config, onUpdate, onTimerUpdate) {
   stopSessionTimer();
-  
+
   sessionState = {
     mode: 'practice',
     status: 'ready',
@@ -56,7 +63,7 @@ export function initSession(config, onUpdate, onTimerUpdate) {
 
   // Pre-load all registered profiles
   const cars = getCars();
-  cars.forEach(c => {
+  cars.forEach((c) => {
     // Initial assignments are empty (unassigned)
     sessionState.racers[c.transponder.toUpperCase()] = createRacerSessionData({
       driverName: 'Unknown Driver',
@@ -81,7 +88,7 @@ function createRacerSessionData(profile) {
     bestLap: Infinity,
     averageLap: 0,
     consistency: 100, // Percentage consistency
-    totalTime: 0,     // Total active running time
+    totalTime: 0, // Total active running time
     gap: '',
     isActive: false
   };
@@ -92,12 +99,12 @@ function createRacerSessionData(profile) {
  */
 export function startSession() {
   if (sessionState.status === 'active') return;
-  
+
   sessionState.status = 'active';
   sessionState.startTime = performance.now();
-  
+
   speak(`${sessionState.mode} session started. Good luck!`, true);
-  
+
   startSessionTimer();
   triggerUpdate();
 }
@@ -107,18 +114,18 @@ export function startSession() {
  */
 export function stopSession() {
   if (sessionState.status === 'finished') return;
-  
+
   sessionState.status = 'finished';
   sessionState.endTime = performance.now();
   stopSessionTimer();
-  
-  speak("Checkered flag! Session finished.", true);
-  
+
+  speak('Checkered flag! Session finished.', true);
+
   // Save results to history database
   const results = {
     date: new Date().toISOString(),
     mode: sessionState.mode,
-    leaderboard: leaderboard.map(r => ({
+    leaderboard: leaderboard.map((r) => ({
       name: r.name,
       laps: r.laps.length,
       bestLap: r.bestLap,
@@ -127,7 +134,7 @@ export function stopSession() {
     }))
   };
   saveSession(results);
-  
+
   triggerUpdate();
 }
 
@@ -136,15 +143,15 @@ export function stopSession() {
  */
 export function clearSession() {
   stopSessionTimer();
-  
+
   sessionState.status = 'ready';
   sessionState.startTime = null;
   sessionState.endTime = null;
   sessionState.lapsLogged = 0;
   overallBestLap = Infinity;
-  
+
   // Clear lap lists for all racers
-  Object.keys(sessionState.racers).forEach(id => {
+  Object.keys(sessionState.racers).forEach((id) => {
     const r = sessionState.racers[id];
     r.laps = [];
     r.lastCrossingTicks = null;
@@ -160,7 +167,7 @@ export function clearSession() {
   if (timerCallback) {
     timerCallback(0);
   }
-  
+
   triggerUpdate();
 }
 
@@ -187,11 +194,14 @@ export function processCrossing(transponderId, ticks) {
 
   const cars = getCars();
   const drivers = getDrivers();
-  const car = cars.find(c => c.transponder.toUpperCase() === id) || { name: 'Unknown Car', color: '#ef4444' };
-  
+  const car = cars.find((c) => c.transponder.toUpperCase() === id) || {
+    name: 'Unknown Car',
+    color: '#ef4444'
+  };
+
   const assignedDriverId = sessionState.assignments[id] || null;
-  const driver = drivers.find(d => d.id === assignedDriverId) || { name: 'Unknown Driver' };
-  
+  const driver = drivers.find((d) => d.id === assignedDriverId) || { name: 'Unknown Driver' };
+
   // Retrieve or create racer profile (in case of unregistered transponder)
   let racer = sessionState.racers[id];
   if (!racer) {
@@ -202,7 +212,7 @@ export function processCrossing(transponderId, ticks) {
       color: car.color
     });
     sessionState.racers[id] = racer;
-    
+
     // Fire unregistered notification callback
     if (car.name === 'Unknown Car') {
       triggerUnregisteredAlert(id);
@@ -215,7 +225,7 @@ export function processCrossing(transponderId, ticks) {
   if (racer.lastCrossingTicks === null) {
     racer.lastCrossingTicks = ticks;
     racer.lastCrossingTime = now;
-    
+
     speak(`${racer.name} is on track.`);
     triggerUpdate();
     return;
@@ -276,10 +286,10 @@ export function processCrossing(transponderId, ticks) {
 
   // Log to database
   const dbResult = logLap(assignedDriverId, id, lapTimeSeconds);
-  
+
   // Recalculate Racer Statistics
   recalculateRacerStats(racer);
-  
+
   announceLap(racer, lapInfo, dbResult);
 
   triggerUpdate();
@@ -287,12 +297,12 @@ export function processCrossing(transponderId, ticks) {
 
 /**
  * Re-evaluate racer average and consistency (standard deviation percentage).
- * @param {Object} racer 
+ * @param {Object} racer
  */
 function recalculateRacerStats(racer) {
-  const lapTimes = racer.laps.map(l => l.lapTime);
+  const lapTimes = racer.laps.map((l) => l.lapTime);
   const totalLaps = lapTimes.length;
-  
+
   if (totalLaps === 0) return;
 
   // Average Lap
@@ -302,10 +312,14 @@ function recalculateRacerStats(racer) {
 
   // Consistency (standard deviation relative to average)
   if (totalLaps > 1) {
-    const variance = lapTimes.reduce((acc, t) => acc + Math.pow(t - racer.averageLap, 2), 0) / totalLaps;
+    const variance =
+      lapTimes.reduce((acc, t) => acc + Math.pow(t - racer.averageLap, 2), 0) / totalLaps;
     const stdDev = Math.sqrt(variance);
     // Convert to consistency score (100% is perfect consistency)
-    racer.consistency = Math.max(0, Math.min(100, Math.round(100 - (stdDev / racer.averageLap * 100))));
+    racer.consistency = Math.max(
+      0,
+      Math.min(100, Math.round(100 - (stdDev / racer.averageLap) * 100))
+    );
   } else {
     racer.consistency = 100;
   }
@@ -313,21 +327,21 @@ function recalculateRacerStats(racer) {
 
 /**
  * Perform speech synthesis audio callouts.
- * @param {Object} racer 
- * @param {Object} lap 
+ * @param {Object} racer
+ * @param {Object} lap
  * @param {Object} dbResult
  */
 function announceLap(racer, lap, dbResult) {
   const formattedTime = lap.lapTime.toFixed(2);
-  let announcement = "";
-  
+  let announcement = '';
+
   const isCarRecord = dbResult?.carResult?.isPR;
   const isDriverBestEver = dbResult?.driverResult?.isPR;
   const isDriverCarPR = dbResult?.driverResult?.isDriverCarPR;
-  
+
   const settings = getSettings();
   const ann = settings.announcements || {};
-  
+
   // Helper to replace tokens
   const formatMsg = (template, streakLen = 0) => {
     if (!template) return '';
@@ -353,20 +367,24 @@ function announceLap(racer, lap, dbResult) {
   }
 
   // Calculate Ongoing Consistency Streak
-  const streakSettings = settings.streak || { minLaps: 3, varianceThreshold: 0.1, mustBeFast: true };
+  const streakSettings = settings.streak || {
+    minLaps: 3,
+    varianceThreshold: 0.1,
+    mustBeFast: true
+  };
   const totalLaps = racer.laps.length;
-  
+
   if (totalLaps >= streakSettings.minLaps) {
     let streakLength = 1;
     let minLap = lap.lapTime;
     let maxLap = lap.lapTime;
-    
+
     // Scan backward to find consecutive laps within the variance threshold
     for (let i = totalLaps - 2; i >= 0; i--) {
       const prevLap = racer.laps[i].lapTime;
       const newMin = Math.min(minLap, prevLap);
       const newMax = Math.max(maxLap, prevLap);
-      
+
       if (newMax - newMin <= streakSettings.varianceThreshold) {
         streakLength++;
         minLap = newMin;
@@ -375,29 +393,32 @@ function announceLap(racer, lap, dbResult) {
         break;
       }
     }
-    
+
     // Check if streak meets criteria
     if (streakLength >= streakSettings.minLaps) {
       let qualifies = true;
       if (streakSettings.mustBeFast && lap.lapTime >= racer.averageLap) {
         qualifies = false;
       }
-      
+
       if (qualifies && ann.consistent) {
         announcement += ` ${formatMsg(ann.consistent, streakLength)}`;
       }
     }
   }
-  
+
   // Process Driver Custom PR Callout and Audio Overrides
   let customCallout = '';
   let speechOptions = {};
-  
+
   const driverId = sessionState.assignments[racer.transponder];
   if (driverId) {
-    const driver = getDrivers().find(d => d.id === driverId);
+    const driver = getDrivers().find((d) => d.id === driverId);
     if (driver) {
-      if ((isDriverBestEver || isCarRecord || isDriverCarPR || lap.isOverallBest) && driver.customCallout) {
+      if (
+        (isDriverBestEver || isCarRecord || isDriverCarPR || lap.isOverallBest) &&
+        driver.customCallout
+      ) {
         customCallout = driver.customCallout;
       }
       if (driver.speechOverride) {
@@ -408,7 +429,7 @@ function announceLap(racer, lap, dbResult) {
 
   // Speak the main announcement with global settings
   speak(announcement);
-  
+
   // Speak the custom callout with driver's override settings (if applicable)
   if (customCallout) {
     speak(customCallout, false, speechOptions);
@@ -419,7 +440,7 @@ function announceLap(racer, lap, dbResult) {
  * Re-sort and build the leaderboard array.
  */
 function sortLeaderboard() {
-  const racersList = Object.values(sessionState.racers).filter(r => r.isActive);
+  const racersList = Object.values(sessionState.racers).filter((r) => r.isActive);
 
   // Sorted by fastest single lap
   racersList.sort((a, b) => a.bestLap - b.bestLap);
@@ -428,7 +449,7 @@ function sortLeaderboard() {
   if (racersList.length > 0) {
     const leader = racersList[0];
     leader.gap = 'Leader';
-    
+
     for (let i = 1; i < racersList.length; i++) {
       const current = racersList[i];
       if (current.bestLap === Infinity) {
@@ -441,8 +462,8 @@ function sortLeaderboard() {
   }
 
   // Update best laps overlays (mark overall best)
-  racersList.forEach(r => {
-    r.laps.forEach(l => {
+  racersList.forEach((r) => {
+    r.laps.forEach((l) => {
       l.isOverallBest = l.lapTime === overallBestLap;
     });
   });
@@ -470,7 +491,7 @@ function startSessionTimer() {
     if (!sessionState.startTime || sessionState.status !== 'active') return;
 
     const elapsedMs = performance.now() - sessionState.startTime;
-    
+
     if (timerCallback) {
       timerCallback(elapsedMs);
     }
@@ -511,9 +532,9 @@ export function assignUnregisteredRacer(_transponderId, _name, _color, _vehicle)
  */
 export function assignSessionDriver(transponder, driverId) {
   const drivers = getDrivers();
-  const driver = drivers.find(d => d.id === driverId);
+  const driver = drivers.find((d) => d.id === driverId);
   const id = transponder.toUpperCase();
-  
+
   if (!driver) {
     // Unassign
     sessionState.assignments[id] = null;
@@ -523,7 +544,7 @@ export function assignSessionDriver(transponder, driverId) {
     triggerUpdate();
     return;
   }
-  
+
   // If the driver is already assigned to another car, unassign them from that car
   for (const [tId, dId] of Object.entries(sessionState.assignments)) {
     if (dId === driverId && tId !== id) {
@@ -533,24 +554,24 @@ export function assignSessionDriver(transponder, driverId) {
       }
     }
   }
-  
+
   sessionState.assignments[id] = driverId;
-  
+
   if (sessionState.racers[id]) {
     const racer = sessionState.racers[id];
     racer.name = driver.name;
-    
+
     // Retroactively credit laps that have NO driver assigned yet in memory
-    racer.laps.forEach(lap => {
+    racer.laps.forEach((lap) => {
       if (!lap.driverId) {
         lap.driverId = driverId;
       }
     });
-    
+
     // Safely apply the batch edit to the database without duplicating laps
     assignHistoricalLaps(id, driverId, sessionState.startTime);
   }
-  
+
   triggerUpdate();
 }
 
@@ -561,17 +582,17 @@ export function assignSessionDriver(transponder, driverId) {
 export function refreshActiveRacers() {
   const drivers = getDrivers();
   const cars = getCars();
-  
+
   for (const [id, racer] of Object.entries(sessionState.racers)) {
-    const car = cars.find(c => c.transponder === id);
+    const car = cars.find((c) => c.transponder === id);
     if (car) {
       racer.carName = car.name;
       racer.color = car.color;
     }
-    
+
     const driverId = sessionState.assignments[id];
     if (driverId) {
-      const driver = drivers.find(d => d.id === driverId);
+      const driver = drivers.find((d) => d.id === driverId);
       if (driver) {
         racer.name = driver.name;
       }

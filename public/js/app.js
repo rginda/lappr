@@ -4,31 +4,26 @@
  * and renders the leaderboard.
  */
 
-import { 
-  getDrivers, 
-  saveDriver, 
-  deleteDriver, 
+import {
+  getDrivers,
+  saveDriver,
+  deleteDriver,
   getCars,
   saveCar,
   deleteCar,
-
   deleteLap,
   deleteDriverCarStats,
-  getSettings, 
+  getSettings,
   saveSettings
 } from './database.js';
 
-import { 
-  connectHID, 
-  toggleSimulator, 
-  disconnect 
-} from './serial.js';
+import { connectHID, toggleSimulator, disconnect } from './serial.js';
 
-import { 
-  initSession, 
-  startSession, 
-  stopSession, 
-  clearSession, 
+import {
+  initSession,
+  startSession,
+  stopSession,
+  clearSession,
   processCrossing,
   onUnregisteredAlert,
   assignUnregisteredRacer,
@@ -39,7 +34,6 @@ import { configureSpeech } from './speech.js';
 
 const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
-
 
 const minLapTime = document.getElementById('setting-min-lap-time');
 const maxLapTime = document.getElementById('setting-max-lap-time');
@@ -64,7 +58,6 @@ const timerDisplay = document.getElementById('session-timer-display');
 const leaderboardBody = document.getElementById('leaderboard-body');
 const countCarsDisplay = document.getElementById('leaderboard-count-cars');
 const countLapsDisplay = document.getElementById('leaderboard-count-laps');
-
 
 const speechToggle = document.getElementById('speech-toggle');
 const speechVolume = document.getElementById('speech-volume');
@@ -118,13 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettingsUI();
   renderDriverList();
   renderCarList();
-  
+
   // Register service worker for PWA support
   registerServiceWorker();
-  
+
   // Init Session state machine
   reinitSessionState();
-  
+
   // Event listeners
   bindEvents();
 });
@@ -135,10 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadSettingsUI() {
   minLapTime.value = activeSettings.minLapTime || 3.0;
   maxLapTime.value = activeSettings.maxLapTime || 25.0;
-  
+
   speechToggle.checked = activeSettings.speechEnabled;
   speechVolume.value = activeSettings.speechVolume;
-  
+
   configureSpeech({
     enabled: activeSettings.speechEnabled,
     volume: activeSettings.speechVolume,
@@ -154,10 +147,11 @@ function loadSettingsUI() {
 function populateVoiceDropdowns() {
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) return;
-  
-  const optionsHtml = `<option value="">Default (Auto)</option>` + 
-    voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-    
+
+  const optionsHtml =
+    `<option value="">Default (Auto)</option>` +
+    voices.map((v) => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+
   if (modalSpeechVoice) {
     const prevVal = modalSpeechVoice.value || activeSettings.speechVoice;
     modalSpeechVoice.innerHTML = optionsHtml;
@@ -175,15 +169,16 @@ window.speechSynthesis.onvoiceschanged = populateVoiceDropdowns;
 function bindEvents() {
   // Connection Events
   connectionBadge.addEventListener('click', handleConnectClick);
-  
+
   // Session Settings Events
   const handleSessionSettingChange = () => {
     saveActiveSettings();
     reinitSessionState();
-    
+
     // Quick inline notification
     const notif = document.createElement('div');
-    notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+    notif.style.cssText =
+      'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
     notif.textContent = 'Settings Saved';
     document.body.appendChild(notif);
     setTimeout(() => {
@@ -191,39 +186,39 @@ function bindEvents() {
       setTimeout(() => notif.remove(), 500);
     }, 2000);
   };
-  
+
   minLapTime.addEventListener('change', handleSessionSettingChange);
   maxLapTime.addEventListener('change', handleSessionSettingChange);
-  
+
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
   btnSessionReset.addEventListener('click', handleSessionReset);
-  
+
   // Form Events
   addDriverForm.addEventListener('submit', handleAddDriver);
   addCarForm.addEventListener('submit', handleAddCar);
-  
+
   // Audio Controls
   speechToggle.addEventListener('change', (e) => {
     activeSettings.speechEnabled = e.target.checked;
     saveActiveSettings();
     configureSpeech({ enabled: e.target.checked });
   });
-  
+
   speechVolume.addEventListener('input', (e) => {
     const vol = parseFloat(e.target.value);
     activeSettings.speechVolume = vol;
     saveActiveSettings();
     configureSpeech({ volume: vol });
   });
-  
+
   // Link sliders to inputs for Speech Engine
   function linkSliderAndInput(slider, input) {
     if (!slider || !input) return;
-    slider.addEventListener('input', () => input.value = slider.value);
-    input.addEventListener('input', () => slider.value = input.value);
+    slider.addEventListener('input', () => (input.value = slider.value));
+    input.addEventListener('input', () => (slider.value = input.value));
   }
-  
+
   linkSliderAndInput(modalSpeechPitchSlider, modalSpeechPitch);
   linkSliderAndInput(modalSpeechRateSlider, modalSpeechRate);
 
@@ -239,8 +234,8 @@ function bindEvents() {
       modalSpeechRateSlider.value = activeSettings.speechRate || 1.1;
     } else if (context === 'driver' && selectedDriverId) {
       audioModalTitle.textContent = 'Driver Voice Override';
-      const driver = getDrivers().find(d => d.id === selectedDriverId);
-      const override = (driver && driver.speechOverride) ? driver.speechOverride : {};
+      const driver = getDrivers().find((d) => d.id === selectedDriverId);
+      const override = driver && driver.speechOverride ? driver.speechOverride : {};
       modalSpeechVoice.value = override.voiceName || '';
       modalSpeechPitch.value = override.pitch || 1.0;
       modalSpeechPitchSlider.value = override.pitch || 1.0;
@@ -249,16 +244,16 @@ function bindEvents() {
     }
     audioModal.style.display = 'flex';
   }
-  
+
   function closeAudioModal() {
     audioModal.style.display = 'none';
     currentAudioModalContext = null;
   }
-  
+
   btnConfigGlobalAudio.addEventListener('click', () => openAudioModal('global'));
   btnConfigDriverAudio.addEventListener('click', () => openAudioModal('driver'));
   btnModalAudioCancel.addEventListener('click', closeAudioModal);
-  
+
   btnModalAudioRevert.addEventListener('click', () => {
     modalSpeechVoice.value = '';
     modalSpeechPitch.value = 1.0;
@@ -266,71 +261,73 @@ function bindEvents() {
     modalSpeechRate.value = 1.1;
     modalSpeechRateSlider.value = 1.1;
   });
-  
+
   btnModalAudioSave.addEventListener('click', () => {
     if (currentAudioModalContext === 'global') {
       activeSettings.speechVoice = modalSpeechVoice.value;
       activeSettings.speechPitch = parseFloat(modalSpeechPitch.value);
       activeSettings.speechRate = parseFloat(modalSpeechRate.value);
       saveActiveSettings();
-      import('./speech.js').then(m => m.configureSpeech({
-        voiceName: activeSettings.speechVoice,
-        pitch: activeSettings.speechPitch,
-        rate: activeSettings.speechRate
-      }));
+      import('./speech.js').then((m) =>
+        m.configureSpeech({
+          voiceName: activeSettings.speechVoice,
+          pitch: activeSettings.speechPitch,
+          rate: activeSettings.speechRate
+        })
+      );
     } else if (currentAudioModalContext === 'driver' && selectedDriverId) {
       const drivers = getDrivers();
-      const idx = drivers.findIndex(d => d.id === selectedDriverId);
+      const idx = drivers.findIndex((d) => d.id === selectedDriverId);
       if (idx !== -1) {
         drivers[idx].speechOverride = {
           voiceName: modalSpeechVoice.value,
           pitch: parseFloat(modalSpeechPitch.value),
           rate: parseFloat(modalSpeechRate.value)
         };
-        import('./database.js').then(m => m.saveDriver(drivers[idx]));
+        import('./database.js').then((m) => m.saveDriver(drivers[idx]));
       }
     }
     closeAudioModal();
   });
 
   // Preview Buttons
-  document.querySelectorAll('.preview-btn').forEach(btn => {
+  document.querySelectorAll('.preview-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-target');
       const context = btn.getAttribute('data-context');
       const input = document.getElementById(targetId);
       if (input && input.value) {
         const previewText = input.value
-          .replace(/{driver}/g, "John Doe")
-          .replace(/{car}/g, "Red Racer")
-          .replace(/{time}/g, "9.5")
-          .replace(/{streak}/g, "5");
-          
+          .replace(/{driver}/g, 'John Doe')
+          .replace(/{car}/g, 'Red Racer')
+          .replace(/{time}/g, '9.5')
+          .replace(/{streak}/g, '5');
+
         let speechOpts = {
           voiceName: activeSettings.speechVoice,
           pitch: activeSettings.speechPitch,
           rate: activeSettings.speechRate
         };
-        
+
         if (context === 'driver' && selectedDriverId) {
-          const driver = getDrivers().find(d => d.id === selectedDriverId);
+          const driver = getDrivers().find((d) => d.id === selectedDriverId);
           if (driver && driver.speechOverride) {
             speechOpts = driver.speechOverride;
           }
         }
-          
-        import('./speech.js').then(speech => {
+
+        import('./speech.js').then((speech) => {
           speech.speak(previewText, true, speechOpts);
         });
       }
     });
   });
-  
+
   // View Routing
   const navTabs = document.querySelectorAll('.nav-tab[data-target], .nav-item[data-target]');
-  navTabs.forEach(tab => {
+  navTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tree-list li').forEach((el) => el.classList.remove('active'));
       if (tab.tagName === 'LI') tab.classList.add('active');
       switchView(tab.getAttribute('data-target'));
     });
@@ -338,7 +335,7 @@ function bindEvents() {
 
   // Tree Toggles
   const treeHeaders = document.querySelectorAll('.tree-header');
-  treeHeaders.forEach(header => {
+  treeHeaders.forEach((header) => {
     header.addEventListener('click', () => {
       const targetId = header.getAttribute('data-tree');
       const content = document.getElementById(targetId);
@@ -349,7 +346,7 @@ function bindEvents() {
 
   // Nav Action Buttons (+ New Driver, + New Car)
   const navActionBtns = document.querySelectorAll('.nav-action-btn');
-  navActionBtns.forEach(btn => {
+  navActionBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       switchView(btn.getAttribute('data-target'));
     });
@@ -357,7 +354,7 @@ function bindEvents() {
 
   // Color Chips
   const colorChips = document.querySelectorAll('.color-chip');
-  colorChips.forEach(chip => {
+  colorChips.forEach((chip) => {
     chip.addEventListener('click', () => {
       const color = chip.getAttribute('data-color');
       // For car details color picker
@@ -368,24 +365,25 @@ function bindEvents() {
       }
     });
   });
-  
+
   const handleDriverUpdate = () => {
     if (selectedDriverId) {
       const newName = editDriverName.value.trim();
       const newCallout = editDriverCallout.value.trim();
-      
+
       if (newName) {
         const drivers = getDrivers();
-        const driverIndex = drivers.findIndex(d => d.id === selectedDriverId);
+        const driverIndex = drivers.findIndex((d) => d.id === selectedDriverId);
         if (driverIndex !== -1) {
           drivers[driverIndex].name = newName;
           drivers[driverIndex].customCallout = newCallout;
           saveDriver(drivers[driverIndex]);
           renderDriverList();
           refreshActiveRacers();
-          
+
           const notif = document.createElement('div');
-          notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+          notif.style.cssText =
+            'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
           notif.textContent = 'Profile Saved';
           document.body.appendChild(notif);
           setTimeout(() => {
@@ -401,7 +399,7 @@ function bindEvents() {
   editDriverCallout.addEventListener('input', handleDriverUpdate);
 
   deleteDriverConfirm.addEventListener('input', (e) => {
-    const driver = getDrivers().find(d => d.id === selectedDriverId);
+    const driver = getDrivers().find((d) => d.id === selectedDriverId);
     if (driver && e.target.value === driver.name) {
       btnDeleteDriver.disabled = false;
     } else {
@@ -423,13 +421,13 @@ function bindEvents() {
   const handleCarUpdate = () => {
     if (!selectedCarId) return;
     const cars = getCars();
-    const carIndex = cars.findIndex(c => c.transponder === selectedCarId);
+    const carIndex = cars.findIndex((c) => c.transponder === selectedCarId);
     if (carIndex === -1) return;
-    
+
     const newName = editCarName.value.trim();
     const newChassis = editCarChassis.value.trim();
     const newColor = editCarColor.value;
-    
+
     if (newName) {
       cars[carIndex].name = newName;
       cars[carIndex].chassis = newChassis;
@@ -437,9 +435,10 @@ function bindEvents() {
       saveCar(cars[carIndex]);
       renderCarList();
       refreshActiveRacers();
-      
+
       const notif = document.createElement('div');
-      notif.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
+      notif.style.cssText =
+        'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--success-color); color: #000; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; z-index: 9999; transition: opacity 0.5s ease;';
       notif.textContent = 'Car Saved';
       document.body.appendChild(notif);
       setTimeout(() => {
@@ -454,7 +453,7 @@ function bindEvents() {
   editCarColor.addEventListener('input', handleCarUpdate);
 
   deleteCarConfirm.addEventListener('input', (e) => {
-    const car = getCars().find(c => c.transponder === selectedCarId);
+    const car = getCars().find((c) => c.transponder === selectedCarId);
     if (car && e.target.value === car.name) {
       btnDeleteCar.disabled = false;
     } else {
@@ -474,7 +473,7 @@ function bindEvents() {
 
   // Unregistered transponder callback hooks
   onUnregisteredAlert(displayUnregisteredNotification);
-  
+
   // Settings Events
   const handleSettingsUpdate = () => {
     const settings = getSettings();
@@ -489,13 +488,14 @@ function bindEvents() {
     };
     settings.streak = {
       minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
-      varianceThreshold: parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
+      varianceThreshold:
+        parseFloat(document.getElementById('setting-streak-variance').value) || 0.1,
       mustBeFast: document.getElementById('setting-streak-fast-only').checked
     };
-    
+
     saveSettings(settings);
     saveActiveSettings();
-    
+
     const notif = document.createElement('div');
     notif.style.position = 'fixed';
     notif.style.bottom = '80px';
@@ -508,7 +508,7 @@ function bindEvents() {
     notif.style.fontWeight = '600';
     notif.style.zIndex = '9999';
     notif.textContent = 'Settings Saved';
-    
+
     document.body.appendChild(notif);
     setTimeout(() => {
       notif.style.opacity = '0';
@@ -517,8 +517,10 @@ function bindEvents() {
     }, 2000);
   };
 
-  const settingsInputs = document.querySelectorAll('#view-settings-speech input, #view-settings-streaks input, #view-settings-session input');
-  settingsInputs.forEach(input => {
+  const settingsInputs = document.querySelectorAll(
+    '#view-settings-speech input, #view-settings-streaks input, #view-settings-session input'
+  );
+  settingsInputs.forEach((input) => {
     input.addEventListener('input', handleSettingsUpdate);
     input.addEventListener('change', handleSettingsUpdate); // catch checkbox/select changes too
   });
@@ -526,17 +528,17 @@ function bindEvents() {
 
 function switchView(viewId) {
   const viewPanels = document.querySelectorAll('.view-panel');
-  viewPanels.forEach(p => p.classList.remove('active'));
+  viewPanels.forEach((p) => p.classList.remove('active'));
   document.getElementById(viewId).classList.add('active');
-  
+
   // Reset active state on nav elements
-  document.querySelectorAll('.nav-tab[data-target]').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tree-list li').forEach(t => t.classList.remove('active'));
-  
+  document.querySelectorAll('.nav-tab[data-target]').forEach((t) => t.classList.remove('active'));
+  document.querySelectorAll('.tree-list li').forEach((t) => t.classList.remove('active'));
+
   // Add active state to matching nav tab if it's a top level
   const tab = document.querySelector(`.nav-tab[data-target="${viewId}"]`);
   if (tab) tab.classList.add('active');
-  
+
   // Populate settings view if entering a settings panel
   if (viewId.startsWith('view-settings-')) {
     populateSettingsView();
@@ -545,7 +547,7 @@ function switchView(viewId) {
 
 function populateSettingsView() {
   const settings = getSettings();
-  
+
   const ann = settings.announcements || {};
   document.getElementById('setting-speech-best-ever').value = ann.driverBestEver || '';
   document.getElementById('setting-speech-car-record').value = ann.carRecord || '';
@@ -554,7 +556,7 @@ function populateSettingsView() {
   document.getElementById('setting-speech-personal-best').value = ann.personalBest || '';
   document.getElementById('setting-speech-normal').value = ann.normal || '';
   document.getElementById('setting-speech-consistent').value = ann.consistent || '';
-  
+
   const streak = settings.streak || {};
   document.getElementById('setting-streak-min-laps').value = streak.minLaps || 3;
   document.getElementById('setting-streak-variance').value = streak.varianceThreshold || 0.1;
@@ -572,9 +574,9 @@ function reinitSessionState() {
     minLapTime: parseFloat(minLapTime.value) || 3.0,
     maxLapTime: parseFloat(maxLapTime.value) || 25.0
   };
-  
+
   initSession(config, renderLeaderboard, updateTimerDisplay);
-  
+
   sessionTitle.textContent = config.mode.toUpperCase() + ' SESSION';
   sessionSubtitle.textContent = 'READY TO RUN';
   currentSessionStatus = 'ready';
@@ -598,8 +600,6 @@ function saveActiveSettings() {
   activeSettings = saveSettings(settings);
 }
 
-
-
 /**
  * Hardware Connection Click.
  */
@@ -608,12 +608,12 @@ async function handleConnectClick(e) {
     await disconnect(onStatusChange);
     return;
   }
-  
+
   if (e && e.shiftKey) {
     toggleSimulator(true, onLineReceived, onStatusChange);
     return;
   }
-  
+
   const baud = 38400; // Hardcoded default for EasyLap
   try {
     await connectHID(baud, onLineReceived, onStatusChange);
@@ -692,7 +692,7 @@ function handleSessionReset() {
  */
 function renderLeaderboard({ state, leaderboard }) {
   currentSessionStatus = state.status;
-  
+
   // Sync title and subtitle status
   if (state.status === 'active') {
     sessionSubtitle.textContent = 'Active Running';
@@ -710,7 +710,7 @@ function renderLeaderboard({ state, leaderboard }) {
 
   // Clear tables
   leaderboardBody.innerHTML = '';
-  
+
   if (leaderboard.length === 0) {
     leaderboardBody.innerHTML = `
       <tr id="empty-leaderboard-row">
@@ -729,10 +729,10 @@ function renderLeaderboard({ state, leaderboard }) {
       const position = index + 1;
 
       const isLeader = racer.gap === 'Leader';
-      
+
       const row = document.createElement('tr');
       row.className = `leaderboard-row position-${position}`;
-      
+
       // Style left border color of row based on racer theme color
       row.style.borderLeft = `4px solid ${racer.color}`;
 
@@ -746,9 +746,12 @@ function renderLeaderboard({ state, leaderboard }) {
 
       // Best lap classes
       let bestLapBadgeClass = 'lap-time-badge';
-      const isOverallBestLap = racer.bestLap !== Infinity && racer.laps.some(l => l.isOverallBest && l.lapTime === racer.bestLap);
+      const isOverallBestLap =
+        racer.bestLap !== Infinity &&
+        racer.laps.some((l) => l.isOverallBest && l.lapTime === racer.bestLap);
       if (isOverallBestLap) bestLapBadgeClass += ' overall-best';
-      else if (racer.laps.some(l => l.isPersonalBest && l.lapTime === racer.bestLap)) bestLapBadgeClass += ' personal-best';
+      else if (racer.laps.some((l) => l.isPersonalBest && l.lapTime === racer.bestLap))
+        bestLapBadgeClass += ' personal-best';
 
       const isUnknown = racer.carName === 'Unknown Car';
       const carDisplay = isUnknown
@@ -758,7 +761,7 @@ function renderLeaderboard({ state, leaderboard }) {
       // Build driver display
       let driverCellContent = '';
       const assignedDriverId = state.assignments[racer.transponder];
-      
+
       if (assignedDriverId) {
         driverCellContent = `
           <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -768,7 +771,7 @@ function renderLeaderboard({ state, leaderboard }) {
         `;
       } else {
         let driverOptions = `<option value="">-- Unassigned --</option>`;
-        getDrivers().forEach(d => {
+        getDrivers().forEach((d) => {
           driverOptions += `<option value="${d.id}">${d.name}</option>`;
         });
         driverCellContent = `
@@ -799,7 +802,7 @@ function renderLeaderboard({ state, leaderboard }) {
         <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
         <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
       `;
-      
+
       // Bind driver column events
       if (assignedDriverId) {
         row.querySelector('.leaderboard-driver-link').addEventListener('click', (e) => {
@@ -807,31 +810,31 @@ function renderLeaderboard({ state, leaderboard }) {
           renderDriverDetails(assignedDriverId);
           switchView('view-driver-details');
         });
-        
+
         row.querySelector('.leaderboard-driver-unassign').addEventListener('click', (e) => {
-          import('./race.js').then(module => {
-            module.assignSessionDriver(racer.transponder, "");
+          import('./race.js').then((module) => {
+            module.assignSessionDriver(racer.transponder, '');
           });
         });
       } else {
         row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
-          import('./race.js').then(module => {
+          import('./race.js').then((module) => {
             module.assignSessionDriver(racer.transponder, e.target.value);
           });
         });
       }
-      
+
       // Make car cell clickable to edit
       const carCell = row.children[2];
       carCell.style.cursor = 'pointer';
       carCell.title = 'Click to edit car';
       carCell.addEventListener('click', () => {
         const cars = getCars();
-        const existingCar = cars.find(c => c.transponder === racer.transponder);
-        
+        const existingCar = cars.find((c) => c.transponder === racer.transponder);
+
         // Deselect tree items
-        document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
-        
+        document.querySelectorAll('.tree-list li').forEach((el) => el.classList.remove('active'));
+
         if (existingCar) {
           renderCarDetails(racer.transponder);
           switchView('view-car-details');
@@ -842,13 +845,16 @@ function renderLeaderboard({ state, leaderboard }) {
           switchView('view-car-form');
         }
       });
-      
+
       leaderboardBody.appendChild(row);
     });
   }
 
   // Live update details panels if visible
-  if (document.getElementById('view-driver-details').classList.contains('active') && selectedDriverId) {
+  if (
+    document.getElementById('view-driver-details').classList.contains('active') &&
+    selectedDriverId
+  ) {
     renderDriverDetails(selectedDriverId);
   }
   if (document.getElementById('view-car-details').classList.contains('active') && selectedCarId) {
@@ -868,11 +874,11 @@ function updateTimerDisplay(elapsedMs) {
   const minutes = Math.floor(displayMs / 60000);
   const seconds = Math.floor((displayMs % 60000) / 1000);
   const centiseconds = Math.floor((displayMs % 1000) / 10);
-  
+
   const minStr = minutes.toString().padStart(2, '0');
   const secStr = seconds.toString().padStart(2, '0');
   const csStr = centiseconds.toString().padStart(2, '0');
-  
+
   timerDisplay.textContent = `${minStr}:${secStr}.${csStr}`;
 }
 
@@ -881,10 +887,10 @@ function updateTimerDisplay(elapsedMs) {
  */
 function handleAddDriver(e) {
   e.preventDefault();
-  
+
   const name = document.getElementById('driver-name').value.trim();
   const id = 'd_' + Date.now().toString(36);
-  
+
   saveDriver({ id, name });
   document.getElementById('add-driver-form').reset();
   renderDriverList();
@@ -898,12 +904,12 @@ function handleAddDriver(e) {
  */
 function handleAddCar(e) {
   e.preventDefault();
-  
+
   const name = document.getElementById('car-name').value.trim();
   const transponder = document.getElementById('car-transponder').value.trim().toUpperCase();
   const chassis = document.getElementById('car-chassis').value.trim();
   const color = document.getElementById('car-color').value;
-  
+
   const car = {
     name,
     transponder,
@@ -911,11 +917,11 @@ function handleAddCar(e) {
     color,
     driverId: ''
   };
-  
+
   saveCar(car);
   document.getElementById('add-car-form').reset();
   renderCarList();
-  
+
   // Hot-reload profile in the active timing engine
   assignUnregisteredRacer(transponder, name, color, 'Mini-Z');
   refreshActiveRacers();
@@ -929,23 +935,23 @@ function renderDriverList() {
   const driverList = document.getElementById('driver-list');
   driverList.innerHTML = '';
   const drivers = getDrivers();
-  
+
   if (drivers.length === 0) {
     driverList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); cursor:default; pointer-events:none;">No drivers added.</li>`;
     return;
   }
-  
-  drivers.forEach(d => {
+
+  drivers.forEach((d) => {
     const li = document.createElement('li');
     li.textContent = d.name;
-    
+
     li.addEventListener('click', () => {
-      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tree-list li').forEach((el) => el.classList.remove('active'));
       li.classList.add('active');
       renderDriverDetails(d.id);
       switchView('view-driver-details');
     });
-    
+
     driverList.appendChild(li);
   });
 }
@@ -957,23 +963,23 @@ function renderCarList() {
   const carList = document.getElementById('car-list');
   carList.innerHTML = '';
   const cars = getCars();
-  
+
   if (cars.length === 0) {
     carList.innerHTML = `<li style="font-size:0.85rem; color:var(--text-muted); cursor:default; pointer-events:none;">No cars added.</li>`;
     return;
   }
-  
-  cars.forEach(c => {
+
+  cars.forEach((c) => {
     const li = document.createElement('li');
     li.textContent = c.name;
-    
+
     li.addEventListener('click', () => {
-      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tree-list li').forEach((el) => el.classList.remove('active'));
       li.classList.add('active');
       renderCarDetails(c.transponder);
       switchView('view-car-details');
     });
-    
+
     carList.appendChild(li);
   });
 }
@@ -1009,34 +1015,31 @@ function displayUnregisteredNotification(transponderId) {
   notificationsContainer.appendChild(alertCard);
 }
 
-
-
-
 /**
  * Render Driver Details Panel (Stats, Laps, PRs)
  */
 function renderDriverDetails(driverId) {
   const drivers = getDrivers();
-  const driver = drivers.find(d => d.id === driverId);
+  const driver = drivers.find((d) => d.id === driverId);
   if (!driver) return;
-  
+
   selectedDriverId = driver.id;
   editDriverName.value = driver.name;
   editDriverCallout.value = driver.customCallout || '';
-  
+
   deleteDriverConfirm.value = '';
   btnDeleteDriver.disabled = true;
-  
+
   // Render Per-Car Stats
   const driverPerCarBody = document.getElementById('driver-per-car-body');
   driverPerCarBody.innerHTML = '';
-  
+
   const laps = driver.laps || [];
   if (laps.length === 0) {
     driverPerCarBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
   } else {
     const carStats = {};
-    laps.forEach(lap => {
+    laps.forEach((lap) => {
       if (!carStats[lap.carId]) {
         carStats[lap.carId] = {
           carName: lap.car,
@@ -1050,11 +1053,11 @@ function renderDriverDetails(driverId) {
       stat.totalTime += lap.lapTime;
       if (lap.lapTime < stat.pr) stat.pr = lap.lapTime;
     });
-    
+
     // Convert to array and sort by most laps run
     const carStatsArray = Object.values(carStats).sort((a, b) => b.lapsRun - a.lapsRun);
-    
-    carStatsArray.forEach(stat => {
+
+    carStatsArray.forEach((stat) => {
       const avg = stat.totalTime / stat.lapsRun;
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -1065,7 +1068,11 @@ function renderDriverDetails(driverId) {
         <td><button class="btn delete-car-stats-btn" data-carid="${stat.carId}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
       tr.querySelector('.delete-car-stats-btn').addEventListener('click', () => {
-        if (window.confirm(`Delete all laps for ${stat.carName} by this driver? This action cannot be undone.`)) {
+        if (
+          window.confirm(
+            `Delete all laps for ${stat.carName} by this driver? This action cannot be undone.`
+          )
+        ) {
           deleteDriverCarStats(driverId, stat.carId);
           renderDriverDetails(driverId);
         }
@@ -1073,7 +1080,7 @@ function renderDriverDetails(driverId) {
       driverPerCarBody.appendChild(tr);
     });
   }
-  
+
   // Render PRs
   driverPrsBody.innerHTML = '';
   const prs = driver.prs || [];
@@ -1081,7 +1088,7 @@ function renderDriverDetails(driverId) {
     driverPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
     // Show top 10
-    prs.slice(0, 10).forEach(pr => {
+    prs.slice(0, 10).forEach((pr) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(pr.timestamp).toLocaleString();
       tr.innerHTML = `
@@ -1099,13 +1106,13 @@ function renderDriverDetails(driverId) {
       driverPrsBody.appendChild(tr);
     });
   }
-  
+
   // Render Laps
   driverLapsBody.innerHTML = '';
   if (laps.length === 0) {
     driverLapsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
   } else {
-    laps.forEach(lap => {
+    laps.forEach((lap) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(lap.timestamp).toLocaleString();
       tr.innerHTML = `
@@ -1130,41 +1137,41 @@ function renderDriverDetails(driverId) {
  */
 function renderCarDetails(transponder) {
   const cars = getCars();
-  const car = cars.find(c => c.transponder === transponder);
+  const car = cars.find((c) => c.transponder === transponder);
   if (!car) return;
-  
+
   selectedCarId = car.transponder;
-  
+
   editCarName.value = car.name;
   editCarTransponder.value = car.transponder;
   document.getElementById('edit-car-chassis').value = car.chassis || '';
   editCarColor.value = car.color;
-  
+
   deleteCarConfirm.value = '';
   btnDeleteCar.disabled = true;
 
   // Render Best Lap per Driver
   const carDriversBody = document.getElementById('car-drivers-body');
   carDriversBody.innerHTML = '';
-  
+
   const laps = car.laps || [];
-  
+
   if (laps.length === 0) {
     carDriversBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
     // Group by driverId
     const driverBests = {};
-    laps.forEach(lap => {
+    laps.forEach((lap) => {
       const dId = lap.driverId || 'unknown';
       if (!driverBests[dId] || lap.lapTime < driverBests[dId].lapTime) {
         driverBests[dId] = lap;
       }
     });
-    
+
     // Sort drivers by best time
     const sortedBests = Object.values(driverBests).sort((a, b) => a.lapTime - b.lapTime);
-    
-    sortedBests.forEach(best => {
+
+    sortedBests.forEach((best) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(best.timestamp).toLocaleString();
       tr.innerHTML = `
@@ -1190,7 +1197,7 @@ function renderCarDetails(transponder) {
   if (prs.length === 0) {
     carPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
-    prs.slice(0, 10).forEach(pr => {
+    prs.slice(0, 10).forEach((pr) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(pr.timestamp).toLocaleString();
       tr.innerHTML = `
@@ -1216,7 +1223,8 @@ function renderCarDetails(transponder) {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
+      navigator.serviceWorker
+        .register('./sw.js')
         .then((reg) => {
           console.log('[PWA] Service Worker registered successfully:', reg.scope);
         })

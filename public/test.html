@@ -1,128 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EasyLap WebHID Test</title>
-  <style>
-    body { font-family: monospace; background: #121212; color: #00ff00; padding: 20px; }
-    button { padding: 10px 20px; font-size: 16px; margin-bottom: 20px; cursor: pointer; }
-    #log { background: #000; padding: 10px; border: 1px solid #333; height: 600px; overflow-y: auto; white-space: pre-wrap; }
-    .heartbeat { color: #555; }
-    .crossing { color: #fff; font-weight: bold; background: #005500; }
-  </style>
-</head>
-<body>
-  <h1>EasyLap WebHID Test</h1>
-  <button id="btnConnect">Connect to EasyLap (CP2110)</button>
-  <div id="log">Waiting for connection...<br></div>
-
-  <script>
-    const logEl = document.getElementById('log');
-    let binaryBuffer = new Uint8Array(0);
-
-    function appendLog(msg, cssClass = '') {
-      const span = document.createElement('span');
-      span.className = cssClass;
-      span.innerText = msg + '\n';
-      logEl.appendChild(span);
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    function toHex(array) {
-      return Array.from(array).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
-    }
-
-    function handleBinaryData(data) {
-      appendLog(`[RAW UART] ${toHex(data)}`, 'heartbeat');
-
-      const newBuffer = new Uint8Array(binaryBuffer.length + data.length);
-      newBuffer.set(binaryBuffer);
-      newBuffer.set(data, binaryBuffer.length);
-      binaryBuffer = newBuffer;
-
-      while (binaryBuffer.length > 0) {
-        const pktLen = binaryBuffer[0];
-        
-        if (pktLen !== 0x0B && pktLen !== 0x0D) {
-          binaryBuffer = binaryBuffer.slice(1);
-          continue;
-        }
-
-        if (binaryBuffer.length < pktLen) {
-          break; // wait for more data
-        }
-
-        const packet = binaryBuffer.slice(0, pktLen);
-        binaryBuffer = binaryBuffer.slice(pktLen);
-
-        const pktType = packet[2];
-
-        if (pktType === 0x83 && pktLen === 0x0B) {
-          const dv = new DataView(packet.buffer, packet.byteOffset, packet.byteLength);
-          const ticks = dv.getUint32(3, true);
-          // appendLog(`[Heartbeat] Ticks: ${ticks} | Raw: ${toHex(packet)}`, 'heartbeat');
-        } 
-        else if (pktType === 0x84 && pktLen === 0x0D) {
-          const transponderId = (packet[3] | (packet[4] << 8) | (packet[5] << 16) | (packet[6] << 24)) >>> 0;
-          const dv = new DataView(packet.buffer, packet.byteOffset, packet.byteLength);
-          const ticks = dv.getUint32(7, true);
-          
-          appendLog(`\n[CROSSING DETECTED] Transponder: ${transponderId} | Ticks: ${ticks} | Raw: ${toHex(packet)}\n`, 'crossing');
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyLap WebHID Test</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #121212;
+        color: #00ff00;
+        padding: 20px;
       }
-    }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+      #log {
+        background: #000;
+        padding: 10px;
+        border: 1px solid #333;
+        height: 600px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      .heartbeat {
+        color: #555;
+      }
+      .crossing {
+        color: #fff;
+        font-weight: bold;
+        background: #005500;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>EasyLap WebHID Test</h1>
+    <button id="btnConnect">Connect to EasyLap (CP2110)</button>
+    <div id="log">Waiting for connection...<br /></div>
 
-    document.getElementById('btnConnect').addEventListener('click', async () => {
-      try {
-        const devices = await navigator.hid.requestDevice({
-          filters: [{ vendorId: 0x10c4, productId: 0x86b9 }]
-        });
+    <script>
+      const logEl = document.getElementById('log');
+      let binaryBuffer = new Uint8Array(0);
 
-        if (devices.length === 0) return;
-        const hidDevice = devices[0];
-        await hidDevice.open();
-        appendLog(`Connected to ${hidDevice.productName}`);
+      function appendLog(msg, cssClass = '') {
+        const span = document.createElement('span');
+        span.className = cssClass;
+        span.innerText = msg + '\n';
+        logEl.appendChild(span);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
 
-        // Configure UART: 38400 baud
-        const baudRate = 38400;
-        const configData = new Uint8Array(8);
-        configData[0] = (baudRate >> 24) & 0xFF;
-        configData[1] = (baudRate >> 16) & 0xFF;
-        configData[2] = (baudRate >> 8) & 0xFF;
-        configData[3] = baudRate & 0xFF;
-        configData[4] = 0x00; // Parity None
-        configData[5] = 0x00; // Flow Control None
-        configData[6] = 0x03; // Data Bits 8
-        configData[7] = 0x00; // Stop Bits 1
-        await hidDevice.sendFeatureReport(0x50, configData);
-        appendLog(`Configured UART to ${baudRate} baud`);
+      function toHex(array) {
+        return Array.from(array)
+          .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+          .join(' ');
+      }
 
-        // Enable UART
-        await hidDevice.sendFeatureReport(0x41, new Uint8Array([0x01]));
-        appendLog(`Enabled UART RX/TX. Listening for data...`);
+      function handleBinaryData(data) {
+        appendLog(`[RAW UART] ${toHex(data)}`, 'heartbeat');
 
-        hidDevice.oninputreport = (event) => {
-          // CP2110 uses Report IDs 0x01 to 0x3F for incoming UART data, 
-          // where the Report ID equals the number of UART bytes in the payload.
-          if (event.reportId >= 0x01 && event.reportId <= 0x3F) {
-            const actualLen = event.reportId; // Report ID is the length!
-            const available = event.data.byteLength;
-            
-            if (actualLen > 0 && available > 0) {
-              const uartBytes = new Uint8Array(event.data.buffer, event.data.byteOffset, Math.min(actualLen, available));
-              handleBinaryData(uartBytes);
-            }
-          } else {
-            appendLog(`[Unknown Report] ID: ${event.reportId} | Len: ${event.data.byteLength}`);
+        const newBuffer = new Uint8Array(binaryBuffer.length + data.length);
+        newBuffer.set(binaryBuffer);
+        newBuffer.set(data, binaryBuffer.length);
+        binaryBuffer = newBuffer;
+
+        while (binaryBuffer.length > 0) {
+          const pktLen = binaryBuffer[0];
+
+          if (pktLen !== 0x0b && pktLen !== 0x0d) {
+            binaryBuffer = binaryBuffer.slice(1);
+            continue;
           }
-        };
 
-      } catch (err) {
-        appendLog(`Error: ${err.message}`);
-        console.error(err);
+          if (binaryBuffer.length < pktLen) {
+            break; // wait for more data
+          }
+
+          const packet = binaryBuffer.slice(0, pktLen);
+          binaryBuffer = binaryBuffer.slice(pktLen);
+
+          const pktType = packet[2];
+
+          if (pktType === 0x83 && pktLen === 0x0b) {
+            const dv = new DataView(packet.buffer, packet.byteOffset, packet.byteLength);
+            const ticks = dv.getUint32(3, true);
+            // appendLog(`[Heartbeat] Ticks: ${ticks} | Raw: ${toHex(packet)}`, 'heartbeat');
+          } else if (pktType === 0x84 && pktLen === 0x0d) {
+            const transponderId =
+              (packet[3] | (packet[4] << 8) | (packet[5] << 16) | (packet[6] << 24)) >>> 0;
+            const dv = new DataView(packet.buffer, packet.byteOffset, packet.byteLength);
+            const ticks = dv.getUint32(7, true);
+
+            appendLog(
+              `\n[CROSSING DETECTED] Transponder: ${transponderId} | Ticks: ${ticks} | Raw: ${toHex(packet)}\n`,
+              'crossing'
+            );
+          }
+        }
       }
-    });
-  </script>
-</body>
+
+      document.getElementById('btnConnect').addEventListener('click', async () => {
+        try {
+          const devices = await navigator.hid.requestDevice({
+            filters: [{ vendorId: 0x10c4, productId: 0x86b9 }]
+          });
+
+          if (devices.length === 0) return;
+          const hidDevice = devices[0];
+          await hidDevice.open();
+          appendLog(`Connected to ${hidDevice.productName}`);
+
+          // Configure UART: 38400 baud
+          const baudRate = 38400;
+          const configData = new Uint8Array(8);
+          configData[0] = (baudRate >> 24) & 0xff;
+          configData[1] = (baudRate >> 16) & 0xff;
+          configData[2] = (baudRate >> 8) & 0xff;
+          configData[3] = baudRate & 0xff;
+          configData[4] = 0x00; // Parity None
+          configData[5] = 0x00; // Flow Control None
+          configData[6] = 0x03; // Data Bits 8
+          configData[7] = 0x00; // Stop Bits 1
+          await hidDevice.sendFeatureReport(0x50, configData);
+          appendLog(`Configured UART to ${baudRate} baud`);
+
+          // Enable UART
+          await hidDevice.sendFeatureReport(0x41, new Uint8Array([0x01]));
+          appendLog(`Enabled UART RX/TX. Listening for data...`);
+
+          hidDevice.oninputreport = (event) => {
+            // CP2110 uses Report IDs 0x01 to 0x3F for incoming UART data,
+            // where the Report ID equals the number of UART bytes in the payload.
+            if (event.reportId >= 0x01 && event.reportId <= 0x3f) {
+              const actualLen = event.reportId; // Report ID is the length!
+              const available = event.data.byteLength;
+
+              if (actualLen > 0 && available > 0) {
+                const uartBytes = new Uint8Array(
+                  event.data.buffer,
+                  event.data.byteOffset,
+                  Math.min(actualLen, available)
+                );
+                handleBinaryData(uartBytes);
+              }
+            } else {
+              appendLog(`[Unknown Report] ID: ${event.reportId} | Len: ${event.data.byteLength}`);
+            }
+          };
+        } catch (err) {
+          appendLog(`Error: ${err.message}`);
+          console.error(err);
+        }
+      });
+    </script>
+  </body>
 </html>

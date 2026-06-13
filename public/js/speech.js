@@ -25,7 +25,7 @@ export function configureSpeech(config) {
   if (config.voiceName !== undefined) defaultVoiceName = config.voiceName;
   if (config.pitch !== undefined) defaultPitch = config.pitch;
   if (config.rate !== undefined) defaultRate = config.rate;
-  
+
   if (!isEnabled) {
     cancelSpeech();
   }
@@ -58,40 +58,44 @@ export function speak(text, priority = false, options = {}) {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.volume = volume;
-  utterance.rate = (options.rate !== undefined && !isNaN(options.rate)) ? options.rate : defaultRate;
-  utterance.pitch = (options.pitch !== undefined && !isNaN(options.pitch)) ? options.pitch : defaultPitch;
+  utterance.rate = options.rate !== undefined && !isNaN(options.rate) ? options.rate : defaultRate;
+  utterance.pitch =
+    options.pitch !== undefined && !isNaN(options.pitch) ? options.pitch : defaultPitch;
 
   const targetVoiceName = options.voiceName !== undefined ? options.voiceName : defaultVoiceName;
-  
+
   let voices = synth.getVoices();
   if (voices.length > 0) {
     cachedVoices = voices;
   } else {
     voices = cachedVoices;
   }
-  
+
   let selectedVoice = null;
-  
+
   if (targetVoiceName) {
-    selectedVoice = voices.find(voice => voice.name === targetVoiceName);
+    selectedVoice = voices.find((voice) => voice.name === targetVoiceName);
   }
-  
+
   if (!selectedVoice) {
     // If we already picked a fallback and it's still available, stick with it
-    if (cachedFallbackVoice && voices.some(v => v.name === cachedFallbackVoice.name)) {
+    if (cachedFallbackVoice && voices.some((v) => v.name === cachedFallbackVoice.name)) {
       selectedVoice = cachedFallbackVoice;
     } else {
       // Try to find a natural-sounding English voice
-      selectedVoice = voices.find(voice => 
-        voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural'))
-      ) || voices.find(voice => voice.lang.startsWith('en'));
-      
+      selectedVoice =
+        voices.find(
+          (voice) =>
+            voice.lang.startsWith('en') &&
+            (voice.name.includes('Google') || voice.name.includes('Natural'))
+        ) || voices.find((voice) => voice.lang.startsWith('en'));
+
       if (selectedVoice) {
         cachedFallbackVoice = selectedVoice;
       }
     }
   }
-  
+
   if (selectedVoice) {
     utterance.voice = selectedVoice;
   }
@@ -107,7 +111,7 @@ export function speak(text, priority = false, options = {}) {
   };
 
   speechQueue.push(utterance);
-  
+
   if (!currentUtterance) {
     processQueue();
   }

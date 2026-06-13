@@ -16,9 +16,8 @@ const MOCK_TRANSPONDERS = ['CDFD4C', '00FFAB', 'EE1234'];
  * @param {Array} racers - List of racers.
  */
 export function setSimulatedRacers(racers) {
-  simulatedDrivers = racers.length > 0 
-    ? racers.map(r => r.transponder.toUpperCase())
-    : MOCK_TRANSPONDERS;
+  simulatedDrivers =
+    racers.length > 0 ? racers.map((r) => r.transponder.toUpperCase()) : MOCK_TRANSPONDERS;
 }
 
 /**
@@ -37,10 +36,10 @@ export function startSimulator(callback) {
   console.log('[Simulator] Starting with transponders:', simulatedDrivers);
 
   // For each driver, start an independent loop to simulate cars passing the sensor loop
-  driverIntervals = simulatedDrivers.map(transponder => {
+  driverIntervals = simulatedDrivers.map((transponder) => {
     // Generate a random initial delay so they don't cross at the same time
     const initialDelay = Math.random() * 8000 + 2000;
-    
+
     const timeoutId = setTimeout(function loop() {
       if (!isRunning) return;
 
@@ -48,7 +47,7 @@ export function startSimulator(callback) {
 
       // Schedule next crossing (typical lap time: 8-14 seconds)
       const nextLap = Math.random() * 6000 + 8000;
-      const index = driverIntervals.findIndex(d => d.transponder === transponder);
+      const index = driverIntervals.findIndex((d) => d.transponder === transponder);
       if (index !== -1) {
         driverIntervals[index].timeoutId = setTimeout(loop, nextLap);
       }
@@ -64,10 +63,10 @@ export function startSimulator(callback) {
 export function stopSimulator() {
   if (!isRunning) return;
   isRunning = false;
-  
+
   console.log('[Simulator] Stopping');
-  
-  driverIntervals.forEach(d => clearTimeout(d.timeoutId));
+
+  driverIntervals.forEach((d) => clearTimeout(d.timeoutId));
   driverIntervals = [];
   onDataCallback = null;
 }
@@ -75,7 +74,7 @@ export function stopSimulator() {
 /**
  * Generate a simulated Robitronic serial string and send it to the callback.
  * Format: ID[6 chars]Timestamp[8 chars]\r\n
- * @param {string} transponderId 
+ * @param {string} transponderId
  */
 function triggerCrossing(transponderId) {
   if (!onDataCallback) return;
@@ -84,13 +83,13 @@ function triggerCrossing(transponderId) {
   // We use the current high-resolution performance timer to mimic this.
   const elapsedMs = performance.now();
   const ticks = Math.floor(elapsedMs / 0.25);
-  
+
   // Format ID and ticks as hex uppercase, padded
   const idHex = transponderId.padStart(6, '0').slice(-6).toUpperCase();
   const ticksHex = ticks.toString(16).padStart(8, '0').slice(-8).toUpperCase();
-  
+
   const serialLine = `${idHex}${ticksHex}\r\n`;
-  
+
   // console.log(`[Simulator TX] ${serialLine.trim()}`);
   onDataCallback(serialLine);
 }

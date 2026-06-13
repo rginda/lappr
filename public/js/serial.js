@@ -5,7 +5,6 @@
 
 import { startSimulator, stopSimulator } from './simulator.js';
 
-
 let hidDevice = null;
 let isConnected = false;
 let inputBuffer = '';
@@ -27,9 +26,9 @@ function handleBinaryData(data, onLineCallback) {
 
   while (binaryBuffer.length > 0) {
     const pktLen = binaryBuffer[0];
-    
+
     // EasyLap packets start with length (0x0B for heartbeat, 0x0D for crossing)
-    if (pktLen !== 0x0B && pktLen !== 0x0D) {
+    if (pktLen !== 0x0b && pktLen !== 0x0d) {
       // Unknown length byte, drop first byte and re-sync
       binaryBuffer = binaryBuffer.slice(1);
       continue;
@@ -45,19 +44,20 @@ function handleBinaryData(data, onLineCallback) {
 
     const pktType = packet[2];
 
-    if (pktType === 0x84 && pktLen === 0x0D) {
+    if (pktType === 0x84 && pktLen === 0x0d) {
       // Parse Crossing Packet
       // Transponder ID (Bytes 3-6)
-      const transponderId = (packet[3] | (packet[4] << 8) | (packet[5] << 16) | (packet[6] << 24)) >>> 0;
+      const transponderId =
+        (packet[3] | (packet[4] << 8) | (packet[5] << 16) | (packet[6] << 24)) >>> 0;
       // Ticks (Bytes 7-10)
       // Using DataView to safely read 32-bit unsigned int
       const dv = new DataView(packet.buffer, packet.byteOffset, packet.byteLength);
       const ticks = dv.getUint32(7, true); // true = little-endian
-      
+
       // Synthesize legacy Robitronic ASCII format: ID[6 hex chars]Timestamp[8 hex chars]
       const idHex = transponderId.toString(16).toUpperCase().padStart(6, '0');
       const ticksHex = ticks.toString(16).toUpperCase().padStart(8, '0');
-      
+
       // console.log(`[Binary Parser] Detected Crossing! Emitting legacy string: ${idHex}${ticksHex}`);
       onLineCallback(idHex + ticksHex);
     }
@@ -79,8 +79,6 @@ function handleLegacyAsciiLine(text, onLineCallback) {
     }
   }
 }
-
-
 
 /**
  * Connect to Silicon Labs CP2110 via WebHID.
@@ -107,15 +105,15 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
     // 1. Configure UART parameters (Report ID 0x50)
     // Format: baudRate (4 bytes big-endian), parity (1 byte: 0=None), flowControl (1 byte: 0=None), dataBits (1 byte: 3=8bits), stopBits (1 byte: 0=1 stop)
     const configData = new Uint8Array(8);
-    configData[0] = (baudRate >> 24) & 0xFF;
-    configData[1] = (baudRate >> 16) & 0xFF;
-    configData[2] = (baudRate >> 8) & 0xFF;
-    configData[3] = baudRate & 0xFF;
+    configData[0] = (baudRate >> 24) & 0xff;
+    configData[1] = (baudRate >> 16) & 0xff;
+    configData[2] = (baudRate >> 8) & 0xff;
+    configData[3] = baudRate & 0xff;
     configData[4] = 0x00; // Parity: None
     configData[5] = 0x00; // Flow Control: None
     configData[6] = 0x03; // Data Bits: 8
     configData[7] = 0x00; // Stop Bits: 1
-    
+
     await hidDevice.sendFeatureReport(0x50, configData);
 
     // 2. Enable UART interface (Report ID 0x41, Value 0x01)
@@ -127,14 +125,18 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
 
     hidDevice.oninputreport = (event) => {
       const { reportId, data } = event;
-      
+
       // CP2110 transmits UART RX data in Input Reports 0x01 to 0x3F.
-      if (reportId >= 0x01 && reportId <= 0x3F) {
+      if (reportId >= 0x01 && reportId <= 0x3f) {
         const actualLen = reportId;
         const available = data.byteLength;
-        
+
         if (actualLen > 0 && available > 0) {
-          const uartBytes = new Uint8Array(data.buffer, data.byteOffset, Math.min(actualLen, available));
+          const uartBytes = new Uint8Array(
+            data.buffer,
+            data.byteOffset,
+            Math.min(actualLen, available)
+          );
           // console.log(`[WebHID] Received Report ID ${reportId}. Bytes:`, Array.from(uartBytes).map(b => b.toString(16).padStart(2, '0')).join(' '));
           handleBinaryData(uartBytes, onLineCallback);
         }
@@ -150,7 +152,6 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
         disconnect(onStatusChange);
       }
     });
-
   } catch (err) {
     console.error('HID connection failed:', err);
     disconnect(onStatusChange);
@@ -168,7 +169,7 @@ export function toggleSimulator(enable, onLineCallback, onStatusChange) {
   if (enable) {
     // Disconnect active hardware first
     disconnect(onStatusChange);
-    
+
     isConnected = true;
     onStatusChange({ connected: true, type: 'simulator', name: 'Mock Simulator' });
     startSimulator((line) => {
@@ -187,11 +188,9 @@ export function toggleSimulator(enable, onLineCallback, onStatusChange) {
 export async function disconnect(onStatusChange) {
   isConnected = false;
   inputBuffer = '';
-  
+
   // Stop simulator if active
   stopSimulator();
-
-
 
   // Close WebHID device
   if (hidDevice) {

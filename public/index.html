@@ -1,538 +1,1161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sleek, static web-based RC lap timing and race management system compatible with EasyLap/Robitronic protocol.">
-  <title>Lappr - RC Lap Counter</title>
-  
-  <link rel="stylesheet" href="index.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0e12">
-  
-  <!-- Favicon placeholder or icon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%238b5cf6%22/><text x=%2250%%22 y=%2250%%22 font-size=%2260%22 font-family=%22Outfit%22 font-weight=%22800%22 fill=%22%23fff%22 dominant-baseline=%22central%22 text-anchor=%22middle%22>L</text></svg>">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sleek, static web-based RC lap timing and race management system compatible with EasyLap/Robitronic protocol."
+    />
+    <title>Lappr - RC Lap Counter</title>
 
-  <div id="app-root" class="container">
-    
-    <!-- Application Header -->
-    <header class="app-header">
-      <div class="brand">
-        <div class="logo-icon">L</div>
-        <div class="logo-text">
-          <h1>Lappr</h1>
-          <span>RC Lap Counter</span>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0d0e12" />
+
+    <!-- Favicon placeholder or icon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%238b5cf6%22/><text x=%2250%%22 y=%2250%%22 font-size=%2260%22 font-family=%22Outfit%22 font-weight=%22800%22 fill=%22%23fff%22 dominant-baseline=%22central%22 text-anchor=%22middle%22>L</text></svg>"
+    />
+  </head>
+  <body>
+    <div id="app-root" class="container">
+      <!-- Application Header -->
+      <header class="app-header">
+        <div class="brand">
+          <div class="logo-icon">L</div>
+          <div class="logo-text">
+            <h1>Lappr</h1>
+            <span>RC Lap Counter</span>
+          </div>
         </div>
-      </div>
-      
-      <div class="header-controls">
-        <div id="connection-badge" class="status-indicator disconnected" style="cursor: pointer;" title="Click to Connect">
-          <span class="status-dot"></span>
-          <span id="connection-status-text">CONNECT TO HARDWARE</span>
+
+        <div class="header-controls">
+          <div
+            id="connection-badge"
+            class="status-indicator disconnected"
+            style="cursor: pointer"
+            title="Click to Connect"
+          >
+            <span class="status-dot"></span>
+            <span id="connection-status-text">CONNECT TO HARDWARE</span>
+          </div>
         </div>
-      </div>
-    </header>
-    
-    <!-- Main Application Grid -->
-    <div class="app-grid">
-      
-      <!-- Left Sidebar: Navigation Tabs -->
-      <aside class="sidebar">
-        <nav class="sidebar-nav">
-          <button class="nav-tab active" data-target="view-session">Session</button>
-          
-          <div class="nav-tree">
-            <button class="nav-tab tree-header" data-tree="drivers-tree">
-              <span>Drivers</span>
-              <span class="chevron">▼</span>
-            </button>
-            <div id="drivers-tree" class="tree-content expanded">
-              <ul id="driver-list" class="tree-list">
-                <!-- Dynamically populated -->
-              </ul>
-              <button class="btn btn-secondary nav-action-btn" data-target="view-driver-form">+ New Driver</button>
-            </div>
-          </div>
-          
-          <div class="nav-tree">
-            <button class="nav-tab tree-header" data-tree="cars-tree">
-              <span>Cars</span>
-              <span class="chevron">▼</span>
-            </button>
-            <div id="cars-tree" class="tree-content expanded">
-              <ul id="car-list" class="tree-list">
-                <!-- Dynamically populated -->
-              </ul>
-              <button class="btn btn-secondary nav-action-btn" data-target="view-car-form">+ New Car</button>
-            </div>
-          </div>
-          
-          <div class="nav-tree">
-            <button class="nav-tab tree-header" data-tree="settings-tree">
-              <span>Settings</span>
-              <span class="chevron">▼</span>
-            </button>
-            <div id="settings-tree" class="tree-content expanded">
-              <ul class="tree-list">
-                <li class="nav-item" data-target="view-settings-session">Session</li>
-                <li class="nav-item" data-target="view-settings-speech">Speech</li>
-                <li class="nav-item" data-target="view-settings-streaks">Streaks</li>
-              </ul>
-            </div>
-          </div>
-          
-        </nav>
-      </aside>
-      
-      <div class="views-container">
-        
-        <!-- View: Session -->
-        <main id="view-session" class="view-panel active">
-          
-          <!-- Timer Dashboard -->
-          <section class="card glass-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
-            <div>
-              <h2 id="session-title" style="font-weight: 500; font-size: 1.25rem;">Practice Session</h2>
-              <p id="session-subtitle" style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Ready to run</p>
-            </div>
-            
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button id="btn-session-start" class="btn btn-success" style="padding: 0.4rem 1rem;">Start Session</button>
-                <button id="btn-session-reset" class="btn btn-secondary" style="padding: 0.4rem 1rem;">Clear Laps</button>
-              </div>
-            </div>
-            
-            <div id="session-timer-display" class="session-timer mono">00:00.00</div>
-          </section>
-          
-          <!-- Starting Lights Overlay (For Races) -->
-          <section id="starting-lights" style="display: none; justify-content: center; gap: 1rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-            <div class="light-bulb" style="width:50px; height:50px; border-radius:50%; background:#333; border:2px solid #555;"></div>
-          </section>
-          
-          <!-- Live Leaderboard Board -->
-          <section class="card" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
-            <div class="leaderboard-header" style="flex-shrink: 0;">
-              <h2 style="font-weight: 600;">Leaderboard</h2>
-              <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 1rem;">
-                <span>Total Cars: <strong id="leaderboard-count-cars" class="mono">0</strong></span>
-                <span>Laps Logged: <strong id="leaderboard-count-laps" class="mono">0</strong></span>
-              </div>
-            </div>
-            
-            <div style="flex: 1; overflow: auto;">
-              <table class="leaderboard-table">
-                <thead>
-                  <tr>
-                    <th style="width: 60px;">Pos</th>
-                    <th style="min-width: 150px;">Driver / Assign</th>
-                    <th>Car</th>
-                    <th style="width: 80px; text-align: center;">Laps</th>
-                    <th>Last Lap</th>
-                    <th>Best Lap</th>
-                    <th>3-Fast Streak</th>
-                    <th>Consistency</th>
-                    <th style="width: 100px; text-align: right;">Gap</th>
-                  </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                  <!-- Dynamically populated row elements -->
-                  <tr id="empty-leaderboard-row">
-                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 4rem 0;">
-                      No lap data recorded yet. Pass a transponder under the bridge or start the mock simulator!
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </main>
+      </header>
 
-        <!-- View: New Driver Form -->
-        <main id="view-driver-form" class="view-panel">
-          <section class="card glass-panel">
-            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Add New Driver</h2>
-            <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-              <input type="text" id="driver-name" placeholder="Driver Name" required style="flex: 1; min-width: 0; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-primary);">
-              <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Create Driver</button>
-            </form>
-          </section>
-        </main>
+      <!-- Main Application Grid -->
+      <div class="app-grid">
+        <!-- Left Sidebar: Navigation Tabs -->
+        <aside class="sidebar">
+          <nav class="sidebar-nav">
+            <button class="nav-tab active" data-target="view-session">Session</button>
 
-        <!-- View: Driver Details -->
-        <main id="view-driver-details" class="view-panel">
-          <section class="card glass-panel" id="driver-details-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-              <h2 style="color: var(--accent-primary);">Driver Profile</h2>
-            </div>
-            
-            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap;">
-              <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px; max-width: 250px;">
-                <label for="edit-driver-name" style="margin-bottom: 0.5rem;">Driver Name</label>
-                <input type="text" id="edit-driver-name" style="width: 100%;" placeholder="Driver Name">
+            <div class="nav-tree">
+              <button class="nav-tab tree-header" data-tree="drivers-tree">
+                <span>Drivers</span>
+                <span class="chevron">▼</span>
+              </button>
+              <div id="drivers-tree" class="tree-content expanded">
+                <ul id="driver-list" class="tree-list">
+                  <!-- Dynamically populated -->
+                </ul>
+                <button class="btn btn-secondary nav-action-btn" data-target="view-driver-form">
+                  + New Driver
+                </button>
               </div>
-              
-              <div class="form-group" style="margin-bottom: 0; flex: 2; min-width: 350px;">
-                <label for="edit-driver-callout" style="margin-bottom: 0.5rem;">Custom PR Speech Callout</label>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <input type="text" id="edit-driver-callout" style="flex: 1;" placeholder="e.g. Kachow!">
-                  <button class="btn preview-btn" data-target="edit-driver-callout" data-context="driver" style="padding: 0.5rem 0.75rem; flex-shrink: 0;" title="Preview">▶️</button>
-                  <button id="btn-config-driver-audio" class="btn btn-secondary" style="flex-shrink: 0;">⚙️ Voice</button>
+            </div>
+
+            <div class="nav-tree">
+              <button class="nav-tab tree-header" data-tree="cars-tree">
+                <span>Cars</span>
+                <span class="chevron">▼</span>
+              </button>
+              <div id="cars-tree" class="tree-content expanded">
+                <ul id="car-list" class="tree-list">
+                  <!-- Dynamically populated -->
+                </ul>
+                <button class="btn btn-secondary nav-action-btn" data-target="view-car-form">
+                  + New Car
+                </button>
+              </div>
+            </div>
+
+            <div class="nav-tree">
+              <button class="nav-tab tree-header" data-tree="settings-tree">
+                <span>Settings</span>
+                <span class="chevron">▼</span>
+              </button>
+              <div id="settings-tree" class="tree-content expanded">
+                <ul class="tree-list">
+                  <li class="nav-item" data-target="view-settings-session">Session</li>
+                  <li class="nav-item" data-target="view-settings-speech">Speech</li>
+                  <li class="nav-item" data-target="view-settings-streaks">Streaks</li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="views-container">
+          <!-- View: Session -->
+          <main id="view-session" class="view-panel active">
+            <!-- Timer Dashboard -->
+            <section
+              class="card glass-panel"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.5rem;
+              "
+            >
+              <div>
+                <h2 id="session-title" style="font-weight: 500; font-size: 1.25rem">
+                  Practice Session
+                </h2>
+                <p
+                  id="session-subtitle"
+                  style="
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    font-weight: 600;
+                  "
+                >
+                  Ready to run
+                </p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 1rem">
+                <div style="display: flex; align-items: center; gap: 0.5rem">
+                  <button
+                    id="btn-session-start"
+                    class="btn btn-success"
+                    style="padding: 0.4rem 1rem"
+                  >
+                    Start Session
+                  </button>
+                  <button
+                    id="btn-session-reset"
+                    class="btn btn-secondary"
+                    style="padding: 0.4rem 1rem"
+                  >
+                    Clear Laps
+                  </button>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Appended to announcements when setting a PR.</div>
               </div>
-              
-            </div>
 
-            <div style="margin-bottom: 2rem;">
-              <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Per-Car Statistics</h3>
-              <div style="overflow-x: auto;">
-                <table class="leaderboard-table" style="font-size: 0.85rem; width: 100%;">
+              <div id="session-timer-display" class="session-timer mono">00:00.00</div>
+            </section>
+
+            <!-- Starting Lights Overlay (For Races) -->
+            <section
+              id="starting-lights"
+              style="
+                display: none;
+                justify-content: center;
+                gap: 1rem;
+                padding: 1.5rem;
+                background: var(--bg-card);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-color);
+              "
+            >
+              <div
+                class="light-bulb"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  background: #333;
+                  border: 2px solid #555;
+                "
+              ></div>
+              <div
+                class="light-bulb"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  background: #333;
+                  border: 2px solid #555;
+                "
+              ></div>
+              <div
+                class="light-bulb"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  background: #333;
+                  border: 2px solid #555;
+                "
+              ></div>
+              <div
+                class="light-bulb"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  background: #333;
+                  border: 2px solid #555;
+                "
+              ></div>
+              <div
+                class="light-bulb"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  background: #333;
+                  border: 2px solid #555;
+                "
+              ></div>
+            </section>
+
+            <!-- Live Leaderboard Board -->
+            <section
+              class="card"
+              style="flex: 1; min-height: 0; display: flex; flex-direction: column"
+            >
+              <div class="leaderboard-header" style="flex-shrink: 0">
+                <h2 style="font-weight: 600">Leaderboard</h2>
+                <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 1rem">
+                  <span
+                    >Total Cars: <strong id="leaderboard-count-cars" class="mono">0</strong></span
+                  >
+                  <span
+                    >Laps Logged: <strong id="leaderboard-count-laps" class="mono">0</strong></span
+                  >
+                </div>
+              </div>
+
+              <div style="flex: 1; overflow: auto">
+                <table class="leaderboard-table">
                   <thead>
                     <tr>
-                      <th style="text-align: left;">Car</th>
-                      <th>Car P.R.</th>
-                      <th>Total Laps</th>
-                      <th>Average Lap</th>
-                      <th style="width: 50px;"></th>
+                      <th style="width: 60px">Pos</th>
+                      <th style="min-width: 150px">Driver / Assign</th>
+                      <th>Car</th>
+                      <th style="width: 80px; text-align: center">Laps</th>
+                      <th>Last Lap</th>
+                      <th>Best Lap</th>
+                      <th>3-Fast Streak</th>
+                      <th>Consistency</th>
+                      <th style="width: 100px; text-align: right">Gap</th>
                     </tr>
                   </thead>
-                  <tbody id="driver-per-car-body"></tbody>
+                  <tbody id="leaderboard-body">
+                    <!-- Dynamically populated row elements -->
+                    <tr id="empty-leaderboard-row">
+                      <td
+                        colspan="9"
+                        style="text-align: center; color: var(--text-muted); padding: 4rem 0"
+                      >
+                        No lap data recorded yet. Pass a transponder under the bridge or start the
+                        mock simulator!
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
-            </div>
+            </section>
+          </main>
 
-            <div style="display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem;">
-              <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Last 10 Personal Records</h3>
-                <div style="overflow-x: auto;">
-                  <table class="leaderboard-table" style="font-size: 0.85rem;">
+          <!-- View: New Driver Form -->
+          <main id="view-driver-form" class="view-panel">
+            <section class="card glass-panel">
+              <h2 style="margin-bottom: 1rem; color: var(--accent-secondary)">Add New Driver</h2>
+              <form id="add-driver-form" style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                <input
+                  type="text"
+                  id="driver-name"
+                  placeholder="Driver Name"
+                  required
+                  style="
+                    flex: 1;
+                    min-width: 0;
+                    padding: 0.5rem;
+                    border-radius: var(--radius-sm);
+                    border: 1px solid var(--border-color);
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--text-primary);
+                  "
+                />
+                <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem">
+                  Create Driver
+                </button>
+              </form>
+            </section>
+          </main>
+
+          <!-- View: Driver Details -->
+          <main id="view-driver-details" class="view-panel">
+            <section class="card glass-panel" id="driver-details-panel">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 1.5rem;
+                "
+              >
+                <h2 style="color: var(--accent-primary)">Driver Profile</h2>
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  gap: 1rem;
+                  align-items: flex-start;
+                  margin-bottom: 2rem;
+                  flex-wrap: wrap;
+                "
+              >
+                <div
+                  class="form-group"
+                  style="margin-bottom: 0; flex: 1; min-width: 200px; max-width: 250px"
+                >
+                  <label for="edit-driver-name" style="margin-bottom: 0.5rem">Driver Name</label>
+                  <input
+                    type="text"
+                    id="edit-driver-name"
+                    style="width: 100%"
+                    placeholder="Driver Name"
+                  />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0; flex: 2; min-width: 350px">
+                  <label for="edit-driver-callout" style="margin-bottom: 0.5rem"
+                    >Custom PR Speech Callout</label
+                  >
+                  <div style="display: flex; gap: 0.5rem; align-items: center">
+                    <input
+                      type="text"
+                      id="edit-driver-callout"
+                      style="flex: 1"
+                      placeholder="e.g. Kachow!"
+                    />
+                    <button
+                      class="btn preview-btn"
+                      data-target="edit-driver-callout"
+                      data-context="driver"
+                      style="padding: 0.5rem 0.75rem; flex-shrink: 0"
+                      title="Preview"
+                    >
+                      ▶️
+                    </button>
+                    <button
+                      id="btn-config-driver-audio"
+                      class="btn btn-secondary"
+                      style="flex-shrink: 0"
+                    >
+                      ⚙️ Voice
+                    </button>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem">
+                    Appended to announcements when setting a PR.
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 2rem">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Per-Car Statistics</h3>
+                <div style="overflow-x: auto">
+                  <table class="leaderboard-table" style="font-size: 0.85rem; width: 100%">
                     <thead>
                       <tr>
-                        <th>Time</th>
-                        <th>Car</th>
-                        <th>Date</th>
-                        <th style="width: 50px;"></th>
+                        <th style="text-align: left">Car</th>
+                        <th>Car P.R.</th>
+                        <th>Total Laps</th>
+                        <th>Average Lap</th>
+                        <th style="width: 50px"></th>
                       </tr>
                     </thead>
-                    <tbody id="driver-prs-body"></tbody>
+                    <tbody id="driver-per-car-body"></tbody>
                   </table>
                 </div>
               </div>
-              
-              <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Recent Laps (up to 100)</h3>
-                <div style="overflow-x: auto;">
-                  <table class="leaderboard-table" style="font-size: 0.85rem;">
-                    <thead>
-                      <tr>
-                        <th>Time</th>
-                        <th>Car</th>
-                        <th>Date</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody id="driver-laps-body"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            
-            <div class="danger-zone">
-              <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem;">Danger Zone</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">To delete this driver, please type their exact name to confirm.</p>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="delete-driver-confirm" placeholder="Type name to confirm" style="flex: 1; max-width: 300px;">
-                <button id="btn-delete-driver" class="btn btn-danger" disabled>Delete Driver</button>
-              </div>
-            </div>
-          </section>
-        </main>
 
-        <!-- View: New Car Form -->
-        <main id="view-car-form" class="view-panel">
-          <section class="card glass-panel">
-            <h2 style="margin-bottom: 1rem; color: var(--accent-secondary);">Add New Car</h2>
-            <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
-              <div style="display: flex; align-items: flex-start; gap: 1rem;">
-                <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
-                  <label for="car-transponder">Transponder ID</label>
-                  <input type="text" id="car-transponder" placeholder="e.g. CDFD4C" pattern="^[0-9A-Fa-f]{6}$" title="6-character hex ID" required>
+              <div style="display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem">
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Last 10 Personal Records</h3>
+                  <div style="overflow-x: auto">
+                    <table class="leaderboard-table" style="font-size: 0.85rem">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Car</th>
+                          <th>Date</th>
+                          <th style="width: 50px"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="driver-prs-body"></tbody>
+                    </table>
+                  </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                  <label for="car-name">Car Name</label>
-                  <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required>
+
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Recent Laps (up to 100)</h3>
+                  <div style="overflow-x: auto">
+                    <table class="leaderboard-table" style="font-size: 0.85rem">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Car</th>
+                          <th>Date</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="driver-laps-body"></tbody>
+                    </table>
+                  </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
-                  <label for="car-chassis">Chassis</label>
-                  <input type="text" id="car-chassis" placeholder="e.g. MR-03">
+              </div>
+
+              <div class="danger-zone">
+                <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem">
+                  Danger Zone
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
+                  To delete this driver, please type their exact name to confirm.
+                </p>
+                <div style="display: flex; gap: 0.5rem">
+                  <input
+                    type="text"
+                    id="delete-driver-confirm"
+                    placeholder="Type name to confirm"
+                    style="flex: 1; max-width: 300px"
+                  />
+                  <button id="btn-delete-driver" class="btn btn-danger" disabled>
+                    Delete Driver
+                  </button>
                 </div>
-                <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0;">
-                  <label for="car-color">Theme</label>
-                  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <input type="color" id="car-color" value="#ef4444" style="width: 100%; height: 38px; padding: 0; cursor: pointer; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: transparent;">
-                    <div class="color-chips" style="display: flex; gap: 0.35rem;">
-                      <div class="color-chip" data-color="#8b5cf6" style="background:#8b5cf6; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                      <div class="color-chip" data-color="#06b6d4" style="background:#06b6d4; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                      <div class="color-chip" data-color="#10b981" style="background:#10b981; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                      <div class="color-chip" data-color="#f59e0b" style="background:#f59e0b; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                      <div class="color-chip" data-color="#ec4899" style="background:#ec4899; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                      <div class="color-chip" data-color="#ef4444" style="background:#ef4444; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+              </div>
+            </section>
+          </main>
+
+          <!-- View: New Car Form -->
+          <main id="view-car-form" class="view-panel">
+            <section class="card glass-panel">
+              <h2 style="margin-bottom: 1rem; color: var(--accent-secondary)">Add New Car</h2>
+              <form id="add-car-form" style="display: flex; flex-direction: column; gap: 0.75rem">
+                <div style="display: flex; align-items: flex-start; gap: 1rem">
+                  <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
+                    <label for="car-transponder">Transponder ID</label>
+                    <input
+                      type="text"
+                      id="car-transponder"
+                      placeholder="e.g. CDFD4C"
+                      pattern="^[0-9A-Fa-f]{6}$"
+                      title="6-character hex ID"
+                      required
+                    />
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0; flex: 1">
+                    <label for="car-name">Car Name</label>
+                    <input type="text" id="car-name" placeholder="e.g. Red Mini-Z" required />
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
+                    <label for="car-chassis">Chassis</label>
+                    <input type="text" id="car-chassis" placeholder="e.g. MR-03" />
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0">
+                    <label for="car-color">Theme</label>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                      <input
+                        type="color"
+                        id="car-color"
+                        value="#ef4444"
+                        style="
+                          width: 100%;
+                          height: 38px;
+                          padding: 0;
+                          cursor: pointer;
+                          border-radius: var(--radius-sm);
+                          border: 1px solid var(--border-color);
+                          background: transparent;
+                        "
+                      />
+                      <div class="color-chips" style="display: flex; gap: 0.35rem">
+                        <div
+                          class="color-chip"
+                          data-color="#8b5cf6"
+                          style="
+                            background: #8b5cf6;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                        <div
+                          class="color-chip"
+                          data-color="#06b6d4"
+                          style="
+                            background: #06b6d4;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                        <div
+                          class="color-chip"
+                          data-color="#10b981"
+                          style="
+                            background: #10b981;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                        <div
+                          class="color-chip"
+                          data-color="#f59e0b"
+                          style="
+                            background: #f59e0b;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                        <div
+                          class="color-chip"
+                          data-color="#ec4899"
+                          style="
+                            background: #ec4899;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                        <div
+                          class="color-chip"
+                          data-color="#ef4444"
+                          style="
+                            background: #ef4444;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                          "
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="margin-top: 1rem">
+                  Create Car
+                </button>
+              </form>
+            </section>
+          </main>
+
+          <!-- View: Car Details -->
+          <main id="view-car-details" class="view-panel">
+            <section class="card glass-panel" id="car-details-panel">
+              <h2 style="margin-bottom: 1rem; color: var(--accent-primary)">Car Profile</h2>
+
+              <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem">
+                <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
+                  <label for="edit-car-transponder">Transponder ID</label>
+                  <input
+                    type="text"
+                    id="edit-car-transponder"
+                    readonly
+                    style="opacity: 0.7; font-family: monospace; text-align: center"
+                  />
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1">
+                  <label for="edit-car-name">Car Name</label>
+                  <input type="text" id="edit-car-name" required />
+                </div>
+                <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0">
+                  <label for="edit-car-chassis">Chassis</label>
+                  <input type="text" id="edit-car-chassis" placeholder="e.g. MR-03" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0">
+                  <label for="edit-car-color">Theme</label>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                    <input
+                      type="color"
+                      id="edit-car-color"
+                      value="#ef4444"
+                      style="
+                        width: 100%;
+                        height: 38px;
+                        padding: 0;
+                        cursor: pointer;
+                        border-radius: var(--radius-sm);
+                        border: 1px solid var(--border-color);
+                        background: transparent;
+                      "
+                    />
+                    <div class="color-chips" style="display: flex; gap: 0.35rem">
+                      <div
+                        class="color-chip"
+                        data-color="#8b5cf6"
+                        style="
+                          background: #8b5cf6;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
+                      <div
+                        class="color-chip"
+                        data-color="#06b6d4"
+                        style="
+                          background: #06b6d4;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
+                      <div
+                        class="color-chip"
+                        data-color="#10b981"
+                        style="
+                          background: #10b981;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
+                      <div
+                        class="color-chip"
+                        data-color="#f59e0b"
+                        style="
+                          background: #f59e0b;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
+                      <div
+                        class="color-chip"
+                        data-color="#ec4899"
+                        style="
+                          background: #ec4899;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
+                      <div
+                        class="color-chip"
+                        data-color="#ef4444"
+                        style="
+                          background: #ef4444;
+                          width: 20px;
+                          height: 20px;
+                          border-radius: 50%;
+                          cursor: pointer;
+                        "
+                      ></div>
                     </div>
                   </div>
                 </div>
               </div>
-              <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Create Car</button>
-            </form>
-          </section>
-        </main>
-        
-        <!-- View: Car Details -->
-        <main id="view-car-details" class="view-panel">
-          <section class="card glass-panel" id="car-details-panel">
-            <h2 style="margin-bottom: 1rem; color: var(--accent-primary);">Car Profile</h2>
-            
-            <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
-              <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
-                <label for="edit-car-transponder">Transponder ID</label>
-                <input type="text" id="edit-car-transponder" readonly style="opacity: 0.7; font-family: monospace; text-align: center;">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 1.5rem;
+                  margin-bottom: 2rem;
+                "
+              >
+                <!-- Best Lap per Driver -->
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Best Lap per Driver</h3>
+                  <table class="leaderboard-table" style="font-size: 0.85rem">
+                    <thead>
+                      <tr>
+                        <th>Driver</th>
+                        <th>Best Time</th>
+                        <th>Date</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="car-drivers-body"></tbody>
+                  </table>
+                </div>
+
+                <!-- Top 10 Laps -->
+                <div>
+                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Top 10 Laps (Car + Driver)</h3>
+                  <table class="leaderboard-table" style="font-size: 0.85rem">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Driver</th>
+                        <th>Date</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="car-prs-body"></tbody>
+                  </table>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                <label for="edit-car-name">Car Name</label>
-                <input type="text" id="edit-car-name" required>
+
+              <div class="danger-zone">
+                <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem">
+                  Danger Zone
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
+                  To delete this car, please type its exact name to confirm.
+                </p>
+                <div style="display: flex; gap: 0.5rem">
+                  <input
+                    type="text"
+                    id="delete-car-confirm"
+                    placeholder="Type name to confirm"
+                    style="flex: 1; max-width: 300px"
+                  />
+                  <button id="btn-delete-car" class="btn btn-danger" disabled>Delete Car</button>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom: 0; width: 140px; flex-shrink: 0;">
-                <label for="edit-car-chassis">Chassis</label>
-                <input type="text" id="edit-car-chassis" placeholder="e.g. MR-03">
+            </section>
+          </main>
+
+          <!-- View: Settings (Session) -->
+          <main id="view-settings-session" class="view-panel">
+            <section class="card glass-panel">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 1.5rem;
+                "
+              >
+                <h2 style="color: var(--accent-primary)">Session Configuration</h2>
               </div>
-              <div class="form-group" style="margin-bottom: 0; width: 150px; flex-shrink: 0;">
-                <label for="edit-car-color">Theme</label>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                  <input type="color" id="edit-car-color" value="#ef4444" style="width: 100%; height: 38px; padding: 0; cursor: pointer; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: transparent;">
-                  <div class="color-chips" style="display: flex; gap: 0.35rem;">
-                    <div class="color-chip" data-color="#8b5cf6" style="background:#8b5cf6; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                    <div class="color-chip" data-color="#06b6d4" style="background:#06b6d4; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                    <div class="color-chip" data-color="#10b981" style="background:#10b981; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                    <div class="color-chip" data-color="#f59e0b" style="background:#f59e0b; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                    <div class="color-chip" data-color="#ec4899" style="background:#ec4899; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
-                    <div class="color-chip" data-color="#ef4444" style="background:#ef4444; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>
+
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem">
+                Configure lap filters and thresholds for the active session.
+              </p>
+
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: auto 1fr;
+                  gap: 1rem 1.5rem;
+                  max-width: 600px;
+                  align-items: center;
+                "
+              >
+                <label for="setting-min-lap-time" style="margin: 0; text-align: left"
+                  >Minimum Lap Time (s)</label
+                >
+                <div>
+                  <input
+                    type="number"
+                    id="setting-min-lap-time"
+                    value="3.0"
+                    step="0.1"
+                    min="0.5"
+                    max="60"
+                    style="width: 100px"
+                  />
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem">
+                    Laps faster than this are ignored as double-triggers.
+                  </div>
+                </div>
+
+                <label for="setting-max-lap-time" style="margin: 0; text-align: left"
+                  >Maximum Lap Time (s)</label
+                >
+                <div>
+                  <input
+                    type="number"
+                    id="setting-max-lap-time"
+                    value="25.0"
+                    step="0.1"
+                    min="5"
+                    max="300"
+                    style="width: 100px"
+                  />
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem">
+                    Laps slower than this are ignored (e.g. car flipped or driver away).
                   </div>
                 </div>
               </div>
-            </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-              <!-- Best Lap per Driver -->
-              <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Best Lap per Driver</h3>
-                <table class="leaderboard-table" style="font-size: 0.85rem;">
-                  <thead>
-                    <tr>
-                      <th>Driver</th>
-                      <th>Best Time</th>
-                      <th>Date</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody id="car-drivers-body"></tbody>
-                </table>
-              </div>
-              
-              <!-- Top 10 Laps -->
-              <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Top 10 Laps (Car + Driver)</h3>
-                <table class="leaderboard-table" style="font-size: 0.85rem;">
-                  <thead>
-                    <tr>
-                      <th>Time</th>
-                      <th>Driver</th>
-                      <th>Date</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody id="car-prs-body"></tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div class="danger-zone">
-              <h3 style="color: var(--color-error); font-size: 1rem; margin-bottom: 0.5rem;">Danger Zone</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">To delete this car, please type its exact name to confirm.</p>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="delete-car-confirm" placeholder="Type name to confirm" style="flex: 1; max-width: 300px;">
-                <button id="btn-delete-car" class="btn btn-danger" disabled>Delete Car</button>
-              </div>
-            </div>
-          </section>
-        </main>
-        
-        <!-- View: Settings (Session) -->
-        <main id="view-settings-session" class="view-panel">
-          <section class="card glass-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-              <h2 style="color: var(--accent-primary);">Session Configuration</h2>
-            </div>
-            
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;">Configure lap filters and thresholds for the active session.</p>
-            
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 600px; align-items: center;">
-              
-              <label for="setting-min-lap-time" style="margin: 0; text-align: left;">Minimum Lap Time (s)</label>
-              <div>
-                <input type="number" id="setting-min-lap-time" value="3.0" step="0.1" min="0.5" max="60" style="width: 100px;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Laps faster than this are ignored as double-triggers.</div>
-              </div>
-              
-              <label for="setting-max-lap-time" style="margin: 0; text-align: left;">Maximum Lap Time (s)</label>
-              <div>
-                <input type="number" id="setting-max-lap-time" value="25.0" step="0.1" min="5" max="300" style="width: 100px;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Laps slower than this are ignored (e.g. car flipped or driver away).</div>
+            </section>
+          </main>
+
+          <!-- View: Settings (Speech) -->
+          <main id="view-settings-speech" class="view-panel">
+            <section class="card glass-panel">
+              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">Speech Settings</h2>
+
+              <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem">
+                Audio Engine
+              </h3>
+              <div style="margin-bottom: 2rem">
+                <button id="btn-config-global-audio" class="btn btn-secondary">
+                  ⚙️ Configure Audio Engine
+                </button>
               </div>
 
-            </div>
-          </section>
-        </main>
-        
-        <!-- View: Settings (Speech) -->
-        <main id="view-settings-speech" class="view-panel">
-          <section class="card glass-panel">
-            <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem;">Speech Settings</h2>
-            
-            <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem;">Audio Engine</h3>
-            <div style="margin-bottom: 2rem;">
-              <button id="btn-config-global-audio" class="btn btn-secondary">⚙️ Configure Audio Engine</button>
-            </div>
+              <hr
+                style="
+                  border-top: 1px solid var(--border-color);
+                  border-bottom: none;
+                  margin-bottom: 2rem;
+                "
+              />
 
-            <hr style="border-top: 1px solid var(--border-color); border-bottom: none; margin-bottom: 2rem;">
+              <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem">
+                Templates
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem">
+                Customize the text used for text-to-speech. Use <code>{driver}</code>,
+                <code>{car}</code>, and <code>{time}</code> as placeholders.
+              </p>
 
-            <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem;">Templates</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
-              Customize the text used for text-to-speech. Use <code>{driver}</code>, <code>{car}</code>, and <code>{time}</code> as placeholders.
-            </p>
-            
-            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 1rem 1.5rem; max-width: 650px; margin-bottom: 2rem; align-items: center;">
-              <label for="setting-speech-best-ever" style="margin: 0; text-align: left;">Driver Best Lap Ever</label>
-              <input type="text" id="setting-speech-best-ever" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-best-ever" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-car-record" style="margin: 0; text-align: left;">Overall Car Record</label>
-              <input type="text" id="setting-speech-car-record" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-car-record" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-driver-car-pr" style="margin: 0; text-align: left;">Driver Car P.R.</label>
-              <input type="text" id="setting-speech-driver-car-pr" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-driver-car-pr" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-session-fastest" style="margin: 0; text-align: left;">Session Fastest</label>
-              <input type="text" id="setting-speech-session-fastest" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-session-fastest" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-personal-best" style="margin: 0; text-align: left;">Session Personal Best</label>
-              <input type="text" id="setting-speech-personal-best" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-personal-best" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-normal" style="margin: 0; text-align: left;">Normal Lap</label>
-              <input type="text" id="setting-speech-normal" style="width: 100%;">
-              <button class="btn preview-btn" data-target="setting-speech-normal" style="padding: 0.4rem; font-size: 0.8rem; background: transparent;" title="Preview">▶️</button>
-              
-              <label for="setting-speech-consistent" style="margin: 0; text-align: left; align-self: flex-start; padding-top: 0.5rem;">Consistency Streak</label>
-              <div>
-                <input type="text" id="setting-speech-consistent" style="width: 100%;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Use <code>{streak}</code> for the number of laps.</div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: auto 1fr auto;
+                  gap: 1rem 1.5rem;
+                  max-width: 650px;
+                  margin-bottom: 2rem;
+                  align-items: center;
+                "
+              >
+                <label for="setting-speech-best-ever" style="margin: 0; text-align: left"
+                  >Driver Best Lap Ever</label
+                >
+                <input type="text" id="setting-speech-best-ever" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-best-ever"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label for="setting-speech-car-record" style="margin: 0; text-align: left"
+                  >Overall Car Record</label
+                >
+                <input type="text" id="setting-speech-car-record" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-car-record"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label for="setting-speech-driver-car-pr" style="margin: 0; text-align: left"
+                  >Driver Car P.R.</label
+                >
+                <input type="text" id="setting-speech-driver-car-pr" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-driver-car-pr"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label for="setting-speech-session-fastest" style="margin: 0; text-align: left"
+                  >Session Fastest</label
+                >
+                <input type="text" id="setting-speech-session-fastest" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-session-fastest"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label for="setting-speech-personal-best" style="margin: 0; text-align: left"
+                  >Session Personal Best</label
+                >
+                <input type="text" id="setting-speech-personal-best" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-personal-best"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label for="setting-speech-normal" style="margin: 0; text-align: left"
+                  >Normal Lap</label
+                >
+                <input type="text" id="setting-speech-normal" style="width: 100%" />
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-normal"
+                  style="padding: 0.4rem; font-size: 0.8rem; background: transparent"
+                  title="Preview"
+                >
+                  ▶️
+                </button>
+
+                <label
+                  for="setting-speech-consistent"
+                  style="margin: 0; text-align: left; align-self: flex-start; padding-top: 0.5rem"
+                  >Consistency Streak</label
+                >
+                <div>
+                  <input type="text" id="setting-speech-consistent" style="width: 100%" />
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem">
+                    Use <code>{streak}</code> for the number of laps.
+                  </div>
+                </div>
+                <button
+                  class="btn preview-btn"
+                  data-target="setting-speech-consistent"
+                  style="
+                    padding: 0.4rem;
+                    font-size: 0.8rem;
+                    align-self: flex-start;
+                    background: transparent;
+                  "
+                  title="Preview"
+                >
+                  ▶️
+                </button>
               </div>
-              <button class="btn preview-btn" data-target="setting-speech-consistent" style="padding: 0.4rem; font-size: 0.8rem; align-self: flex-start; background: transparent;" title="Preview">▶️</button>
-          </section>
-        </main>
+            </section>
+          </main>
 
-        <!-- View: Settings (Streaks) -->
-        <main id="view-settings-streaks" class="view-panel">
-          <section class="card glass-panel">
-            <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem;">Consistency Streaks</h2>
-            
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
-              Configure when a driver is considered to be on a "consistent streak".
-            </p>
-            
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.5rem; max-width: 500px; margin-bottom: 2rem; align-items: center;">
-              <label for="setting-streak-min-laps" style="margin: 0; text-align: left;">Minimum Streak Length (Laps)</label>
-              <input type="number" id="setting-streak-min-laps" min="2" style="width: 120px;">
-              
-              <label for="setting-streak-variance" style="margin: 0; text-align: left;">Variance Threshold (Seconds)</label>
-              <input type="number" id="setting-streak-variance" step="0.01" min="0" style="width: 120px;">
-              
-              <label for="setting-streak-fast-only" style="margin: 0; text-align: left;">Require Faster Than Average</label>
-              <input type="checkbox" id="setting-streak-fast-only" style="width: 20px; height: 20px;">
-          </section>
-        </main>
-        
-      </div>
-    
-  </div>
-  
-</div>
+          <!-- View: Settings (Streaks) -->
+          <main id="view-settings-streaks" class="view-panel">
+            <section class="card glass-panel">
+              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">
+                Consistency Streaks
+              </h2>
 
-<!-- Floating notification container for unregistered transponder alerts -->
-  <div id="notifications" class="notification-container"></div>
-  
-  <!-- Audio & Speech Toggle Panel in Footer -->
-  <footer style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-primary); z-index: 10; flex-shrink: 0;">
-    <div>
-      <span>Lappr v1.0.0 &bull; Offline Ready</span>
-    </div>
-    <div style="display: flex; align-items: center; gap: 1.5rem;">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <label for="speech-volume" style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">Voice volume</label>
-        <input type="range" id="speech-volume" min="0" max="1" step="0.1" value="0.8" style="width: 80px; accent-color: var(--accent-primary);">
-      </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <label for="speech-toggle" style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">Voice Callouts</label>
-        <input type="checkbox" id="speech-toggle" checked style="accent-color: var(--accent-primary); cursor: pointer;">
-      </div>
-    </div>
-  </footer>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem">
+                Configure when a driver is considered to be on a "consistent streak".
+              </p>
 
-  <!-- Application Modules -->
-  <!-- Audio Settings Modal -->
-  <div id="audio-settings-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card glass-panel" style="width: 90%; max-width: 500px; padding: 2rem; position: relative;">
-      <h2 id="audio-settings-modal-title" style="color: var(--accent-primary); margin-bottom: 1.5rem;">Audio Engine</h2>
-      
-      <div style="display: grid; grid-template-columns: max-content 1fr; gap: 1rem 1.5rem; align-items: center; margin-bottom: 2rem;">
-        <label for="modal-speech-voice" style="margin: 0; text-align: left;">Voice</label>
-        <select id="modal-speech-voice" style="width: 100%;">
-          <option value="">Default (Auto)</option>
-        </select>
-        
-        <label for="modal-speech-pitch" style="margin: 0; text-align: left;">Pitch</label>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="range" id="modal-speech-pitch-slider" min="0" max="2" step="0.1" value="1.0" style="flex: 1;">
-          <input type="number" id="modal-speech-pitch" min="0" max="2" step="0.1" style="width: 80px;">
-        </div>
-        
-        <label for="modal-speech-rate" style="margin: 0; text-align: left;">Rate</label>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="range" id="modal-speech-rate-slider" min="0.5" max="2.5" step="0.1" value="1.1" style="flex: 1;">
-          <input type="number" id="modal-speech-rate" min="0.5" max="2.5" step="0.1" style="width: 80px;">
-        </div>
-      </div>
-      
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <button id="btn-modal-audio-revert" class="btn btn-secondary" style="font-size: 0.85rem;">Revert to Default</button>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="btn-modal-audio-cancel" class="btn" style="background: transparent; color: var(--text-primary); border: 1px solid var(--border-color);">Cancel</button>
-          <button id="btn-modal-audio-save" class="btn btn-primary">Save</button>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: auto 1fr;
+                  gap: 1rem 1.5rem;
+                  max-width: 500px;
+                  margin-bottom: 2rem;
+                  align-items: center;
+                "
+              >
+                <label for="setting-streak-min-laps" style="margin: 0; text-align: left"
+                  >Minimum Streak Length (Laps)</label
+                >
+                <input type="number" id="setting-streak-min-laps" min="2" style="width: 120px" />
+
+                <label for="setting-streak-variance" style="margin: 0; text-align: left"
+                  >Variance Threshold (Seconds)</label
+                >
+                <input
+                  type="number"
+                  id="setting-streak-variance"
+                  step="0.01"
+                  min="0"
+                  style="width: 120px"
+                />
+
+                <label for="setting-streak-fast-only" style="margin: 0; text-align: left"
+                  >Require Faster Than Average</label
+                >
+                <input
+                  type="checkbox"
+                  id="setting-streak-fast-only"
+                  style="width: 20px; height: 20px"
+                />
+              </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>
-  </div>
 
-  <script type="module" src="./js/app.js"></script>
-</body>
+    <!-- Floating notification container for unregistered transponder alerts -->
+    <div id="notifications" class="notification-container"></div>
+
+    <!-- Audio & Speech Toggle Panel in Footer -->
+    <footer
+      style="
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        background: var(--bg-primary);
+        z-index: 10;
+        flex-shrink: 0;
+      "
+    >
+      <div>
+        <span>Lappr v1.0.0 &bull; Offline Ready</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1.5rem">
+        <div style="display: flex; align-items: center; gap: 0.5rem">
+          <label
+            for="speech-volume"
+            style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem"
+            >Voice volume</label
+          >
+          <input
+            type="range"
+            id="speech-volume"
+            min="0"
+            max="1"
+            step="0.1"
+            value="0.8"
+            style="width: 80px; accent-color: var(--accent-primary)"
+          />
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem">
+          <label
+            for="speech-toggle"
+            style="font-weight: 600; text-transform: uppercase; font-size: 0.75rem"
+            >Voice Callouts</label
+          >
+          <input
+            type="checkbox"
+            id="speech-toggle"
+            checked
+            style="accent-color: var(--accent-primary); cursor: pointer"
+          />
+        </div>
+      </div>
+    </footer>
+
+    <!-- Application Modules -->
+    <!-- Audio Settings Modal -->
+    <div
+      id="audio-settings-modal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        class="card glass-panel"
+        style="width: 90%; max-width: 500px; padding: 2rem; position: relative"
+      >
+        <h2
+          id="audio-settings-modal-title"
+          style="color: var(--accent-primary); margin-bottom: 1.5rem"
+        >
+          Audio Engine
+        </h2>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            gap: 1rem 1.5rem;
+            align-items: center;
+            margin-bottom: 2rem;
+          "
+        >
+          <label for="modal-speech-voice" style="margin: 0; text-align: left">Voice</label>
+          <select id="modal-speech-voice" style="width: 100%">
+            <option value="">Default (Auto)</option>
+          </select>
+
+          <label for="modal-speech-pitch" style="margin: 0; text-align: left">Pitch</label>
+          <div style="display: flex; gap: 0.5rem; align-items: center">
+            <input
+              type="range"
+              id="modal-speech-pitch-slider"
+              min="0"
+              max="2"
+              step="0.1"
+              value="1.0"
+              style="flex: 1"
+            />
+            <input
+              type="number"
+              id="modal-speech-pitch"
+              min="0"
+              max="2"
+              step="0.1"
+              style="width: 80px"
+            />
+          </div>
+
+          <label for="modal-speech-rate" style="margin: 0; text-align: left">Rate</label>
+          <div style="display: flex; gap: 0.5rem; align-items: center">
+            <input
+              type="range"
+              id="modal-speech-rate-slider"
+              min="0.5"
+              max="2.5"
+              step="0.1"
+              value="1.1"
+              style="flex: 1"
+            />
+            <input
+              type="number"
+              id="modal-speech-rate"
+              min="0.5"
+              max="2.5"
+              step="0.1"
+              style="width: 80px"
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <button id="btn-modal-audio-revert" class="btn btn-secondary" style="font-size: 0.85rem">
+            Revert to Default
+          </button>
+          <div style="display: flex; gap: 0.5rem">
+            <button
+              id="btn-modal-audio-cancel"
+              class="btn"
+              style="
+                background: transparent;
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+              "
+            >
+              Cancel
+            </button>
+            <button id="btn-modal-audio-save" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
 </html>
