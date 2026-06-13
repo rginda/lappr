@@ -484,7 +484,7 @@ function bindEvents() {
   };
 
   const settingsInputs = document.querySelectorAll(
-    '#view-settings-speech input, #view-settings-streaks input, #view-settings-session input'
+    '#view-settings-speech input, #view-settings-speech select, #view-settings-streaks input, #view-settings-session input, #view-settings-hardware input, #view-settings-hardware select'
   );
   settingsInputs.forEach((input) => {
     input.addEventListener('input', handleSettingsUpdate);
