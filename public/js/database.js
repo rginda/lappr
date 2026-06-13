@@ -327,3 +327,74 @@ export function importDatabase(jsonString) {
     return false;
   }
 }
+
+/**
+ * Retroactively assigns unassigned laps on a car to a new driver,
+ * provided the laps occurred within the current session timeframe.
+ */
+export function assignHistoricalLaps(carTransponder, driverId, sessionStartTime) {
+  const drivers = getDrivers();
+  const cars = getCars();
+  
+  const car = cars.find(c => c.transponder === carTransponder);
+  const driver = drivers.find(d => d.id === driverId);
+  
+  if (!car || !driver) return;
+  if (!car.laps) car.laps = [];
+  if (!driver.laps) driver.laps = [];
+  
+  let lapsToAssign = [];
+  
+  // Scan car laps for unassigned laps in this session
+  for (let i = 0; i < car.laps.length; i++) {
+    const lap = car.laps[i];
+    // Stop if we hit an older lap before this session
+    if (lap.timestamp < sessionStartTime) {
+      break;
+    }
+    // Stop if we hit a lap that is ALREADY assigned
+    if (lap.driverId) {
+      break;
+    }
+    
+    // Unassigned lap in this session -> Reassign it!
+    lap.driverId = driver.id;
+    lap.driverName = driver.name;
+    
+    // Make a copy for the driver
+    const driverLapEntry = {
+      id: lap.id,
+      car: car.name,
+      carTransponder: car.transponder,
+      timestamp: lap.timestamp,
+      lapTime: lap.lapTime
+    };
+    lapsToAssign.push(driverLapEntry);
+  }
+  
+  // Also update any PRs on the car that belong to these laps
+  if (car.prs && lapsToAssign.length > 0) {
+    const assignedLapIds = new Set(lapsToAssign.map(l => l.id));
+    car.prs.forEach(pr => {
+      if (assignedLapIds.has(pr.id)) {
+        pr.driverId = driver.id;
+        pr.driverName = driver.name;
+      }
+    });
+  }
+  
+  if (lapsToAssign.length > 0) {
+    // Inject the new laps into the driver's lap history and sort
+    driver.laps.push(...lapsToAssign);
+    driver.laps.sort((a, b) => b.timestamp - a.timestamp);
+    if (driver.laps.length > 100) {
+      driver.laps = driver.laps.slice(0, 100);
+    }
+    
+    // Recalculate PRs for the driver
+    driver.prs = recalculatePRs(driver.laps);
+    
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  }
+}

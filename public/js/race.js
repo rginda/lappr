@@ -4,7 +4,7 @@
  * and maintains the sorted leaderboard state.
  */
 
-import { getDrivers, getCars, saveSession, logLap } from './database.js';
+import { getDrivers, getCars, saveSession, logLap, assignHistoricalLaps } from './database.js';
 import { speak } from './speech.js';
 
 let sessionState = {
@@ -471,13 +471,15 @@ export function assignSessionDriver(transponder, driverId) {
     const racer = sessionState.racers[id];
     racer.name = driver.name;
     
-    // Retroactively credit laps that have NO driver assigned yet
+    // Retroactively credit laps that have NO driver assigned yet in memory
     racer.laps.forEach(lap => {
       if (!lap.driverId) {
         lap.driverId = driverId;
-        logLap(driverId, id, lap.lapTime);
       }
     });
+    
+    // Safely apply the batch edit to the database without duplicating laps
+    assignHistoricalLaps(id, driverId, sessionState.startTime);
   }
   
   triggerUpdate();
