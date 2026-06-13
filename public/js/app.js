@@ -90,6 +90,7 @@ const editCarChips = document.querySelectorAll('#view-car-details .color-chip');
 const deleteCarConfirm = document.getElementById('delete-car-confirm');
 const btnDeleteCar = document.getElementById('btn-delete-car');
 let selectedCarId = null;
+let activeCarChart = null;
 
 // Application State
 let activeSettings = {};
@@ -1338,6 +1339,9 @@ function renderCarDetails(transponder) {
     });
   }
 
+  // Render the chart
+  renderCarLapChart(car);
+
   // Render Top 10 Laps
   const carPrsBody = document.getElementById('car-prs-body');
   carPrsBody.innerHTML = '';
@@ -1363,6 +1367,140 @@ function renderCarDetails(transponder) {
       carPrsBody.appendChild(tr);
     });
   }
+}
+
+/**
+ * Render a combined lap time distribution chart for the car
+ */
+function renderCarLapChart(car) {
+  if (activeCarChart) {
+    activeCarChart.destroy();
+    activeCarChart = null;
+  }
+
+  const canvas = document.getElementById('car-overall-chart');
+  if (!canvas) return;
+
+  const laps = car.laps || [];
+  if (laps.length === 0) return;
+
+  // Calculate median to trim long tail outliers
+  const sortedTimes = laps.map((l) => l.lapTime).sort((a, b) => a - b);
+  const medianTime = sortedTimes[Math.floor(sortedTimes.length / 2)];
+  const maxAllowedTime = Math.max(medianTime * 1.5, medianTime + 5);
+
+  let minTime = Infinity;
+  let maxTime = -Infinity;
+  laps.forEach((lap) => {
+    if (lap.lapTime < minTime) minTime = lap.lapTime;
+    if (lap.lapTime > maxTime && lap.lapTime <= maxAllowedTime) maxTime = lap.lapTime;
+  });
+  if (maxTime === -Infinity) maxTime = sortedTimes[sortedTimes.length - 1];
+
+  const spread = maxTime - minTime;
+  let bucketSize = 0.5;
+  if (spread > 20) bucketSize = 1.0;
+  if (spread > 50) bucketSize = 5.0;
+  if (spread <= 5) bucketSize = 0.2;
+
+  minTime = Math.floor(minTime / bucketSize) * bucketSize;
+  maxTime = Math.ceil(maxTime / bucketSize) * bucketSize;
+
+  const labels = [];
+  for (let t = minTime; t <= maxTime + bucketSize; t += bucketSize) {
+    labels.push(t.toFixed(1) + 's');
+  }
+
+  const getFrequencies = (lapList) => {
+    const freqs = new Array(labels.length).fill(0);
+    lapList.forEach((lap) => {
+      const bucketIndex = Math.floor((lap.lapTime - minTime) / bucketSize);
+      if (bucketIndex >= 0 && bucketIndex < freqs.length) freqs[bucketIndex]++;
+      else if (bucketIndex >= freqs.length) freqs[freqs.length - 1]++;
+    });
+    return freqs;
+  };
+
+  const datasets = [];
+
+  let hexColor = '#ffffff';
+  if (car && car.color) {
+    hexColor = car.color;
+  }
+  let r = 255, g = 255, b = 255;
+  if (hexColor.startsWith('#') && hexColor.length === 7) {
+    r = parseInt(hexColor.slice(1, 3), 16);
+    g = parseInt(hexColor.slice(3, 5), 16);
+    b = parseInt(hexColor.slice(5, 7), 16);
+  }
+
+  datasets.push({
+    label: 'Overall',
+    data: getFrequencies(laps),
+    borderColor: hexColor,
+    backgroundColor: `rgba(${r}, ${g}, ${b}, 0.1)`,
+    borderWidth: 2,
+    borderDash: [5, 5],
+    fill: true,
+    tension: 0.4
+  });
+
+  const driverGroups = {};
+  laps.forEach((lap) => {
+    if (!driverGroups[lap.driverName]) driverGroups[lap.driverName] = [];
+    driverGroups[lap.driverName].push(lap);
+  });
+
+  const colors = [
+    { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+    { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+    { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+    { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+    { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' }
+  ];
+
+  let colorIdx = 0;
+  for (const driverName in driverGroups) {
+    if (Object.keys(driverGroups).length === 1) break;
+
+    const groupLaps = driverGroups[driverName];
+    const c = colors[colorIdx % colors.length];
+
+    datasets.push({
+      label: driverName,
+      data: getFrequencies(groupLaps),
+      borderColor: c.border,
+      backgroundColor: c.bg,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    });
+    colorIdx++;
+  }
+
+  activeCarChart = new window.Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          title: { display: true, text: 'Number of Laps', color: '#94a3b8' }
+        },
+        x: {
+          ticks: { color: '#94a3b8' },
+          grid: { display: false },
+          title: { display: true, text: 'Lap Time', color: '#94a3b8' }
+        }
+      },
+      plugins: { legend: { labels: { color: '#e2e8f0' } } }
+    }
+  });
 }
 
 /**
