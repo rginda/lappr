@@ -12,6 +12,8 @@ let defaultRate = 1.1;
 let synth = window.speechSynthesis;
 let currentUtterance = null;
 let speechQueue = [];
+let cachedVoices = [];
+let cachedFallbackVoice = null;
 
 /**
  * Configure the speech module settings.
@@ -60,7 +62,13 @@ export function speak(text, priority = false, options = {}) {
   utterance.pitch = (options.pitch !== undefined && !isNaN(options.pitch)) ? options.pitch : defaultPitch;
 
   const targetVoiceName = options.voiceName !== undefined ? options.voiceName : defaultVoiceName;
-  const voices = synth.getVoices();
+  
+  let voices = synth.getVoices();
+  if (voices.length > 0) {
+    cachedVoices = voices;
+  } else {
+    voices = cachedVoices;
+  }
   
   let selectedVoice = null;
   
@@ -69,10 +77,19 @@ export function speak(text, priority = false, options = {}) {
   }
   
   if (!selectedVoice) {
-    // Try to find a natural-sounding English voice
-    selectedVoice = voices.find(voice => 
-      voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural'))
-    ) || voices.find(voice => voice.lang.startsWith('en'));
+    // If we already picked a fallback and it's still available, stick with it
+    if (cachedFallbackVoice && voices.some(v => v.name === cachedFallbackVoice.name)) {
+      selectedVoice = cachedFallbackVoice;
+    } else {
+      // Try to find a natural-sounding English voice
+      selectedVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural'))
+      ) || voices.find(voice => voice.lang.startsWith('en'));
+      
+      if (selectedVoice) {
+        cachedFallbackVoice = selectedVoice;
+      }
+    }
   }
   
   if (selectedVoice) {
