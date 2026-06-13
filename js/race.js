@@ -229,7 +229,7 @@ export function processCrossing(transponderId, ticks) {
     tickDelta += 16777216;
   }
 
-  const lapTimeSeconds = (tickDelta * 0.25) / 1000.0;
+  const lapTimeSeconds = (tickDelta * 1.0) / 1000.0;
 
   // Double trigger filter: reject if faster than minimum lap time threshold
   if (lapTimeSeconds < sessionState.minLapTime) {
