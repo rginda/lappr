@@ -165,9 +165,11 @@ function bindEvents() {
   });
   
   // View Routing
-  const navTabs = document.querySelectorAll('.nav-tab[data-target]');
+  const navTabs = document.querySelectorAll('.nav-tab[data-target], .nav-item[data-target]');
   navTabs.forEach(tab => {
     tab.addEventListener('click', () => {
+      document.querySelectorAll('.tree-list li').forEach(el => el.classList.remove('active'));
+      if (tab.tagName === 'LI') tab.classList.add('active');
       switchView(tab.getAttribute('data-target'));
     });
   });
