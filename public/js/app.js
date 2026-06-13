@@ -116,23 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle hardware auto-connect
   if (activeSettings.connectAtStartup) {
     const recovery = recoverSessionState();
-    if (recovery && recovery.wasRunning) {
-      // Small timeout to allow DOM to settle
-      setTimeout(() => {
-        const btnSessionStart = document.getElementById('btn-session-start');
-        if (btnSessionStart && btnSessionStart.textContent.includes('Start')) {
-          btnSessionStart.click();
-        }
-      }, 100);
-    }
+
+    const resumeIfNeeded = () => {
+      if (recovery && recovery.wasRunning) {
+        startSession();
+      }
+    };
 
     if (activeSettings.hardwareType === 'mock') {
       toggleSimulator(true, onLineReceived, onStatusChange);
+      resumeIfNeeded();
     } else {
       autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
         if (!connected) {
           console.warn('Auto-connect HID failed. User gesture may be required first.');
         }
+        resumeIfNeeded();
       });
     }
   }
