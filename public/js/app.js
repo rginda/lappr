@@ -454,14 +454,8 @@ function bindEvents() {
       
       saveSettings(settings);
       
-      // Also save the active settings (Voice, Pitch, Rate, Volume, minLapTime, etc.)
+      // Also save the active settings (Volume, minLapTime, etc.)
       saveActiveSettings();
-      // Apply them immediately to speech engine
-      configureSpeech({
-        voiceName: speechVoice.value,
-        pitch: parseFloat(speechPitch.value),
-        rate: parseFloat(speechRate.value)
-      });
       
       const notif = document.createElement('div');
       notif.style.position = 'fixed';
@@ -502,12 +496,6 @@ function switchView(viewId) {
 
 function populateSettingsView() {
   const settings = getSettings();
-  
-  speechVoice.value = settings.speechVoice || '';
-  speechPitch.value = settings.speechPitch || 1.0;
-  speechPitchSlider.value = settings.speechPitch || 1.0;
-  speechRate.value = settings.speechRate || 1.1;
-  speechRateSlider.value = settings.speechRate || 1.1;
   
   const ann = settings.announcements || {};
   document.getElementById('setting-speech-best-ever').value = ann.driverBestEver || '';
@@ -552,9 +540,9 @@ function saveActiveSettings() {
     minLapTime: parseFloat(minLapTime.value),
     speechEnabled: speechToggle.checked,
     speechVolume: parseFloat(speechVolume.value),
-    speechVoice: speechVoice.value,
-    speechPitch: parseFloat(speechPitch.value),
-    speechRate: parseFloat(speechRate.value)
+    speechVoice: activeSettings.speechVoice,
+    speechPitch: activeSettings.speechPitch,
+    speechRate: activeSettings.speechRate
   };
   activeSettings = saveSettings(settings);
 }
