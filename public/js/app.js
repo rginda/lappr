@@ -11,7 +11,7 @@ import {
   getCars,
   updateCar,
   deleteCar,
-  addLap,
+
   deleteLap,
   deleteDriverCarStats,
   assignLapsToDriver,
