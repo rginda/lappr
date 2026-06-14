@@ -47,6 +47,7 @@ export function initSession(config, onUpdate, onTimerUpdate) {
     status: 'ready',
     startTime: null,
     endTime: null,
+    elapsedTime: 0,
     limitType: config.limitType || 'time',
     limitValue: parseFloat(config.limitValue) || 5,
     minLapTime: parseFloat(config.minLapTime) || 3.0,
@@ -100,12 +101,31 @@ function createRacerSessionData(profile) {
 export function startSession() {
   if (sessionState.status === 'active') return;
 
-  sessionState.status = 'active';
-  sessionState.startTime = performance.now();
-
-  speak(`${sessionState.mode} session started. Good luck!`, true);
+  if (sessionState.status === 'paused') {
+    sessionState.status = 'active';
+    sessionState.startTime = performance.now() - (sessionState.elapsedTime || 0);
+    speak('Session resumed.', true);
+  } else {
+    sessionState.status = 'active';
+    sessionState.startTime = performance.now();
+    sessionState.elapsedTime = 0;
+    speak(`${sessionState.mode} session started. Good luck!`, true);
+  }
 
   startSessionTimer();
+  triggerUpdate();
+}
+
+/**
+ * Pause the active session timer.
+ */
+export function pauseSession() {
+  if (sessionState.status !== 'active') return;
+
+  sessionState.status = 'paused';
+  sessionState.elapsedTime = performance.now() - sessionState.startTime;
+  stopSessionTimer();
+  speak('Session paused.', true);
   triggerUpdate();
 }
 
@@ -147,6 +167,7 @@ export function clearSession() {
   sessionState.status = 'ready';
   sessionState.startTime = null;
   sessionState.endTime = null;
+  sessionState.elapsedTime = 0;
   sessionState.lapsLogged = 0;
   overallBestLap = Infinity;
 
@@ -161,7 +182,7 @@ export function clearSession() {
     r.consistency = 100;
     r.totalTime = 0;
     r.gap = '';
-    r.isActive = false;
+    // Keeping r.isActive untouched to keep car assignments in the session
   });
 
   if (timerCallback) {

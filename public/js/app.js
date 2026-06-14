@@ -40,6 +40,7 @@ const connectionStatusText = document.getElementById('connection-status-text');
 const minLapTime = document.getElementById('setting-min-lap-time');
 const maxLapTime = document.getElementById('setting-max-lap-time');
 const btnSessionStart = document.getElementById('btn-session-start');
+const btnSessionStop = document.getElementById('btn-session-stop');
 const btnSessionReset = document.getElementById('btn-session-reset');
 
 const addDriverForm = document.getElementById('add-driver-form');
@@ -233,6 +234,7 @@ function bindEvents() {
 
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
+  btnSessionStop.addEventListener('click', handleSessionStop);
   btnSessionReset.addEventListener('click', handleSessionReset);
 
   // Form Events
@@ -685,20 +687,27 @@ function onLineReceived(line) {
 }
 
 /**
- * Session Start/Stop Toggle.
+ * Session Start/Pause Toggle.
  */
 async function handleSessionStartToggle(e) {
   if (currentSessionStatus === 'active') {
-    stopSession();
+    import('./race.js').then((module) => module.pauseSession());
   } else {
-    if (!connectionBadge.classList.contains('connected')) {
+    if (currentSessionStatus !== 'paused' && !connectionBadge.classList.contains('connected')) {
       await handleConnectClick(e);
       if (!connectionBadge.classList.contains('connected')) {
         return; // Abort starting session if connection failed
       }
     }
-    startSession();
+    import('./race.js').then((module) => module.startSession());
   }
+}
+
+/**
+ * Session Stop.
+ */
+function handleSessionStop() {
+  import('./race.js').then((module) => module.stopSession());
 }
 
 /**
@@ -719,16 +728,28 @@ function renderLeaderboard({ state, leaderboard }) {
   // Sync title and subtitle status
   if (state.status === 'active') {
     sessionSubtitle.textContent = 'Active Running';
-    btnSessionStart.textContent = 'Stop Session';
-    btnSessionStart.className = 'btn btn-danger';
+    btnSessionStart.innerHTML = '&#10074;&#10074;';
+    btnSessionStart.className = 'btn btn-warning';
+    btnSessionStart.title = 'Pause Session';
+    btnSessionStop.style.display = 'inline-block';
+  } else if (state.status === 'paused') {
+    sessionSubtitle.textContent = 'Paused';
+    btnSessionStart.innerHTML = '&#9658;';
+    btnSessionStart.className = 'btn btn-success';
+    btnSessionStart.title = 'Resume Session';
+    btnSessionStop.style.display = 'inline-block';
   } else if (state.status === 'finished') {
     sessionSubtitle.textContent = 'Finished';
-    btnSessionStart.textContent = 'Start Session';
+    btnSessionStart.innerHTML = '&#9658;';
     btnSessionStart.className = 'btn btn-success';
+    btnSessionStart.title = 'Start Session';
+    btnSessionStop.style.display = 'none';
   } else {
     sessionSubtitle.textContent = 'Ready to run';
-    btnSessionStart.textContent = 'Start Session';
+    btnSessionStart.innerHTML = '&#9658;';
     btnSessionStart.className = 'btn btn-success';
+    btnSessionStart.title = 'Start Session';
+    btnSessionStop.style.display = 'none';
   }
 
   // Clear tables
