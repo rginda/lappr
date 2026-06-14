@@ -92,6 +92,7 @@ const btnDeleteCar = document.getElementById('btn-delete-car');
 let selectedCarId = null;
 let activeCarChart = null;
 let activeSessionChart = null;
+let driverRecentLapsPage = 1;
 
 // Application State
 let activeSettings = {};
@@ -373,6 +374,38 @@ function bindEvents() {
       renderCarList();
       refreshActiveRacers();
       switchView('view-session');
+    }
+  });
+
+  document.getElementById('driver-laps-first').addEventListener('click', () => {
+    driverRecentLapsPage = 1;
+    renderDriverDetails(selectedDriverId);
+  });
+  
+  document.getElementById('driver-laps-prev').addEventListener('click', () => {
+    if (driverRecentLapsPage > 1) {
+      driverRecentLapsPage--;
+      renderDriverDetails(selectedDriverId);
+    }
+  });
+  
+  document.getElementById('driver-laps-next').addEventListener('click', () => {
+    const driver = getDrivers().find(d => d.id === selectedDriverId);
+    if (!driver) return;
+    const totalPages = Math.ceil((driver.laps || []).length / 15);
+    if (driverRecentLapsPage < totalPages) {
+      driverRecentLapsPage++;
+      renderDriverDetails(selectedDriverId);
+    }
+  });
+  
+  document.getElementById('driver-laps-last').addEventListener('click', () => {
+    const driver = getDrivers().find(d => d.id === selectedDriverId);
+    if (!driver) return;
+    const totalPages = Math.ceil((driver.laps || []).length / 15);
+    if (totalPages > 0) {
+      driverRecentLapsPage = totalPages;
+      renderDriverDetails(selectedDriverId);
     }
   });
 
@@ -1015,8 +1048,10 @@ function renderDriverDetails(driverId) {
   const drivers = getDrivers();
   const driver = drivers.find((d) => d.id === driverId);
   if (!driver) return;
-
-  selectedDriverId = driver.id;
+  if (selectedDriverId !== driver.id) {
+    driverRecentLapsPage = 1;
+    selectedDriverId = driver.id;
+  }
   editDriverName.value = driver.name;
 
   deleteDriverConfirm.value = '';
@@ -1147,9 +1182,27 @@ function renderDriverDetails(driverId) {
   // Render Laps
   driverLapsBody.innerHTML = '';
   if (laps.length === 0) {
-    driverLapsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
+    driverLapsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
+    document.getElementById('driver-laps-page-info').textContent = `1 / 1`;
+    document.getElementById('driver-laps-first').disabled = true;
+    document.getElementById('driver-laps-prev').disabled = true;
+    document.getElementById('driver-laps-next').disabled = true;
+    document.getElementById('driver-laps-last').disabled = true;
   } else {
-    laps.forEach((lap) => {
+    const totalPages = Math.ceil(laps.length / 15);
+    if (driverRecentLapsPage > totalPages) driverRecentLapsPage = totalPages;
+    if (driverRecentLapsPage < 1) driverRecentLapsPage = 1;
+
+    document.getElementById('driver-laps-page-info').textContent = `${driverRecentLapsPage} / ${totalPages}`;
+    document.getElementById('driver-laps-first').disabled = driverRecentLapsPage === 1;
+    document.getElementById('driver-laps-prev').disabled = driverRecentLapsPage === 1;
+    document.getElementById('driver-laps-next').disabled = driverRecentLapsPage === totalPages;
+    document.getElementById('driver-laps-last').disabled = driverRecentLapsPage === totalPages;
+
+    const startIndex = (driverRecentLapsPage - 1) * 15;
+    const paginatedLaps = laps.slice(startIndex, startIndex + 15);
+
+    paginatedLaps.forEach((lap) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(lap.timestamp).toLocaleString();
       tr.innerHTML = `

@@ -384,7 +384,16 @@
                 </div>
 
                 <div>
-                  <h3 style="margin-bottom: 0.5rem; font-size: 1rem">Recent Laps (up to 100)</h3>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
+                    <h3 style="font-size: 1rem; margin: 0">Recent Laps</h3>
+                    <div style="display: flex; gap: 0.25rem; align-items: center;">
+                      <button class="btn btn-sm" id="driver-laps-first" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">&laquo;</button>
+                      <button class="btn btn-sm" id="driver-laps-prev" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">&lsaquo;</button>
+                      <span id="driver-laps-page-info" style="font-size: 0.8rem; margin: 0 0.5rem; white-space: nowrap;">1 / 1</span>
+                      <button class="btn btn-sm" id="driver-laps-next" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">&rsaquo;</button>
+                      <button class="btn btn-sm" id="driver-laps-last" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">&raquo;</button>
+                    </div>
+                  </div>
                   <div style="overflow-x: auto">
                     <table class="leaderboard-table" style="font-size: 0.85rem">
                       <thead>
