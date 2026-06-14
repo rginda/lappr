@@ -50,24 +50,26 @@
         <!-- Left Sidebar: Navigation Tabs -->
         <aside class="sidebar">
           <nav class="sidebar-nav">
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-              <button class="nav-tab active" data-target="view-session" style="flex: 1; margin: 0;">Session</button>
-              <button
-                id="btn-session-start"
-                class="btn btn-success"
-                style="padding: 0.4rem 0.75rem; font-size: 0.8rem;"
-                title="Start Session"
-              >
-                &#9658;
-              </button>
-              <button
-                id="btn-session-stop"
-                class="btn btn-danger"
-                style="padding: 0.4rem 0.75rem; font-size: 0.8rem; display: none;"
-                title="Stop Session"
-              >
-                &#9632;
-              </button>
+            <div class="nav-tab active" data-target="view-session" style="justify-content: space-between; padding-right: 0.5rem; margin-bottom: 0.5rem;">
+              <span>Session</span>
+              <div style="display: flex; gap: 0.25rem;" onclick="event.stopPropagation()">
+                <button
+                  id="btn-session-start"
+                  class="btn btn-success"
+                  style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
+                  title="Start Session"
+                >
+                  &#9658;
+                </button>
+                <button
+                  id="btn-session-stop"
+                  class="btn btn-danger"
+                  style="padding: 0.25rem 0.5rem; font-size: 0.75rem; display: none;"
+                  title="Stop Session"
+                >
+                  &#9632;
+                </button>
+              </div>
             </div>
 
             <div class="nav-tree">
