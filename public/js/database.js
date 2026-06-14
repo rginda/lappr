@@ -331,7 +331,7 @@ export const DEFAULT_SETTINGS = {
     overallSessionBest: 'Overall session best {driver}, {time}',
     driverSessionBest: '{driver} session best, {time}',
     normalLap: '{driver}, {time}',
-    consistentStreak: '{streak} lap streak'
+    consistentStreak: 'times {streak}'
   },
   streak: {
     minLaps: 3,
