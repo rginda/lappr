@@ -22,16 +22,6 @@ const DEFAULT_CARS = [
   { transponder: '00FFAB', name: 'Blue Mini-Z AWD', color: '#06b6d4', laps: [], prs: [] }
 ];
 
-const DEFAULT_SETTINGS = {
-  minLapTime: 3.0,
-  speechEnabled: true,
-  speechVolume: 0.8,
-  speechVoice: '',
-  speechPitch: 1.0,
-  speechRate: 1.1,
-  baudRate: 115200
-};
-
 /**
  * Get all registered drivers.
  */
@@ -326,7 +316,8 @@ export function saveSettings(settings) {
 }
 
 /**
- * Get active configuration settings.
+ * Default configuration settings.
+ */
 export const DEFAULT_SETTINGS = {
   speechEnabled: true,
   speechVolume: 0.8,
