@@ -324,6 +324,8 @@ export const DEFAULT_SETTINGS = {
   speechVoice: '',
   speechPitch: 1.0,
   speechRate: 1.1,
+  overlayEnabled: true,
+  overlayTimeout: 12,
   announcements: {
     driverOverallPR: '{driver} Overall PR {time}',
     overallCarBest: 'Overall {car} record {time}',

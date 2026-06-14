@@ -174,6 +174,11 @@ function loadSettingsUI() {
   if (modalSpeechRate) modalSpeechRate.value = activeSettings.speechRate || 1.1;
   if (modalSpeechRateSlider) modalSpeechRateSlider.value = activeSettings.speechRate || 1.1;
 
+  const overlayToggle = document.getElementById('speech-overlay-toggle');
+  if (overlayToggle) overlayToggle.checked = activeSettings.overlayEnabled !== false;
+
+  const overlayTimeout = document.getElementById('speech-overlay-timeout');
+  if (overlayTimeout) overlayTimeout.value = activeSettings.overlayTimeout || 12;
   configureSpeech({
     enabled: activeSettings.speechEnabled,
     volume: activeSettings.speechVolume,
@@ -489,6 +494,12 @@ function bindEvents() {
     settings.speechVoice = modalSpeechVoice.value;
     settings.speechPitch = parseFloat(modalSpeechPitch.value);
     settings.speechRate = parseFloat(modalSpeechRate.value);
+    
+    const overlayToggle = document.getElementById('speech-overlay-toggle');
+    if (overlayToggle) settings.overlayEnabled = overlayToggle.checked;
+    
+    const overlayTimeout = document.getElementById('speech-overlay-timeout');
+    if (overlayTimeout) settings.overlayTimeout = parseInt(overlayTimeout.value) || 12;
 
     // Also update activeSettings immediately for the session
     activeSettings.speechEnabled = settings.speechEnabled;
@@ -496,6 +507,8 @@ function bindEvents() {
     activeSettings.speechVoice = settings.speechVoice;
     activeSettings.speechPitch = settings.speechPitch;
     activeSettings.speechRate = settings.speechRate;
+    activeSettings.overlayEnabled = settings.overlayEnabled;
+    activeSettings.overlayTimeout = settings.overlayTimeout;
 
     // Configure speech engine immediately
     import('./speech.js').then((m) =>
@@ -1812,7 +1825,7 @@ const speechOverlay = document.getElementById('speech-overlay');
 let speechOverlayTimeout;
 
 window.addEventListener('speech-started', (e) => {
-  if (!speechOverlay) return;
+  if (!speechOverlay || activeSettings.overlayEnabled === false) return;
   const text = e.detail.text;
   
   const toast = document.createElement('div');
@@ -1828,6 +1841,8 @@ window.addEventListener('speech-started', (e) => {
   
   speechOverlay.style.opacity = '1';
   
+  const timeoutSecs = activeSettings.overlayTimeout || 12;
+  
   clearTimeout(speechOverlayTimeout);
   speechOverlayTimeout = setTimeout(() => {
     speechOverlay.style.opacity = '0';
@@ -1836,5 +1851,5 @@ window.addEventListener('speech-started', (e) => {
         speechOverlay.innerHTML = '';
       }
     }, 500); // Wait for transition to complete before clearing
-  }, 12000); // Hide after 12 seconds of no speech
+  }, timeoutSecs * 1000); // Hide after configurable seconds of no speech
 });
