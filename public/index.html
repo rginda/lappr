@@ -50,7 +50,25 @@
         <!-- Left Sidebar: Navigation Tabs -->
         <aside class="sidebar">
           <nav class="sidebar-nav">
-            <button class="nav-tab active" data-target="view-session">Session</button>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <button class="nav-tab active" data-target="view-session" style="flex: 1; margin: 0;">Session</button>
+              <button
+                id="btn-session-start"
+                class="btn btn-success"
+                style="padding: 0.4rem 0.75rem; font-size: 0.8rem;"
+                title="Start Session"
+              >
+                &#9658;
+              </button>
+              <button
+                id="btn-session-stop"
+                class="btn btn-danger"
+                style="padding: 0.4rem 0.75rem; font-size: 0.8rem; display: none;"
+                title="Stop Session"
+              >
+                &#9632;
+              </button>
+            </div>
 
             <div class="nav-tree">
               <button class="nav-tab tree-header" data-tree="drivers-tree">
@@ -132,26 +150,7 @@
 
               <div id="session-timer-display" class="session-timer mono">00:00.00</div>
 
-              <div style="display: flex; align-items: center; gap: 1rem">
-                <div style="display: flex; align-items: center; gap: 0.5rem">
-                  <button
-                    id="btn-session-start"
-                    class="btn btn-success"
-                    style="padding: 0.4rem 1rem"
-                    title="Start Session"
-                  >
-                    &#9658;
-                  </button>
-                  <button
-                    id="btn-session-stop"
-                    class="btn btn-danger"
-                    style="padding: 0.4rem 1rem; display: none;"
-                    title="Stop Session"
-                  >
-                    &#9632;
-                  </button>
-                </div>
-              </div>
+
             </section>
 
             <!-- Starting Lights Overlay (For Races) -->
