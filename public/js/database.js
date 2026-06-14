@@ -327,44 +327,50 @@ export function saveSettings(settings) {
 
 /**
  * Get active configuration settings.
+export const DEFAULT_SETTINGS = {
+  speechEnabled: true,
+  speechVolume: 0.8,
+  speechVoice: '',
+  speechPitch: 1.0,
+  speechRate: 1.1,
+  announcements: {
+    driverBestEver: '{driver} PR {time}',
+    carRecord: '{car} record {time}',
+    driverCarPR: '{driver} {car} PR {time}',
+    sessionFastest: 'Session fast lap {driver}, {time}',
+    driverSessionBest: '{driver} session best, {time}',
+    normal: '{driver}, {time}',
+    consistent: '{streak} lap streak'
+  },
+  streak: {
+    minLaps: 3,
+    varianceThreshold: 10,
+    mustBeFast: true
+  },
+  minLapTime: 3.0,
+  maxLapTime: 25.0,
+  hardwareType: 'robotronic',
+  connectAtStartup: false
+};
+
+/**
+ * Fetch settings.
  * @returns {Object} Settings object.
  */
 export function getSettings() {
-  const defaultSettings = {
-    speechEnabled: true,
-    speechVolume: 0.8,
-    speechVoice: '',
-    speechPitch: 1.0,
-    speechRate: 1.1,
-    announcements: {
-      driverBestEver: '{driver} PR {time}',
-      carRecord: '{car} record {time}',
-      driverCarPR: '{driver} {car} PR {time}',
-      sessionFastest: 'Session fast lap {driver}, {time}',
-      driverSessionBest: '{driver} session best, {time}',
-      normal: '{driver}, {time}',
-      consistent: '{streak} lap streak'
-    },
-    streak: {
-      minLaps: 3,
-      varianceThreshold: 10,
-      mustBeFast: true
-    }
-  };
-
   try {
     const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (!data) return defaultSettings;
+    if (!data) return DEFAULT_SETTINGS;
     const parsed = JSON.parse(data);
     // Merge deeply
     return {
-      ...defaultSettings,
+      ...DEFAULT_SETTINGS,
       ...parsed,
-      announcements: { ...defaultSettings.announcements, ...(parsed.announcements || {}) },
-      streak: { ...defaultSettings.streak, ...(parsed.streak || {}) }
+      announcements: { ...DEFAULT_SETTINGS.announcements, ...(parsed.announcements || {}) },
+      streak: { ...DEFAULT_SETTINGS.streak, ...(parsed.streak || {}) }
     };
   } catch (e) {
-    return defaultSettings;
+    return DEFAULT_SETTINGS;
   }
 }
 

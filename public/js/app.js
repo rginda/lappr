@@ -14,7 +14,8 @@ import {
   deleteLap,
   deleteDriverCarStats,
   getSettings,
-  saveSettings
+  saveSettings,
+  DEFAULT_SETTINGS
 } from './database.js';
 
 import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './serial.js';
@@ -234,6 +235,13 @@ function bindEvents() {
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
   btnSessionStop.addEventListener('click', handleSessionStop);
+
+  // Settings Reset Events
+  document.querySelectorAll('.btn-reset-settings').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      handleSettingsReset(e.currentTarget.dataset.category);
+    });
+  });
 
   // Form Events
   addDriverForm.addEventListener('submit', handleAddDriver);
@@ -706,6 +714,68 @@ async function handleSessionStartToggle(e) {
  */
 function handleSessionStop() {
   import('./race.js').then((module) => module.stopSession());
+}
+
+/**
+ * Handle Resetting specific settings category
+ */
+function handleSettingsReset(category) {
+  if (!window.confirm(`Are you sure you want to reset the ${category} settings to defaults?`)) {
+    return;
+  }
+
+  if (category === 'session') {
+    activeSettings.minLapTime = DEFAULT_SETTINGS.minLapTime;
+    activeSettings.maxLapTime = DEFAULT_SETTINGS.maxLapTime;
+  } else if (category === 'speech') {
+    activeSettings.speechEnabled = DEFAULT_SETTINGS.speechEnabled;
+    activeSettings.speechVolume = DEFAULT_SETTINGS.speechVolume;
+    activeSettings.speechVoice = DEFAULT_SETTINGS.speechVoice;
+    activeSettings.speechPitch = DEFAULT_SETTINGS.speechPitch;
+    activeSettings.speechRate = DEFAULT_SETTINGS.speechRate;
+    activeSettings.announcements = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.announcements));
+  } else if (category === 'hardware') {
+    activeSettings.hardwareType = DEFAULT_SETTINGS.hardwareType;
+    activeSettings.connectAtStartup = DEFAULT_SETTINGS.connectAtStartup;
+  } else if (category === 'streaks') {
+    activeSettings.streak = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.streak));
+  }
+
+  activeSettings = saveSettings(activeSettings);
+
+  // Re-populate the inputs in the UI
+  minLapTime.value = activeSettings.minLapTime;
+  maxLapTime.value = activeSettings.maxLapTime;
+
+  speechToggle.checked = activeSettings.speechEnabled;
+  speechVolume.value = activeSettings.speechVolume;
+  if (speechVolumeSlider) speechVolumeSlider.value = activeSettings.speechVolume;
+
+  if (hardwareType) hardwareType.value = activeSettings.hardwareType;
+  if (autoconnect) autoconnect.checked = activeSettings.connectAtStartup;
+
+  if (modalSpeechVoice) modalSpeechVoice.value = activeSettings.speechVoice;
+  if (modalSpeechPitch) modalSpeechPitch.value = activeSettings.speechPitch;
+  if (modalSpeechPitchSlider) modalSpeechPitchSlider.value = activeSettings.speechPitch;
+  if (modalSpeechRate) modalSpeechRate.value = activeSettings.speechRate;
+  if (modalSpeechRateSlider) modalSpeechRateSlider.value = activeSettings.speechRate;
+
+  const streakMinLaps = document.getElementById('setting-streak-min-laps');
+  const streakVariance = document.getElementById('setting-streak-variance');
+  const streakMustBeFast = document.getElementById('setting-streak-fast-only');
+  
+  if (streakMinLaps) streakMinLaps.value = activeSettings.streak.minLaps;
+  if (streakVariance) streakVariance.value = activeSettings.streak.varianceThreshold;
+  if (streakMustBeFast) streakMustBeFast.checked = activeSettings.streak.mustBeFast;
+
+  // Sync speech engine with the reset settings
+  configureSpeech({
+    enabled: activeSettings.speechEnabled,
+    volume: activeSettings.speechVolume,
+    voiceName: activeSettings.speechVoice,
+    pitch: activeSettings.speechPitch,
+    rate: activeSettings.speechRate
+  });
 }
 
 /**

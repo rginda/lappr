@@ -745,7 +745,8 @@
                   margin-bottom: 1.5rem;
                 "
               >
-                <h2 style="color: var(--accent-primary)">Session Configuration</h2>
+                <h2 style="color: var(--accent-primary); margin: 0">Session Configuration</h2>
+                <button class="btn btn-secondary btn-reset-settings" data-category="session" title="Reset Session Settings to Defaults">&#10227;</button>
               </div>
 
               <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem">
@@ -803,7 +804,10 @@
           <!-- View: Settings (Speech) -->
           <main id="view-settings-speech" class="view-panel">
             <section class="card glass-panel">
-              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">Speech Settings</h2>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--accent-primary); margin: 0;">Speech Settings</h2>
+                <button class="btn btn-secondary btn-reset-settings" data-category="speech" title="Reset Speech Settings to Defaults">&#10227;</button>
+              </div>
 
               <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-size: 1.1rem">
                 Audio Engine
@@ -1031,7 +1035,10 @@
           <!-- View: Settings (Hardware) -->
           <main id="view-settings-hardware" class="view-panel">
             <section class="card glass-panel">
-              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">Hardware Settings</h2>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--accent-primary); margin: 0;">Hardware Settings</h2>
+                <button class="btn btn-secondary btn-reset-settings" data-category="hardware" title="Reset Hardware Settings to Defaults">&#10227;</button>
+              </div>
 
               <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem">
                 Configure your timing system connection.
@@ -1072,9 +1079,12 @@
           <!-- View: Settings (Streaks) -->
           <main id="view-settings-streaks" class="view-panel">
             <section class="card glass-panel">
-              <h2 style="color: var(--accent-primary); margin-bottom: 1.5rem">
-                Consistency Streaks
-              </h2>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--accent-primary); margin: 0;">
+                  Consistency Streaks
+                </h2>
+                <button class="btn btn-secondary btn-reset-settings" data-category="streaks" title="Reset Streak Settings to Defaults">&#10227;</button>
+              </div>
 
               <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem">
                 Configure when a driver is considered to be on a "consistent streak".
