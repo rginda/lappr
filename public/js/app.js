@@ -107,7 +107,7 @@ window.addEventListener('beforeunload', () => {
   backupSessionState();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+const initApp = () => {
   activeSettings = getSettings();
   loadSettingsUI();
   renderDriverList();
@@ -126,7 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const banner = document.getElementById('speech-interaction-banner');
   if (banner) {
     const dismissBanner = () => {
-      banner.style.display = 'none';
+      if (banner && banner.parentNode) {
+        banner.parentNode.removeChild(banner);
+      }
       
       // Unlock speech synthesis engine quietly
       if (window.speechSynthesis && window.SpeechSynthesisUtterance) {
@@ -172,7 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 /**
  * Load settings from database and update UI components.
