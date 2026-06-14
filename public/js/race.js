@@ -106,6 +106,8 @@ export function startSession() {
     sessionState.startTime = performance.now() - (sessionState.elapsedTime || 0);
     speak('Session resumed.', true);
   } else {
+    // Fresh start: clear laps
+    clearSession();
     sessionState.status = 'active';
     sessionState.startTime = performance.now();
     sessionState.elapsedTime = 0;

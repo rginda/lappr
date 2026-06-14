@@ -41,7 +41,6 @@ const minLapTime = document.getElementById('setting-min-lap-time');
 const maxLapTime = document.getElementById('setting-max-lap-time');
 const btnSessionStart = document.getElementById('btn-session-start');
 const btnSessionStop = document.getElementById('btn-session-stop');
-const btnSessionReset = document.getElementById('btn-session-reset');
 
 const addDriverForm = document.getElementById('add-driver-form');
 const driverNameInput = document.getElementById('driver-name');
@@ -235,7 +234,6 @@ function bindEvents() {
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
   btnSessionStop.addEventListener('click', handleSessionStop);
-  btnSessionReset.addEventListener('click', handleSessionReset);
 
   // Form Events
   addDriverForm.addEventListener('submit', handleAddDriver);
@@ -708,15 +706,6 @@ async function handleSessionStartToggle(e) {
  */
 function handleSessionStop() {
   import('./race.js').then((module) => module.stopSession());
-}
-
-/**
- * Session Reset.
- */
-function handleSessionReset() {
-  if (window.confirm('Are you sure you want to clear all lap times and reset the clock?')) {
-    clearSession();
-  }
 }
 
 /**
