@@ -504,6 +504,17 @@ export function assignUnregisteredRacer(_transponderId, _name, _color, _vehicle)
 }
 
 /**
+ * Removes a car from the active session leaderboard.
+ */
+export function removeCarFromSession(transponder) {
+  const id = transponder.toUpperCase();
+  if (sessionState.racers[id]) {
+    sessionState.racers[id].isActive = false;
+    assignSessionDriver(id, ''); // This clears assignment and calls triggerUpdate()
+  }
+}
+
+/**
  * Assign a driver to a car for the current session.
  * Retroactively credits unassigned laps to the new driver.
  */

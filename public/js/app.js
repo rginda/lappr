@@ -787,10 +787,7 @@ function renderLeaderboard({ state, leaderboard }) {
 
       if (assignedDriverId) {
         driverCellContent = `
-          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <a href="#" class="leaderboard-driver-link" data-driverid="${assignedDriverId}" style="color: var(--accent-secondary); text-decoration: none; font-weight: 600; cursor: pointer;" title="View driver profile">${racer.name}</a>
-            <button class="btn leaderboard-driver-unassign" data-transponder="${racer.transponder}" style="padding: 0; background: transparent; color: var(--color-error); border: none; font-size: 1rem; line-height: 1; cursor: pointer; margin-left: 0.5rem;" title="Unassign driver">&times;</button>
-          </div>
+          <a href="#" class="leaderboard-driver-link" data-driverid="${assignedDriverId}" style="color: var(--accent-secondary); text-decoration: none; font-weight: 600; cursor: pointer;" title="View driver profile">${racer.name}</a>
         `;
       } else {
         let driverOptions = `<option value="">-- Unassigned --</option>`;
@@ -824,6 +821,9 @@ function renderLeaderboard({ state, leaderboard }) {
         </td>
         <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
         <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
+        <td style="text-align: center;">
+          <button class="btn leaderboard-car-remove" data-transponder="${racer.transponder}" style="padding: 0; background: transparent; color: var(--color-error); border: none; font-size: 1rem; line-height: 1; cursor: pointer;" title="Remove car from session">&times;</button>
+        </td>
       `;
 
       // Bind driver column events
@@ -833,12 +833,6 @@ function renderLeaderboard({ state, leaderboard }) {
           renderDriverDetails(assignedDriverId);
           switchView('view-driver-details');
         });
-
-        row.querySelector('.leaderboard-driver-unassign').addEventListener('click', (e) => {
-          import('./race.js').then((module) => {
-            module.assignSessionDriver(racer.transponder, '');
-          });
-        });
       } else {
         row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
           import('./race.js').then((module) => {
@@ -846,6 +840,12 @@ function renderLeaderboard({ state, leaderboard }) {
           });
         });
       }
+
+      row.querySelector('.leaderboard-car-remove').addEventListener('click', (e) => {
+        import('./race.js').then((module) => {
+          module.removeCarFromSession(racer.transponder);
+        });
+      });
 
       // Make car cell clickable to edit
       const carCell = row.children[2];
