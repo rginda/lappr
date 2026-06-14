@@ -455,28 +455,28 @@ function announceLap(racer, lap, dbResult) {
   }
 
   // Calculate Ongoing Consistency Streak
-  const streakSettings = settings.streak || {
-    minLaps: 3,
-    varianceThreshold: 10,
-    mustBeFast: true
-  };
-  const totalLaps = racer.laps.length;
+  const streakSettings = settings.streak || { minLaps: 3, varianceThreshold: 10, mustBeFast: true };
+  const currentDriverId = sessionState.assignments[racer.transponder] || null;
+  const driverLaps = racer.laps.filter((l) => l.driverId === currentDriverId);
+  const totalLaps = driverLaps.length;
 
   if (totalLaps >= streakSettings.minLaps) {
     let streakLength = 1;
     let minLap = lap.lapTime;
     let maxLap = lap.lapTime;
+    let streakSum = lap.lapTime;
 
     const allowedVariance = lap.lapTime * (streakSettings.varianceThreshold / 100);
 
     // Scan backward to find consecutive laps within the variance threshold
     for (let i = totalLaps - 2; i >= 0; i--) {
-      const prevLap = racer.laps[i].lapTime;
+      const prevLap = driverLaps[i].lapTime;
       const newMin = Math.min(minLap, prevLap);
       const newMax = Math.max(maxLap, prevLap);
 
       if (newMax - newMin <= allowedVariance) {
         streakLength++;
+        streakSum += prevLap;
         minLap = newMin;
         maxLap = newMax;
       } else {
@@ -487,8 +487,12 @@ function announceLap(racer, lap, dbResult) {
     // Check if streak meets criteria
     if (streakLength >= streakSettings.minLaps) {
       let qualifies = true;
-      if (streakSettings.mustBeFast && lap.lapTime >= racer.averageLap) {
-        qualifies = false;
+      if (streakSettings.mustBeFast) {
+        const driverBestLap = Math.min(...driverLaps.map(l => l.lapTime));
+        const streakAvg = streakSum / streakLength;
+        if (streakAvg > driverBestLap * 1.1) {
+          qualifies = false;
+        }
       }
 
       if (qualifies && ann.consistentStreak) {
