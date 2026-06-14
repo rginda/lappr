@@ -1804,3 +1804,37 @@ function registerServiceWorker() {
     });
   }
 }
+
+/**
+ * Speech Notification Overlay Logic
+ */
+const speechOverlay = document.getElementById('speech-overlay');
+let speechOverlayTimeout;
+
+window.addEventListener('speech-started', (e) => {
+  if (!speechOverlay) return;
+  const text = e.detail.text;
+  
+  const toast = document.createElement('div');
+  toast.className = 'speech-toast';
+  toast.textContent = text;
+  
+  speechOverlay.appendChild(toast);
+  
+  // Keep only last 4
+  while (speechOverlay.children.length > 4) {
+    speechOverlay.removeChild(speechOverlay.firstChild);
+  }
+  
+  speechOverlay.style.opacity = '1';
+  
+  clearTimeout(speechOverlayTimeout);
+  speechOverlayTimeout = setTimeout(() => {
+    speechOverlay.style.opacity = '0';
+    setTimeout(() => {
+      if (speechOverlay.style.opacity === '0') {
+        speechOverlay.innerHTML = '';
+      }
+    }, 500); // Wait for transition to complete before clearing
+  }, 5000); // Hide after 5 seconds of no speech
+});

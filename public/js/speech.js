@@ -164,13 +164,18 @@ function processQueue() {
   if (!window._utterances) window._utterances = [];
   window._utterances.push(currentUtterance);
 
-  // Also clean up the global array on end
   const cleanupGc = () => {
     const idx = window._utterances.indexOf(currentUtterance);
     if (idx !== -1) window._utterances.splice(idx, 1);
   };
   currentUtterance.addEventListener('end', cleanupGc);
   currentUtterance.addEventListener('error', cleanupGc);
+
+  currentUtterance.addEventListener('start', () => {
+    window.dispatchEvent(
+      new CustomEvent('speech-started', { detail: { text: currentUtterance.text } })
+    );
+  });
 
   synth.speak(currentUtterance);
 }
