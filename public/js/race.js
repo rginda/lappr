@@ -89,6 +89,7 @@ function createRacerSessionData(profile) {
     bestLap: Infinity,
     averageLap: 0,
     consistency: 100, // Percentage consistency
+    longestStreak: 0,
     totalTime: 0, // Total active running time
     gap: '',
     isActive: false
@@ -182,6 +183,7 @@ export function clearSession() {
     r.bestLap = Infinity;
     r.averageLap = 0;
     r.consistency = 100;
+    r.longestStreak = 0;
     r.totalTime = 0;
     r.gap = '';
     // Keeping r.isActive untouched to keep car assignments in the session
