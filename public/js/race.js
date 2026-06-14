@@ -323,7 +323,9 @@ export function processCrossing(transponderId, ticks) {
  * @param {Object} racer
  */
 function recalculateRacerStats(racer) {
-  const lapTimes = racer.laps.map((l) => l.lapTime);
+  const currentDriverId = sessionState.assignments[racer.transponder] || null;
+  const driverLaps = racer.laps.filter((l) => l.driverId === currentDriverId);
+  const lapTimes = driverLaps.map((l) => l.lapTime);
   const totalLaps = lapTimes.length;
 
   if (totalLaps === 0) {
@@ -367,8 +369,10 @@ function recalculateRacerStats(racer) {
   const streakSettings = settings.streak || { minLaps: 3, varianceThreshold: 10, mustBeFast: true };
   const varianceRatio = streakSettings.varianceThreshold / 100;
   
+  const driverBestLap = Math.min(...lapTimes);
   let maxStreak = 0;
-  if (totalLaps >= 1) {
+  
+  if (totalLaps >= streakSettings.minLaps) {
     for (let i = 0; i < lapTimes.length; i++) {
       let minLap = lapTimes[i];
       let maxLap = lapTimes[i];
@@ -385,23 +389,21 @@ function recalculateRacerStats(racer) {
         }
       }
       
-      if (streakSettings.mustBeFast) {
-        // If mustBeFast is checked, ensure all laps in the streak are reasonably fast
-        // We'll enforce that the average of this streak is not drastically worse than overall average
-        // (Wait, race.js mustBeFast rule for announcements was: average of streak < sessionBest * 1.1)
-        // Let's use the same: avg <= racer.bestLap * 1.1
-        let streakSum = 0;
-        for (let k = i; k < i + currentStreak; k++) {
-          streakSum += lapTimes[k];
+      if (currentStreak >= streakSettings.minLaps) {
+        if (streakSettings.mustBeFast) {
+          let streakSum = 0;
+          for (let k = i; k < i + currentStreak; k++) {
+            streakSum += lapTimes[k];
+          }
+          let streakAvg = streakSum / currentStreak;
+          if (streakAvg > driverBestLap * 1.1) {
+            qualifies = false;
+          }
         }
-        let streakAvg = streakSum / currentStreak;
-        if (streakAvg > racer.bestLap * 1.1) {
-          qualifies = false;
+        
+        if (qualifies && currentStreak > maxStreak) {
+          maxStreak = currentStreak;
         }
-      }
-      
-      if (qualifies && currentStreak > maxStreak) {
-        maxStreak = currentStreak;
       }
     }
   }
