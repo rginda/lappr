@@ -176,4 +176,42 @@ describe('Race Engine', () => {
     const racer = stateRef.racers['111111'];
     expect(racer.laps.length).toBe(3);
   });
+
+  it('should calculate longest streak accurately (establish, break, establish longer)', () => {
+    db.getSettings.mockReturnValue({
+      minLapTime: 2.0,
+      maxLapTime: 25.0,
+      streak: { minLaps: 3, varianceThreshold: 10, mustBeFast: false }
+    });
+
+    let stateRef;
+    initSession({ mode: 'practice' }, ({ state }) => {
+      stateRef = state;
+    });
+    startSession();
+
+    let ticks = 1000;
+    processCrossing('111111', ticks); // baseline
+
+    // Streak 1 (length 3): 5.0, 5.1, 4.9
+    processCrossing('111111', ticks += 5000); // 5.0
+    processCrossing('111111', ticks += 5100); // 5.1
+    processCrossing('111111', ticks += 4900); // 4.9
+    
+    let racer = stateRef.racers['111111'];
+    expect(racer.longestStreak).toBe(3);
+
+    // Break streak
+    processCrossing('111111', ticks += 8000); // 8.0
+    
+    expect(racer.longestStreak).toBe(3); // Should still be 3
+
+    // Streak 2 (length 4): 5.0, 5.0, 5.0, 5.0
+    processCrossing('111111', ticks += 5000);
+    processCrossing('111111', ticks += 5000);
+    processCrossing('111111', ticks += 5000);
+    processCrossing('111111', ticks += 5000);
+
+    expect(racer.longestStreak).toBe(4); // Should update to 4
+  });
 });
