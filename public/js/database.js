@@ -325,10 +325,10 @@ export const DEFAULT_SETTINGS = {
   speechPitch: 1.0,
   speechRate: 1.1,
   announcements: {
-    driverOverallPR: '{driver} PR {time}',
-    overallCarBest: '{car} record {time}',
+    driverOverallPR: '{driver} Overall PR {time}',
+    overallCarBest: 'Overall {car} record {time}',
     driverCarPR: '{driver} {car} PR {time}',
-    overallSessionBest: 'Session fast lap {driver}, {time}',
+    overallSessionBest: 'Overall session best {driver}, {time}',
     driverSessionBest: '{driver} session best, {time}',
     normalLap: '{driver}, {time}',
     consistentStreak: '{streak} lap streak'
