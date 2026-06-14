@@ -319,33 +319,94 @@ export function processCrossing(transponderId, ticks) {
 }
 
 /**
- * Re-evaluate racer average and consistency (standard deviation percentage).
+ * Re-evaluate racer average, median, std dev, and longest streak.
  * @param {Object} racer
  */
 function recalculateRacerStats(racer) {
   const lapTimes = racer.laps.map((l) => l.lapTime);
   const totalLaps = lapTimes.length;
 
-  if (totalLaps === 0) return;
+  if (totalLaps === 0) {
+    racer.averageLap = 0;
+    racer.medianLap = 0;
+    racer.stdDev = 0;
+    racer.consistency = 100;
+    racer.longestStreak = 0;
+    return;
+  }
 
   // Average Lap
   const sum = lapTimes.reduce((a, b) => a + b, 0);
   racer.averageLap = sum / totalLaps;
   racer.totalTime = sum;
 
-  // Consistency (standard deviation relative to average)
+  // Median Lap
+  const sorted = [...lapTimes].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  racer.medianLap = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+  // Std Dev and Consistency
   if (totalLaps > 1) {
     const variance =
       lapTimes.reduce((acc, t) => acc + Math.pow(t - racer.averageLap, 2), 0) / totalLaps;
-    const stdDev = Math.sqrt(variance);
+    racer.stdDev = Math.sqrt(variance);
     // Convert to consistency score (100% is perfect consistency)
     racer.consistency = Math.max(
       0,
-      Math.min(100, Math.round(100 - (stdDev / racer.averageLap) * 100))
+      Math.min(100, Math.round(100 - (racer.stdDev / racer.averageLap) * 100))
     );
   } else {
+    racer.stdDev = 0;
     racer.consistency = 100;
   }
+
+  // Longest Streak Calculation
+  // Definition: Consecutive laps where (maxLap - minLap) <= minLap * (varianceThreshold / 100)
+  // We use the active settings variance threshold.
+  const settings = getSettings();
+  const streakSettings = settings.streak || { minLaps: 3, varianceThreshold: 10, mustBeFast: true };
+  const varianceRatio = streakSettings.varianceThreshold / 100;
+  
+  let maxStreak = 0;
+  if (totalLaps >= 1) {
+    for (let i = 0; i < lapTimes.length; i++) {
+      let minLap = lapTimes[i];
+      let maxLap = lapTimes[i];
+      let currentStreak = 1;
+      let qualifies = true;
+      
+      for (let j = i + 1; j < lapTimes.length; j++) {
+        minLap = Math.min(minLap, lapTimes[j]);
+        maxLap = Math.max(maxLap, lapTimes[j]);
+        if (maxLap - minLap <= minLap * varianceRatio) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+      
+      if (streakSettings.mustBeFast) {
+        // If mustBeFast is checked, ensure all laps in the streak are reasonably fast
+        // We'll enforce that the average of this streak is not drastically worse than overall average
+        // (Wait, race.js mustBeFast rule for announcements was: average of streak < sessionBest * 1.1)
+        // Let's use the same: avg <= racer.bestLap * 1.1
+        let streakSum = 0;
+        for (let k = i; k < i + currentStreak; k++) {
+          streakSum += lapTimes[k];
+        }
+        let streakAvg = streakSum / currentStreak;
+        if (streakAvg > racer.bestLap * 1.1) {
+          qualifies = false;
+        }
+      }
+      
+      if (qualifies && currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+      }
+    }
+  }
+  
+  racer.longestStreak = maxStreak;
 }
 
 /**

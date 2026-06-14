@@ -867,10 +867,11 @@ function renderLeaderboard({ state, leaderboard }) {
           ${racer.bestLap !== Infinity ? `<span class="${bestLapBadgeClass}">${racer.bestLap.toFixed(3)}</span>` : '--'}
         </td>
         <td style="text-align: center;">
-          ${racer.laps.length >= 3 ? `<span style="color:var(--color-success); font-weight:bold;">&check;</span>` : '--'}
+          ${racer.longestStreak || '--'}
         </td>
-        <td class="mono">${racer.laps.length > 1 ? `${racer.consistency}%` : '--'}</td>
-        <td style="text-align: right;" class="mono ${isLeader ? 'gold' : ''}">${racer.gap}</td>
+        <td class="mono">${racer.laps.length > 0 ? racer.averageLap.toFixed(3) : '--'}</td>
+        <td class="mono">${racer.laps.length > 0 ? racer.medianLap.toFixed(3) : '--'}</td>
+        <td class="mono">${racer.laps.length > 1 ? racer.stdDev.toFixed(3) : '--'}</td>
         <td style="text-align: center;">
           <button class="btn leaderboard-car-remove" data-transponder="${racer.transponder}" style="padding: 0; background: transparent; color: var(--color-error); border: none; font-size: 1rem; line-height: 1; cursor: pointer;" title="Remove car from session">&times;</button>
         </td>
