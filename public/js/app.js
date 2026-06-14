@@ -91,6 +91,7 @@ const deleteCarConfirm = document.getElementById('delete-car-confirm');
 const btnDeleteCar = document.getElementById('btn-delete-car');
 let selectedCarId = null;
 let activeCarChart = null;
+let activeSessionChart = null;
 
 // Application State
 let activeSettings = {};
@@ -849,6 +850,9 @@ function renderLeaderboard({ state, leaderboard }) {
   if (document.getElementById('view-car-details').classList.contains('active') && selectedCarId) {
     renderCarDetails(selectedCarId);
   }
+
+  // Update session chart
+  renderSessionLapChart(leaderboard);
 }
 
 /**
@@ -1024,36 +1028,77 @@ function renderDriverDetails(driverId) {
 
   const laps = driver.laps || [];
   if (laps.length === 0) {
-    driverPerCarBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
+    driverPerCarBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
   } else {
+    const getMedian = (times) => {
+      if (times.length === 0) return 0;
+      const sorted = [...times].sort((a, b) => a - b);
+      const half = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 0) return (sorted[half - 1] + sorted[half]) / 2.0;
+      return sorted[half];
+    };
+
+    const getStdDev = (times, avg) => {
+      if (times.length < 2) return 0;
+      const variance = times.reduce((sum, t) => sum + Math.pow(t - avg, 2), 0) / times.length;
+      return Math.sqrt(variance);
+    };
+
     const carStats = {};
+    const overallTimes = [];
+    let overallPr = Infinity;
+
     laps.forEach((lap) => {
       if (!carStats[lap.carTransponder]) {
         carStats[lap.carTransponder] = {
           carTransponder: lap.carTransponder,
           carName: lap.car,
-          lapsRun: 0,
-          totalTime: 0,
+          lapTimes: [],
           pr: lap.lapTime
         };
       }
       const stat = carStats[lap.carTransponder];
-      stat.lapsRun++;
-      stat.totalTime += lap.lapTime;
+      stat.lapTimes.push(lap.lapTime);
       if (lap.lapTime < stat.pr) stat.pr = lap.lapTime;
+
+      overallTimes.push(lap.lapTime);
+      if (lap.lapTime < overallPr) overallPr = lap.lapTime;
     });
 
+    // Overall Row
+    const overallAvg = overallTimes.reduce((a, b) => a + b, 0) / overallTimes.length;
+    const overallMedian = getMedian(overallTimes);
+    const overallStdDev = getStdDev(overallTimes, overallAvg);
+
+    const overallTr = document.createElement('tr');
+    overallTr.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+    overallTr.innerHTML = `
+      <td style="text-align: left; font-weight: 700; color: var(--accent-primary);">Overall</td>
+      <td class="mono" style="color:var(--color-success); font-weight:bold; text-align: center;">${overallPr.toFixed(3)}</td>
+      <td style="text-align: center;">${overallTimes.length}</td>
+      <td class="mono" style="text-align: center;">${overallAvg.toFixed(3)}</td>
+      <td class="mono" style="text-align: center;">${overallMedian.toFixed(3)}</td>
+      <td class="mono" style="text-align: center; color: var(--text-muted);">&plusmn;${overallStdDev.toFixed(3)}</td>
+      <td></td>
+    `;
+    driverPerCarBody.appendChild(overallTr);
+
     // Convert to array and sort by most laps run
-    const carStatsArray = Object.values(carStats).sort((a, b) => b.lapsRun - a.lapsRun);
+    const carStatsArray = Object.values(carStats).sort((a, b) => b.lapTimes.length - a.lapTimes.length);
 
     carStatsArray.forEach((stat) => {
-      const avg = stat.totalTime / stat.lapsRun;
+      const avg = stat.lapTimes.reduce((a, b) => a + b, 0) / stat.lapTimes.length;
+      const median = getMedian(stat.lapTimes);
+      const stdDev = getStdDev(stat.lapTimes, avg);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align: left; font-weight: 500;">${stat.carName}</td>
         <td class="mono" style="color:var(--color-success); font-weight:bold; text-align: center;">${stat.pr.toFixed(3)}</td>
-        <td style="text-align: center;">${stat.lapsRun}</td>
+        <td style="text-align: center;">${stat.lapTimes.length}</td>
         <td class="mono" style="text-align: center;">${avg.toFixed(3)}</td>
+        <td class="mono" style="text-align: center;">${median.toFixed(3)}</td>
+        <td class="mono" style="text-align: center; color: var(--text-muted);">&plusmn;${stdDev.toFixed(3)}</td>
         <td><button class="btn delete-car-stats-btn" data-cartransponder="${stat.carTransponder}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
       tr.querySelector('.delete-car-stats-btn').addEventListener('click', () => {
@@ -1479,6 +1524,141 @@ function renderCarLapChart(car) {
   }
 
   activeCarChart = new window.Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          title: { display: true, text: 'Number of Laps', color: '#94a3b8' }
+        },
+        x: {
+          ticks: { color: '#94a3b8' },
+          grid: { display: false },
+          title: { display: true, text: 'Lap Time', color: '#94a3b8' }
+        }
+      },
+      plugins: { legend: { labels: { color: '#e2e8f0' } } }
+    }
+  });
+}
+
+/**
+ * Render a combined lap time distribution chart for the active session
+ */
+function renderSessionLapChart(leaderboard) {
+  if (activeSessionChart) {
+    activeSessionChart.destroy();
+    activeSessionChart = null;
+  }
+
+  const canvas = document.getElementById('session-overall-chart');
+  if (!canvas) return;
+
+  // Flatten all laps from the leaderboard
+  const laps = [];
+  leaderboard.forEach(racer => {
+    if (!racer.laps) return;
+    racer.laps.forEach(lap => {
+      laps.push({
+        ...lap,
+        driverName: racer.name || 'Unknown',
+        carTransponder: racer.transponder
+      });
+    });
+  });
+
+  if (laps.length === 0) return;
+
+  // Calculate median to trim long tail outliers
+  const sortedTimes = laps.map((l) => l.lapTime).sort((a, b) => a - b);
+  const medianTime = sortedTimes[Math.floor(sortedTimes.length / 2)];
+  const maxAllowedTime = Math.max(medianTime * 1.5, medianTime + 5);
+
+  let minTime = Infinity;
+  let maxTime = -Infinity;
+  laps.forEach((lap) => {
+    if (lap.lapTime < minTime) minTime = lap.lapTime;
+    if (lap.lapTime > maxTime && lap.lapTime <= maxAllowedTime) maxTime = lap.lapTime;
+  });
+  if (maxTime === -Infinity) maxTime = sortedTimes[sortedTimes.length - 1];
+
+  const spread = maxTime - minTime;
+  let bucketSize = 0.5;
+  if (spread > 20) bucketSize = 1.0;
+  if (spread > 50) bucketSize = 5.0;
+  if (spread <= 5) bucketSize = 0.2;
+
+  minTime = Math.floor(minTime / bucketSize) * bucketSize;
+  maxTime = Math.ceil(maxTime / bucketSize) * bucketSize;
+
+  const labels = [];
+  for (let t = minTime; t <= maxTime + bucketSize; t += bucketSize) {
+    labels.push(t.toFixed(1) + 's');
+  }
+
+  const getFrequencies = (lapList) => {
+    const freqs = new Array(labels.length).fill(0);
+    lapList.forEach((lap) => {
+      const bucketIndex = Math.floor((lap.lapTime - minTime) / bucketSize);
+      if (bucketIndex >= 0 && bucketIndex < freqs.length) freqs[bucketIndex]++;
+      else if (bucketIndex >= freqs.length) freqs[freqs.length - 1]++;
+    });
+    return freqs;
+  };
+
+  const datasets = [];
+
+  datasets.push({
+    label: 'Overall Session',
+    data: getFrequencies(laps),
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 2,
+    borderDash: [5, 5],
+    fill: true,
+    tension: 0.4
+  });
+
+  const driverGroups = {};
+  laps.forEach((lap) => {
+    if (!driverGroups[lap.driverName]) driverGroups[lap.driverName] = [];
+    driverGroups[lap.driverName].push(lap);
+  });
+
+  const colors = [
+    { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+    { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+    { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+    { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+    { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' }
+  ];
+
+  let colorIdx = 0;
+  for (const driverName in driverGroups) {
+    if (Object.keys(driverGroups).length === 1) break;
+
+    const groupLaps = driverGroups[driverName];
+    const c = colors[colorIdx % colors.length];
+
+    datasets.push({
+      label: driverName,
+      data: getFrequencies(groupLaps),
+      borderColor: c.border,
+      backgroundColor: c.bg,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    });
+    colorIdx++;
+  }
+
+  activeSessionChart = new window.Chart(canvas, {
     type: 'line',
     data: { labels, datasets },
     options: {
