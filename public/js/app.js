@@ -127,13 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (banner) {
     const dismissBanner = () => {
       banner.style.display = 'none';
-      document.removeEventListener('click', dismissBanner);
-      document.removeEventListener('keydown', dismissBanner);
-      document.removeEventListener('touchstart', dismissBanner);
+      
+      // Unlock speech synthesis engine quietly
+      if (window.speechSynthesis && window.SpeechSynthesisUtterance) {
+        const utterance = new window.SpeechSynthesisUtterance('');
+        utterance.volume = 0;
+        window.speechSynthesis.speak(utterance);
+        window.speechSynthesis.cancel();
+      }
+
+      window.removeEventListener('click', dismissBanner, { capture: true });
+      window.removeEventListener('keydown', dismissBanner, { capture: true });
+      window.removeEventListener('touchstart', dismissBanner, { capture: true });
     };
-    document.addEventListener('click', dismissBanner);
-    document.addEventListener('keydown', dismissBanner);
-    document.addEventListener('touchstart', dismissBanner);
+    window.addEventListener('click', dismissBanner, { capture: true });
+    window.addEventListener('keydown', dismissBanner, { capture: true });
+    window.addEventListener('touchstart', dismissBanner, { capture: true });
   }
 
   // Handle hardware auto-connect
