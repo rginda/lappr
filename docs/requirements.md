@@ -1,4 +1,4 @@
-# Requirements: RC Lap Counter (EasyLap & Robitronic Compatible)
+# Requirements: RC Lap Counter (Robitronic Compatible)
 
 This document captures the requirements, system architecture, and technical specifications for a static web application designed to act as a lap counter and race manager for home RC car tracks (especially for 1/28 scale racing, such as Kyosho Mini-Z).
 
@@ -14,14 +14,12 @@ Create a modern, feature-rich, and visually stunning timing system inspired by *
 ### 1.2 System Architecture
 ```mermaid
 graph TD
-    A[EasyLap/Robitronic Decoder] -->|USB / Serial Connection| B(Web Browser - Secure Context)
+    A[Robitronic Decoder / CP2110] -->|USB Connection| B(Web Browser - Secure Context)
     B --> C{API Capability}
-    C -->|Virtual COM Port CH340/CP2102| D[Web Serial API]
     C -->|USB HID-to-UART CP2110| E[WebHID API]
     C -->|No Hardware Connected| F[Software Simulator Mode]
     
-    D --> G[Unified Data Parser]
-    E --> G
+    E --> G[Unified Data Parser]
     F --> G
     
     G --> H[Race Manager Logic]
@@ -33,7 +31,7 @@ graph TD
 ### 1.3 Tech Stack
 - **Frontend Core**: HTML5 (Semantic elements), Vanilla ES6+ JavaScript, CSS3.
 - **Styling**: Vanilla CSS utilizing CSS Custom Properties, modern Flexbox/Grid layouts, glassmorphism (`backdrop-filter`), and dynamic transitions/animations.
-- **Hardware Integration**: Web Serial API & WebHID API.
+- **Hardware Integration**: WebHID API.
 - **Speech Synthesis**: Web Speech API (`window.speechSynthesis`).
 - **Data Persistence**: LocalStorage and IndexedDB (via local wrapper/Dexie.js).
 - **Deployment**: Static site hosting (GitHub Pages) with PWA support (Service Worker) for offline capability.
@@ -42,16 +40,9 @@ graph TD
 
 ## 2. Hardware Interface & Protocol Specification
 
-The app must parse data from EasyLap and Robitronic decoders. These systems detect infrared (IR) transponders and relay data to the PC.
+The app must parse data from Robitronic compatible decoders using the CP2110 HID-to-UART bridge. These systems detect infrared (IR) transponders and relay data to the PC.
 
-### 2.1 Serial Interface Settings
-- **Baud Rate**: `115200` (standard for modern EasyLap USB/Serial decoders; older units may use `9600` or `38400`)
-- **Data Bits**: `8`
-- **Parity**: `None`
-- **Stop Bits**: `1`
-- **Flow Control**: `None`
-
-### 2.2 Robitronic PC Serial Protocol
+### 2.1 Robitronic PC Serial Protocol
 When a transponder crosses the sensor loop, the decoder validates the signal internally and immediately transmits a **16-byte ASCII hex packet** over UART:
 
 ```
@@ -67,11 +58,10 @@ When a transponder crosses the sensor loop, the decoder validates the signal int
    - *Calculation*: `16,758,490 * 0.25 ms = 4,189,622.5 ms` (approx. 70 minutes of run time).
 3. **Bytes 15–16 (Control Characters)**: Carriage return (`\r`) and Line feed (`\n`).
 
-### 2.3 Browser API Integration Paths
-To support all EasyLap hardware variants natively in the browser:
-1. **Web Serial API**: Used for decoders that employ standard virtual COM port chips (e.g., CH340, CP2102, FTDI). This API is natively supported in Chrome, Edge, and Opera.
-2. **WebHID API**: Used for decoders built with the **Silicon Labs CP2110 HID-to-UART bridge**. Because the CP2110 exposes itself as a USB HID class rather than a COM port, the app must claim the device and send/receive raw 64-byte HID reports according to Silicon Labs *AN434* specifications to establish UART communication.
-3. **Mock/Simulator Driver**: A built-in driver that simulates transponder crossings (configurable trigger rate, randomized lap times, and customizable transponder IDs) to enable offline development and UI testing.
+### 2.2 Browser API Integration Paths
+To support the hardware natively in the browser:
+1. **WebHID API**: Used for decoders built with the **Silicon Labs CP2110 HID-to-UART bridge**. Because the CP2110 exposes itself as a USB HID class rather than a COM port, the app must claim the device and send/receive raw 64-byte HID reports according to Silicon Labs *AN434* specifications to establish UART communication.
+2. **Mock/Simulator Driver**: A built-in driver that simulates transponder crossings (configurable trigger rate, randomized lap times, and customizable transponder IDs) to enable offline development and UI testing.
 
 ---
 
