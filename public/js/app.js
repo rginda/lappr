@@ -509,13 +509,13 @@ function bindEvents() {
     );
 
     settings.announcements = {
-      driverBestEver: document.getElementById('setting-speech-best-ever').value.trim(),
-      carRecord: document.getElementById('setting-speech-car-record').value.trim(),
+      driverOverallPR: document.getElementById('setting-speech-driver-overall-pr').value.trim(),
+      overallCarBest: document.getElementById('setting-speech-overall-car-best').value.trim(),
       driverCarPR: document.getElementById('setting-speech-driver-car-pr').value.trim(),
-      sessionFastest: document.getElementById('setting-speech-session-fastest').value.trim(),
+      overallSessionBest: document.getElementById('setting-speech-overall-session-best').value.trim(),
       driverSessionBest: document.getElementById('setting-speech-driver-session-best').value.trim(),
-      normal: document.getElementById('setting-speech-normal').value.trim(),
-      consistent: document.getElementById('setting-speech-consistent').value.trim()
+      normalLap: document.getElementById('setting-speech-normal-lap').value.trim(),
+      consistentStreak: document.getElementById('setting-speech-consistent-streak').value.trim()
     };
     settings.streak = {
       minLaps: parseInt(document.getElementById('setting-streak-min-laps').value) || 3,
@@ -580,13 +580,13 @@ function populateSettingsView() {
   const settings = getSettings();
 
   const ann = settings.announcements || {};
-  document.getElementById('setting-speech-best-ever').value = ann.driverBestEver || '';
-  document.getElementById('setting-speech-car-record').value = ann.carRecord || '';
+  document.getElementById('setting-speech-driver-overall-pr').value = ann.driverOverallPR || '';
+  document.getElementById('setting-speech-overall-car-best').value = ann.overallCarBest || '';
   document.getElementById('setting-speech-driver-car-pr').value = ann.driverCarPR || '';
-  document.getElementById('setting-speech-session-fastest').value = ann.sessionFastest || '';
+  document.getElementById('setting-speech-overall-session-best').value = ann.overallSessionBest || '';
   document.getElementById('setting-speech-driver-session-best').value = ann.driverSessionBest || '';
-  document.getElementById('setting-speech-normal').value = ann.normal || '';
-  document.getElementById('setting-speech-consistent').value = ann.consistent || '';
+  document.getElementById('setting-speech-normal-lap').value = ann.normalLap || '';
+  document.getElementById('setting-speech-consistent-streak').value = ann.consistentStreak || '';
 
   const streak = settings.streak || {};
   document.getElementById('setting-streak-min-laps').value = streak.minLaps || 3;

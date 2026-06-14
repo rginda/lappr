@@ -376,17 +376,17 @@ function announceLap(racer, lap, dbResult) {
   };
 
   if (isDriverBestEver) {
-    announcement = formatMsg(ann.driverBestEver);
+    announcement = formatMsg(ann.driverOverallPR);
   } else if (isCarRecord) {
-    announcement = formatMsg(ann.carRecord);
+    announcement = formatMsg(ann.overallCarBest);
   } else if (isDriverCarPR) {
     announcement = formatMsg(ann.driverCarPR);
   } else if (lap.isOverallBest) {
-    announcement = formatMsg(ann.sessionFastest);
+    announcement = formatMsg(ann.overallSessionBest);
   } else if (lap.isDriverSessionBest) {
     announcement = formatMsg(ann.driverSessionBest);
   } else {
-    announcement = formatMsg(ann.normal);
+    announcement = formatMsg(ann.normalLap);
   }
 
   // Calculate Ongoing Consistency Streak
@@ -426,8 +426,8 @@ function announceLap(racer, lap, dbResult) {
         qualifies = false;
       }
 
-      if (qualifies && ann.consistent) {
-        announcement += ` ${formatMsg(ann.consistent, streakLength)}`;
+      if (qualifies && ann.consistentStreak) {
+        announcement += ` ${formatMsg(ann.consistentStreak, streakLength)}`;
       }
     }
   }
