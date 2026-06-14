@@ -103,7 +103,7 @@ export function logLap(driverId, transponder, lapTime) {
     };
 
     driver.laps.unshift(driverLapEntry);
-    if (driver.laps.length > 100) driver.laps.pop();
+    pruneDriverLaps(driver);
 
     let isPR = false;
     if (driver.prs.length === 0) {
@@ -149,7 +149,7 @@ export function logLap(driverId, transponder, lapTime) {
     };
 
     car.laps.unshift(carLapEntry);
-    if (car.laps.length > 100) car.laps.pop();
+    pruneCarLaps(car);
 
     let isPR = false;
     if (car.prs.length === 0) {
@@ -481,9 +481,7 @@ export function assignHistoricalLaps(carTransponder, driverId, sessionStartTime)
     // Inject the new laps into the driver's lap history and sort
     driver.laps.push(...lapsToAssign);
     driver.laps.sort((a, b) => b.timestamp - a.timestamp);
-    if (driver.laps.length > 100) {
-      driver.laps = driver.laps.slice(0, 100);
-    }
+    pruneDriverLaps(driver);
 
     // Recalculate PRs for the driver
     driver.prs = recalculatePRs(driver.laps);
@@ -491,4 +489,115 @@ export function assignHistoricalLaps(carTransponder, driverId, sessionStartTime)
     localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
     localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
   }
+}
+
+/**
+ * Intelligently prune driver laps to keep 100 per car combo + preserve PRs
+ */
+export function pruneDriverLaps(driver) {
+  if (!driver.laps) return;
+
+  const protectedLapIds = new Set();
+  
+  // Protect all laps in driver.prs
+  if (driver.prs) {
+    driver.prs.forEach(pr => protectedLapIds.add(pr.id));
+  }
+  
+  // Group laps by carTransponder to find the best lap per car
+  const lapsByCar = {};
+  driver.laps.forEach(lap => {
+    if (!lapsByCar[lap.carTransponder]) {
+      lapsByCar[lap.carTransponder] = [];
+    }
+    lapsByCar[lap.carTransponder].push(lap);
+  });
+  
+  // Protect the best lap for each car
+  for (const transponder in lapsByCar) {
+    const carLaps = lapsByCar[transponder];
+    if (carLaps.length > 0) {
+      const bestLap = carLaps.reduce((best, current) => current.lapTime < best.lapTime ? current : best, carLaps[0]);
+      protectedLapIds.add(bestLap.id);
+    }
+  }
+  
+  const keptCounts = {};
+  for (const transponder in lapsByCar) {
+    keptCounts[transponder] = 0;
+  }
+  
+  const newLaps = [];
+  for (let i = 0; i < driver.laps.length; i++) {
+    const lap = driver.laps[i];
+    const transponder = lap.carTransponder;
+    
+    if (protectedLapIds.has(lap.id)) {
+      newLaps.push(lap);
+      keptCounts[transponder]++;
+    } else {
+      if (keptCounts[transponder] < 100) {
+        newLaps.push(lap);
+        keptCounts[transponder]++;
+      }
+    }
+  }
+  
+  driver.laps = newLaps;
+}
+
+/**
+ * Intelligently prune car laps to keep 100 per driver combo + preserve PRs
+ */
+export function pruneCarLaps(car) {
+  if (!car.laps) return;
+
+  const protectedLapIds = new Set();
+  
+  // Protect all laps in car.prs
+  if (car.prs) {
+    car.prs.forEach(pr => protectedLapIds.add(pr.id));
+  }
+  
+  // Group laps by driverId to find the best lap per driver
+  const lapsByDriver = {};
+  car.laps.forEach(lap => {
+    const dId = lap.driverId || 'unknown';
+    if (!lapsByDriver[dId]) {
+      lapsByDriver[dId] = [];
+    }
+    lapsByDriver[dId].push(lap);
+  });
+  
+  // Protect the best lap for each driver
+  for (const dId in lapsByDriver) {
+    const driverLaps = lapsByDriver[dId];
+    if (driverLaps.length > 0) {
+      const bestLap = driverLaps.reduce((best, current) => current.lapTime < best.lapTime ? current : best, driverLaps[0]);
+      protectedLapIds.add(bestLap.id);
+    }
+  }
+  
+  const keptCounts = {};
+  for (const dId in lapsByDriver) {
+    keptCounts[dId] = 0;
+  }
+  
+  const newLaps = [];
+  for (let i = 0; i < car.laps.length; i++) {
+    const lap = car.laps[i];
+    const dId = lap.driverId || 'unknown';
+    
+    if (protectedLapIds.has(lap.id)) {
+      newLaps.push(lap);
+      keptCounts[dId]++;
+    } else {
+      if (keptCounts[dId] < 100) {
+        newLaps.push(lap);
+        keptCounts[dId]++;
+      }
+    }
+  }
+  
+  car.laps = newLaps;
 }

@@ -159,5 +159,94 @@ describe('Database Module', () => {
       expect(d2.laps.length).toBe(1);
       expect(d2.laps[0].lapTime).toBe(10.5);
     });
+    it('should intelligently prune driver laps (keep 100 per car and protect PRs)', () => {
+      const driver = {
+        id: 'd1',
+        laps: [],
+        prs: []
+      };
+
+      // Add 105 laps for Car A (transponder 'A')
+      for (let i = 0; i < 105; i++) {
+        driver.laps.unshift({
+          id: `lapA_${i}`,
+          carTransponder: 'A',
+          lapTime: 10 + i // oldest is fastest (lapA_0, 10.0s), will be at the end of array
+        });
+      }
+      
+      // Make the very first lap (lapA_0) the all-time PR
+      driver.prs = [driver.laps.find(l => l.id === 'lapA_0')];
+
+      // Add 5 laps for Car B (transponder 'B')
+      for (let i = 0; i < 5; i++) {
+        driver.laps.unshift({
+          id: `lapB_${i}`,
+          carTransponder: 'B',
+          lapTime: 12 + i
+        });
+      }
+      
+      // Also make lapB_0 a PR
+      driver.prs.push(driver.laps.find(l => l.id === 'lapB_0'));
+
+      db.pruneDriverLaps(driver);
+
+      // Car B should have exactly 5 laps (none pruned)
+      const lapsB = driver.laps.filter(l => l.carTransponder === 'B');
+      expect(lapsB.length).toBe(5);
+
+      // Car A should have exactly 101 laps (100 recent + 1 protected PR if it was out of the 100 window)
+      // Since lapA_0 is protected but is the oldest, it will be kept. 
+      // The newest 100 laps are lapA_5 through lapA_104.
+      const lapsA = driver.laps.filter(l => l.carTransponder === 'A');
+      expect(lapsA.length).toBe(101);
+      
+      // Verify lapA_0 is still there
+      expect(lapsA.find(l => l.id === 'lapA_0')).toBeDefined();
+      
+      // Verify lapA_4 was dropped
+      expect(lapsA.find(l => l.id === 'lapA_4')).toBeUndefined();
+    });
+
+    it('should intelligently prune car laps (keep 100 per driver and protect PRs)', () => {
+      const car = {
+        transponder: 'C1',
+        laps: [],
+        prs: []
+      };
+
+      // Add 105 laps for Driver A
+      for (let i = 0; i < 105; i++) {
+        car.laps.unshift({
+          id: `lapDA_${i}`,
+          driverId: 'DA',
+          lapTime: 10 + i
+        });
+      }
+      
+      // Add 5 laps for Driver B
+      for (let i = 0; i < 5; i++) {
+        car.laps.unshift({
+          id: `lapDB_${i}`,
+          driverId: 'DB',
+          lapTime: 12 + i
+        });
+      }
+      
+      // Car PRs
+      car.prs = [car.laps.find(l => l.id === 'lapDA_0'), car.laps.find(l => l.id === 'lapDB_0')];
+
+      db.pruneCarLaps(car);
+
+      const lapsDB = car.laps.filter(l => l.driverId === 'DB');
+      expect(lapsDB.length).toBe(5);
+
+      const lapsDA = car.laps.filter(l => l.driverId === 'DA');
+      expect(lapsDA.length).toBe(101);
+      
+      expect(lapsDA.find(l => l.id === 'lapDA_0')).toBeDefined();
+      expect(lapsDA.find(l => l.id === 'lapDA_4')).toBeUndefined();
+    });
   });
 });
