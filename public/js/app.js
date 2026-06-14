@@ -1836,5 +1836,5 @@ window.addEventListener('speech-started', (e) => {
         speechOverlay.innerHTML = '';
       }
     }, 500); // Wait for transition to complete before clearing
-  }, 5000); // Hide after 5 seconds of no speech
+  }, 20000); // Hide after 20 seconds of no speech
 });
