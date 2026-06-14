@@ -9,6 +9,8 @@ This document captures the requirements, system architecture, and technical spec
 ### 1.1 Goal
 Create a modern, feature-rich, and visually stunning timing system inspired by **Next Level Timing**. The software will run entirely client-side, making it easy to host as a static page on GitHub Pages, while maintaining local-first storage and high reliability.
 
+**Primary Use Case**: Lappr's initial focus is the "home practice" environment. In these casual settings, cars (and their embedded transponders) are frequently shared across multiple drivers. Tracking long-term statistics and personal records across these specific Driver + Car combinations is a top priority. The application prioritizes fluidly remapping drivers to cars on the fly.
+
 ### 1.2 System Architecture
 ```mermaid
 graph TD
@@ -79,6 +81,7 @@ To support all EasyLap hardware variants natively in the browser:
 - **Practice Mode**:
   - Quick-start with zero configuration.
   - Automatically records laps for any detected transponder ID.
+  - Makes it easy to remap drivers and cars live, during a practice session, allowing fluid car-sharing.
   - Keeps track of: Session time, total laps, last lap, personal best (PB) lap, average lap, consistency percentage, and 3-consecutive-fastest laps.
   - Reset and export functions.
 - **Race / Qualifying Mode**:
