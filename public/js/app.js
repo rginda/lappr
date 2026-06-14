@@ -743,39 +743,9 @@ function handleSettingsReset(category) {
 
   activeSettings = saveSettings(activeSettings);
 
-  // Re-populate the inputs in the UI
-  minLapTime.value = activeSettings.minLapTime;
-  maxLapTime.value = activeSettings.maxLapTime;
-
-  speechToggle.checked = activeSettings.speechEnabled;
-  speechVolume.value = activeSettings.speechVolume;
-  if (speechVolumeSlider) speechVolumeSlider.value = activeSettings.speechVolume;
-
-  if (hardwareType) hardwareType.value = activeSettings.hardwareType;
-  if (autoconnect) autoconnect.checked = activeSettings.connectAtStartup;
-
-  if (modalSpeechVoice) modalSpeechVoice.value = activeSettings.speechVoice;
-  if (modalSpeechPitch) modalSpeechPitch.value = activeSettings.speechPitch;
-  if (modalSpeechPitchSlider) modalSpeechPitchSlider.value = activeSettings.speechPitch;
-  if (modalSpeechRate) modalSpeechRate.value = activeSettings.speechRate;
-  if (modalSpeechRateSlider) modalSpeechRateSlider.value = activeSettings.speechRate;
-
-  const streakMinLaps = document.getElementById('setting-streak-min-laps');
-  const streakVariance = document.getElementById('setting-streak-variance');
-  const streakMustBeFast = document.getElementById('setting-streak-fast-only');
-  
-  if (streakMinLaps) streakMinLaps.value = activeSettings.streak.minLaps;
-  if (streakVariance) streakVariance.value = activeSettings.streak.varianceThreshold;
-  if (streakMustBeFast) streakMustBeFast.checked = activeSettings.streak.mustBeFast;
-
-  // Sync speech engine with the reset settings
-  configureSpeech({
-    enabled: activeSettings.speechEnabled,
-    volume: activeSettings.speechVolume,
-    voiceName: activeSettings.speechVoice,
-    pitch: activeSettings.speechPitch,
-    rate: activeSettings.speechRate
-  });
+  // Redraw the entire settings UI
+  loadSettingsUI();
+  populateSettingsView();
 }
 
 /**
