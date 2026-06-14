@@ -122,6 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event listeners
   bindEvents();
 
+  // Speech Interaction Banner Logic
+  const banner = document.getElementById('speech-interaction-banner');
+  if (banner) {
+    const dismissBanner = () => {
+      banner.style.display = 'none';
+      document.removeEventListener('click', dismissBanner);
+      document.removeEventListener('keydown', dismissBanner);
+      document.removeEventListener('touchstart', dismissBanner);
+    };
+    document.addEventListener('click', dismissBanner);
+    document.addEventListener('keydown', dismissBanner);
+    document.addEventListener('touchstart', dismissBanner);
+  }
+
   // Handle hardware auto-connect
   if (activeSettings.connectAtStartup) {
     const recovery = recoverSessionState();
