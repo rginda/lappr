@@ -771,6 +771,17 @@ function onLineReceived(line) {
 async function handleSessionStartToggle(e) {
   if (currentSessionStatus === 'active') {
     import('./race.js').then((module) => module.pauseSession());
+  } else if (currentSessionStatus === 'finished') {
+    const config = {
+      mode: 'practice',
+      limitType: 'time',
+      limitValue: 0,
+      minLapTime: parseFloat(minLapTime.value) || 3.0,
+      maxLapTime: parseFloat(maxLapTime.value) || 25.0
+    };
+    const module = await import('./race.js');
+    module.initSession(config, renderLeaderboard, updateTimerDisplay);
+    module.startSession();
   } else {
     if (currentSessionStatus !== 'paused' && !connectionBadge.classList.contains('connected')) {
       await handleConnectClick(e);
