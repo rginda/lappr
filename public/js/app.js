@@ -29,7 +29,6 @@ import {
   stopSession,
   clearSession,
   processCrossing,
-  setUnregisteredAlertCallback,
   assignUnregisteredRacer,
   refreshActiveRacers
 } from './race.js';
@@ -544,9 +543,6 @@ function bindEvents() {
       });
     }
   });
-
-  // Unregistered transponder callback hooks
-  setUnregisteredAlertCallback(displayUnregisteredNotification);
 
   // Settings Events
   const handleSettingsUpdate = () => {
@@ -1154,36 +1150,7 @@ function renderCarList() {
   });
 }
 
-/**
- * Float notifications for unregistered transponder tags.
- */
-function displayUnregisteredNotification(transponderId) {
-  const alertCard = document.createElement('div');
-  alertCard.className = 'notification';
-  alertCard.innerHTML = `
-    <div>
-      <div style="font-weight:bold; font-size:0.9rem;">New Transponder Detected</div>
-      <div style="font-size:0.8rem; font-family:monospace; color:var(--accent-secondary);">${transponderId}</div>
-    </div>
-    <button class="btn btn-primary assign-btn" style="padding: 0.4rem 0.8rem; font-size:0.8rem;">
-      Assign
-    </button>
-  `;
 
-  // Bind assign click
-  alertCard.querySelector('.assign-btn').addEventListener('click', () => {
-    carTransponderInput.value = transponderId;
-    carNameInput.focus();
-    alertCard.remove();
-  });
-
-  // Autoclose notification after 15 seconds
-  setTimeout(() => {
-    alertCard.remove();
-  }, 15000);
-
-  notificationsContainer.appendChild(alertCard);
-}
 
 /**
  * Render Driver Details Panel (Stats, Laps, PRs)

@@ -112,29 +112,45 @@ bus.on('lapRejected', ({ reason, transponder, time }) => {
   console.warn(`[Lap Rejected] ${transponder} due to ${reason} (${time})`);
 });
 
-let unregisteredQueue = [];
-let unregisteredAlertCallback = null;
-export function setUnregisteredAlertCallback(cb) {
-  unregisteredAlertCallback = cb;
-}
+import { saveCar } from './db/idb_service.js';
 
-bus.on('unregisteredTransponder', ({ transponder, ticks }) => {
+bus.on('unregisteredTransponder', async (transponder) => {
+  if (typeof transponder === 'object' && transponder !== null) {
+    transponder = transponder.transponder || transponder.id;
+  }
+  if (!transponder) return;
+  
   const cars = getCars();
   const knownCar = cars.find(c => c.transponder === transponder);
   
   if (knownCar) {
-    // Known car's first lap in this session - register it and re-process!
+    // Known car but wasn't explicitly started with the session
     raceEngine.registerCars([knownCar]);
-    raceEngine.processCrossing(transponder, ticks);
-  } else {
-    // Truly unregistered
-    if (unregisteredQueue.some(u => u.transponder === transponder)) return;
-    unregisteredQueue.push({ transponder, timestamp: Date.now() });
-
-    if (unregisteredAlertCallback) {
-      unregisteredAlertCallback(transponder);
+    const state = sessionStore.getState();
+    if (state.racers[transponder]) {
+      state.racers[transponder].carName = knownCar.name;
+      bus.emit('leaderboardUpdated', state);
     }
-    speak(`Unregistered transponder detected. Check alert dialog.`);
+  } else {
+    // Truly unregistered, auto-create a new car record
+    const newCar = {
+      id: crypto.randomUUID(),
+      transponder: transponder,
+      name: `Car ${transponder}`,
+      color: '#ffffff'
+    };
+    
+    // Save to DB and cache
+    await saveCar(newCar);
+    
+    // Register it
+    raceEngine.registerCars([newCar]);
+
+    const state = sessionStore.getState();
+    if (state.racers[transponder]) {
+      state.racers[transponder].carName = newCar.name;
+      bus.emit('leaderboardUpdated', state);
+    }
   }
 });
 
