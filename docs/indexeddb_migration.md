@@ -65,7 +65,8 @@ The master table for all lap data. Replaces the duplicated arrays previously sto
   - `lapTime`: `Number` (Float, seconds)
 
 ### 5. `personalrecords`
-Maintains a list of top N milestone laps (PRs) for drivers and cars to decouple milestone status from the lap record itself.
+Maintains a list of top N milestone laps (PRs) for drivers and cars to decouple milestone status from the lap record itself.  Retaining multiple PRs preserves the progression of PRs over time, and ensures that if an invalidly *fast* lap is accidentally recorded, it can be easily found and deleted and the older PR restored.
+
 - **Key Path**: `id`
 - **Indexes**:
   - `entityId`: To quickly query PRs for a specific driver or car
