@@ -114,4 +114,44 @@ describe('RaceEngine', () => {
     expect(racer.laps.length).toBe(1);
     expect(racer.laps[0].lapTime).toBeCloseTo(8.216);
   });
+
+  it('should handle pause and resume correctly', () => {
+    raceEngine.initSession({});
+    raceEngine.startSession();
+
+    // Mock performance.now for deterministic testing?
+    // We can just verify state transitions for now.
+    raceEngine.pauseSession();
+    expect(sessionStore.getState().status).toBe('paused');
+
+    raceEngine.startSession();
+    expect(sessionStore.getState().status).toBe('active');
+  });
+
+  it('should stop session when limit is reached', () => {
+    const stopSpy = vi.spyOn(raceEngine, 'stopSession');
+    
+    raceEngine.initSession({ limitType: 'laps', limitValue: 2, minLapTime: 1.0 });
+    raceEngine.startSession();
+
+    // Out lap
+    raceEngine.processCrossing('LMT', 1000);
+    // Lap 1
+    raceEngine.processCrossing('LMT', 3000);
+    // Lap 2 (Should trigger stop)
+    raceEngine.processCrossing('LMT', 5000);
+
+    expect(stopSpy).toHaveBeenCalled();
+    expect(sessionStore.getState().status).toBe('finished');
+  });
+
+  it('should ignore crossings when session is finished', () => {
+    raceEngine.initSession({});
+    raceEngine.startSession();
+    raceEngine.stopSession();
+
+    raceEngine.processCrossing('XYZ', 1000);
+    const racer = sessionStore.getRacer('XYZ');
+    expect(racer).toBeUndefined(); // Should not register racer
+  });
 });
