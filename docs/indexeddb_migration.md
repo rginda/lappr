@@ -101,7 +101,7 @@ To prevent the database from growing indefinitely with standard/slow laps, we wi
 When a lap qualifies as a new PR, a record is added to the `personalrecords` table. If the list of PRs for that entity/type exceeds the limit (e.g., top 15), the slowest PR is culled from the `personalrecords` table. (The underlying lap record remains in the `laps` table until caught by the global cleanup.)
 
 **Global Lap Cleanup Rules**:
-1. **Preserve Milestones**: Any lap whose `id` exists in the `personalrecords` table is permanently retained. (Because we track invalid/slow laps in the PR list intentionally so users can easily find and delete them, they are protected here).
+1. **Preserve Milestones**: Any lap whose `id` exists in the `personalrecords` table is permanently retained. (This preserves the progression of PRs over time, and ensures that if an invalidly *fast* lap is accidentally recorded and later deleted, the true historical PRs are still available to fall back on).
 2. **Preserve Recent History**: We retain the last `N` laps (e.g., 500) globally or per-driver/car.
 3. **Preserve Saved Sessions**: If a session is marked as "saved" or "locked" by the user, its associated laps are retained.
 
