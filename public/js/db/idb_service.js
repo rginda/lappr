@@ -319,6 +319,10 @@ export async function getRecentLapsForCar(carId, limit = 100) {
 export async function pruneDatabase(maxHistoryPerEntity = 500) {
   const db = await initDB();
 
+  // Get finished sessions to clean up their unknown-driver laps
+  const allSessionsData = await db.getAll('sessions');
+  const finishedSessionIds = new Set(allSessionsData.filter(s => s.status === 'finished').map(s => s.id));
+
   let globalLapCount = 0;
   const GLOBAL_LAP_LIMIT = maxHistoryPerEntity * 10; // e.g. 5000 laps total
 
@@ -357,26 +361,34 @@ export async function pruneDatabase(maxHistoryPerEntity = 500) {
 
 
   while (lapCursor) {
-    globalLapCount++;
-    if (globalLapCount > GLOBAL_LAP_LIMIT) {
-      if (!protectedLapIds.has(lapCursor.value.id)) {
+    const lap = lapCursor.value;
+    
+    // Delete laps from inactive sessions with unknown drivers
+    if (!lap.driverId && finishedSessionIds.has(lap.sessionId)) {
+      if (!protectedLapIds.has(lap.id)) {
         await lapCursor.delete();
+      }
+    } else {
+      globalLapCount++;
+      if (globalLapCount > GLOBAL_LAP_LIMIT) {
+        if (!protectedLapIds.has(lap.id)) {
+          await lapCursor.delete();
+        }
       }
     }
     lapCursor = await lapCursor.continue();
   }
   await txLaps.done;
 
-  // 3. Clean up empty ghost sessions
-  const txSessions = db.transaction('sessions', 'readwrite');
-  let sessionCursor = await txSessions.store.openCursor();
+  // 3. Clean up any sessions without laps
+  const txSessions = db.transaction(['sessions', 'laps'], 'readwrite');
+  let sessionCursor = await txSessions.objectStore('sessions').openCursor();
   while (sessionCursor) {
     const session = sessionCursor.value;
-    if (session.status === 'finished') {
-      const sessionLaps = await db.getAllFromIndex('laps', 'sessionId', session.id);
-      if (sessionLaps.length === 0) {
-        await sessionCursor.delete();
-      }
+    const sessionLaps = await txSessions.objectStore('laps').index('sessionId').getAll(session.id);
+    
+    if (sessionLaps.length === 0) {
+      await sessionCursor.delete();
     }
     sessionCursor = await sessionCursor.continue();
   }
