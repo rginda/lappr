@@ -116,3 +116,43 @@ Instead of relying on the user to properly "finish" a session (which is easily b
 
 **Session Cleanup**:
 After lap pruning is complete, the routine queries the `sessions` table. Any historical session (e.g., `status === 'finished'`) that no longer has any corresponding laps remaining in the `laps` table is deleted to prevent the database from filling up with empty "ghost" sessions.
+
+---
+
+## 5. Architectural Separation & Testing Strategy
+
+Currently, Lappr tightly couples UI logic (DOM manipulation), business logic (lap timing, stat calculation), and database operations. To support the asynchronous nature of IndexedDB and achieve >90% test coverage, we will refactor the application into a cleanly separated, event-driven architecture.
+
+### Architectural Layers
+
+**A. The Data Layer (`src/db/`)**
+A pure, asynchronous wrapper around IndexedDB (likely utilizing an existing lightweight promise wrapper like `idb`). 
+- **Responsibilities**: Initializing the schema, executing CRUD operations, and running the background pruning tasks.
+- **Rules**: Zero knowledge of the race engine or the UI.
+
+**B. The Core Engine (`src/core/`)**
+Pure JavaScript state machines and calculators that manage the race logic.
+- **Responsibilities**: 
+  - `RaceEngine`: Handles start/stop logic, transponder hits, and session timer ticks.
+  - `StatCalculator`: Calculates streaks, PRs, consistency percentages.
+  - `SessionStore`: Holds the real-time active session object in memory.
+- **Rules**: **NO DOM MANIPULATION**. The engine communicates outward strictly by emitting events (e.g., a simple custom PubSub or `CustomEvent` bus) such as `onLapRecorded`, `onLeaderboardChanged`, and `onSessionStatusChanged`.
+
+**C. The UI Controller (`src/ui/`)**
+The presentation layer that connects the HTML DOM to the Core Engine.
+- **Responsibilities**: 
+  - Listens to DOM events (button clicks, form submissions) and calls methods on the Core Engine (e.g., `RaceEngine.start()`).
+  - Subscribes to Core Engine events (e.g., `onLeaderboardChanged`) and updates the HTML.
+- **Rules**: No business logic or database queries. It strictly renders data provided by the Core Engine.
+
+### Testing Strategy
+
+Because the Core Engine will no longer touch the DOM, it becomes trivially easy to test using standard Node.js test runners (like Jest or Vitest).
+
+- **Unit Testing (The 90% Coverage Push)**:
+  - **`RaceEngine` Tests**: We can instantiate a `RaceEngine` in memory, programmatically feed it mock transponder hits at specific intervals (`engine.processCrossing('CDFD4C', timestamp)`), and assert that the resulting `SessionStore` state contains the correct lap times, gap times, and leaderboard sorting.
+  - **`StatCalculator` Tests**: We can feed predefined arrays of laps into the stat functions and assert that PRs, consistency strings, and longest streaks are calculated perfectly.
+  - **`idb_service` Tests**: We can use a fake IndexedDB implementation (like `fake-indexeddb` for Node) to test our complex pruning queries and relational foreign-key logic without needing a real browser.
+
+- **UI Testing**:
+  - UI testing becomes secondary and much simpler. Since the business logic is proven, we only need a few integration tests (e.g., Cypress or Playwright) to ensure that clicking "Start Race" successfully triggers the `RaceEngine` and updates the timer text.
