@@ -94,6 +94,8 @@ Because IndexedDB is asynchronous, data will be loaded on-demand rather than com
   - Open a cursor on the `laps` store using the `carId` index.
   - Fetch the most recent laps and milestones identically to drivers.
 
+*Note on Session Bests: When a page reloads and recovers an active session (or when viewing a historical session), we simply query the `laps` table using the `sessionId` index. Because we pull all laps for that session into memory, the race engine can instantly reconstitute the "Overall Session Best" and "Driver Session Best" laps on the fly. Therefore, we do not need to pollute the `personalrecords` table with transient session milestones.*
+
 ---
 
 ## 4. Pruning Strategy
@@ -104,8 +106,8 @@ To prevent the database from growing indefinitely with standard/slow laps, we wi
 When a lap qualifies as a new PR, a record is added to the `personalrecords` table. If the list of PRs for that entity/type exceeds the limit (e.g., top 15), the slowest PR is culled from the `personalrecords` table. (The underlying lap record remains in the `laps` table until caught by the global cleanup.)
 
 **Global Lap Cleanup Rules**:
-1. **Preserve Milestones**: Any lap whose `id` exists in the `personalrecords` table is permanently retained. (This preserves the progression of PRs over time, and ensures that if an invalidly *fast* lap is accidentally recorded and later deleted, the true historical PRs are still available to fall back on).
-2. **Preserve Recent History**: We retain the last `N` laps (e.g., 500) globally or per-driver/car.
+1. **Preserve Milestones**: Any lap whose `id` exists in the `personalrecords` table is excluded from the normal lap pruning process.
+2. **Preserve Recent History**: We retain the last `N` laps (e.g., 500) per-driver/car.
 3. **Preserve Saved Sessions**: If a session is marked as "saved" or "locked" by the user, its associated laps are retained.
 
 **Execution**:
