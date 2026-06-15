@@ -150,23 +150,28 @@ export async function saveCar(car) {
 }
 
 export async function deleteCar(id) {
-  memCache.cars = memCache.cars.filter(c => c.id !== id);
   const db = await initDB();
   
   const tx = db.transaction(['cars', 'laps'], 'readwrite');
   
-  // 1. Delete the car
-  await tx.objectStore('cars').delete(id);
+  // 1. Fetch the car to get its transponder
+  const car = await tx.objectStore('cars').get(id);
   
-  // 2. Cascade delete all associated laps
-  const lapIndex = tx.objectStore('laps').index('carId');
-  let cursor = await lapIndex.openCursor(id);
-  while (cursor) {
-    await cursor.delete();
-    cursor = await cursor.continue();
+  if (car && car.transponder) {
+    // 2. Cascade delete all associated laps using transponder (which is used as carId in laps)
+    const lapIndex = tx.objectStore('laps').index('carId');
+    let cursor = await lapIndex.openCursor(car.transponder);
+    while (cursor) {
+      await cursor.delete();
+      cursor = await cursor.continue();
+    }
   }
-  
+
+  // 3. Delete the car
+  await tx.objectStore('cars').delete(id);
   await tx.done;
+
+  memCache.cars = memCache.cars.filter(c => c.id !== id);
 }
 
 // ==========================================
