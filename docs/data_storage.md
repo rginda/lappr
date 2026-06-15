@@ -51,7 +51,7 @@ Cars represent the physical hardware (bound to a unique transponder ID). Car pro
 }
 ```
 
-*Note: Whenever a lap is completed during a session, it is double-logged via `logLap()` into **both** the active Driver's profile and the active Car's profile. This allows independent statistical analysis (e.g., "What is the best lap ever run by this car?" vs "What is my personal best lap regardless of the car?").*
+*Note: Whenever a lap is completed during a session, it is double-logged via `logLap()` into **both** the active Driver's profile and the active Car's profile. These are **independent copies**, not references to a single object. The driver's copy tracks which car was used, while the car's copy tracks who was driving. Furthermore, because all data is serialized to JSON for LocalStorage, any object references would be lost anyway.*
 
 ### Historical Sessions (`apex_timing_sessions`)
 When a session is formally finished and saved, a snapshot of the leaderboard and session metadata is saved to the sessions database.
