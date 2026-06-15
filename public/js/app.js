@@ -131,9 +131,22 @@ const initApp = async () => {
       startSession();
     }
   } else {
-    // Show setup modal if no session recovered
-    const setupModal = new bootstrap.Modal(document.getElementById('sessionSetupModal'));
-    setupModal.show();
+    // Initialize a new default practice session
+    const config = {
+      mode: 'practice',
+      limitType: 'time',
+      limitValue: 0,
+      minLapTime: parseFloat(minLapTime.value) || 3.0,
+      maxLapTime: parseFloat(maxLapTime.value) || 25.0
+    };
+
+    initSession(config, renderLeaderboard, updateTimerDisplay);
+
+    sessionTitle.textContent = config.mode.toUpperCase() + ' SESSION';
+    sessionSubtitle.textContent = 'READY TO RUN';
+    currentSessionStatus = 'ready';
+    btnSessionStart.textContent = 'Start Session';
+    btnSessionStart.className = 'btn btn-success';
   }
 
   // Event listeners
