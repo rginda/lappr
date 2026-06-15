@@ -112,8 +112,6 @@ bus.on('lapRejected', ({ reason, transponder, time }) => {
   console.warn(`[Lap Rejected] ${transponder} due to ${reason} (${time})`);
 });
 
-import { saveCar } from './db/idb_service.js';
-
 bus.on('unregisteredTransponder', async (transponder) => {
   if (typeof transponder === 'object' && transponder !== null) {
     transponder = transponder.transponder || transponder.id;
