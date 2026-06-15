@@ -111,7 +111,7 @@ When an assignment occurs:
 To protect against accidental page reloads or browser crashes during an active race, Lappr uses continuous asynchronous persistence rather than relying on brittle `beforeunload` events.
 
 1. **Continuous Persistence**: As a race runs, the Core Engine emits events for every new lap and session status change (e.g. paused, resumed). The Data Layer listens to these events and instantly saves the individual `laps` and the updated `session` metadata directly to IndexedDB in the background.
-2. **Recovery Phase**: Upon reloading, `app.js` calls `recoverSessionState()`. It queries IndexedDB for any session where `status === 'active'` or `'paused'`. If an interrupted session is found, it loads all of the laps for that session, recalculates the elapsed time, reconstitutes the live memory `racers` map, and flags the session as `paused`. The user can then hit "Resume" to seamlessly continue the race exactly where they left off with zero data loss.
+2. **Recovery Phase**: Upon reloading, `app.js` calls `recoverSessionState()`. It queries IndexedDB for any session where `status === 'active'` or `'paused'`. If an interrupted session is found, it loads all of the laps for that session, recalculates the elapsed time, reconstitutes the live memory `racers` map, and restores the session's original status. The race seamlessly continues exactly where it left off with zero data loss.
 
 ---
 
