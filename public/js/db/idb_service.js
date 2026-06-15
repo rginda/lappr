@@ -46,12 +46,6 @@ export async function initDB() {
           lapStore.createIndex('lapTime', 'lapTime', { unique: false });
           lapStore.createIndex('timestamp', 'timestamp', { unique: false });
         }
-        if (!db.objectStoreNames.contains('personalrecords')) {
-          const prStore = db.createObjectStore('personalrecords', { keyPath: 'id' });
-          prStore.createIndex('entityId', 'entityId', { unique: false });
-          prStore.createIndex('lapId', 'lapId', { unique: false });
-          prStore.createIndex('prType', 'prType', { unique: false });
-        }
       }
     }
   });
@@ -62,6 +56,14 @@ export async function initDB() {
   memCache.drivers = await db.getAll('drivers');
   memCache.cars = await db.getAll('cars');
   
+  // Cleanup Invalid Sessions
+  const allSessions = await db.getAll('sessions');
+  for (const session of allSessions) {
+    if (session.status === 'ready' || session.startTime === null) {
+      await db.delete('sessions', session.id);
+    }
+  }
+
   const tx = db.transaction('sessions', 'readonly');
   const index = tx.store.index('status');
   const active = await index.getAll('active');
@@ -153,9 +155,21 @@ export async function getActiveSessions() {
 }
 
 export async function saveSession(session) {
+  if (session.status === 'ready') return session; // Do not persist unstarted sessions
+  
+  const sessionData = {
+    id: session.id,
+    mode: session.mode,
+    status: session.status,
+    startTime: session.startTime,
+    endTime: session.endTime,
+    elapsedTime: session.elapsedTime,
+    assignments: session.assignments
+  };
+
   const db = await initDB();
-  await db.put('sessions', session);
-  return session;
+  await db.put('sessions', sessionData);
+  return sessionData;
 }
 
 export async function deleteSession(id) {
@@ -176,6 +190,27 @@ export async function saveLap(lap) {
 export async function getLap(id) {
   const db = await initDB();
   return db.get('laps', id);
+}
+
+export async function getLapsBySessionId(sessionId) {
+  const db = await initDB();
+  const tx = db.transaction('laps', 'readonly');
+  const index = tx.store.index('sessionId');
+  return index.getAll(sessionId);
+}
+
+export async function getLapsByDriverId(driverId) {
+  const db = await initDB();
+  const tx = db.transaction('laps', 'readonly');
+  const index = tx.store.index('driverId');
+  return index.getAll(driverId);
+}
+
+export async function getLapsByCarId(carId) {
+  const db = await initDB();
+  const tx = db.transaction('laps', 'readonly');
+  const index = tx.store.index('carId');
+  return index.getAll(carId);
 }
 
 export async function deleteLap(id) {
@@ -237,21 +272,7 @@ export async function getRecentLapsForCar(carId, limit = 100) {
 // Personal Records
 // ==========================================
 
-export async function savePersonalRecord(pr) {
-  const db = await initDB();
-  await db.put('personalrecords', pr);
-  return pr;
-}
 
-export async function getPersonalRecordsForEntity(entityId) {
-  const db = await initDB();
-  return db.getAllFromIndex('personalrecords', 'entityId', entityId);
-}
-
-export async function deletePersonalRecord(id) {
-  const db = await initDB();
-  await db.delete('personalrecords', id);
-}
 
 // ==========================================
 // Pruning Worker
@@ -259,26 +280,48 @@ export async function deletePersonalRecord(id) {
 
 /**
  * Background routine to prune old laps while protecting personal records.
- * Deletes any laps that are older than the Nth recent lap for their driver/car,
- * unless their ID exists in the personalrecords table.
+ * Deletes any laps that are older than the Nth recent lap for their driver/car.
  * Also deletes empty historical sessions.
  */
 export async function pruneDatabase(maxHistoryPerEntity = 500) {
   const db = await initDB();
 
-  // 1. Load all protected PR lap IDs into a Set for O(1) lookup
-  const allPRs = await db.getAll('personalrecords');
-  const protectedLapIds = new Set(allPRs.map((pr) => pr.lapId));
+  let globalLapCount = 0;
+  const GLOBAL_LAP_LIMIT = maxHistoryPerEntity * 10; // e.g. 5000 laps total
 
-  // 2. Identify all laps that exceed the maxHistoryPerEntity threshold
+  // Get Top 10 fastest laps for EACH driver and EACH car to protect them
+  const allLaps = await db.getAll('laps');
+  const protectedLapIds = new Set();
+  
+  const lapsByDriver = {};
+  const lapsByCar = {};
+  
+  allLaps.forEach(lap => {
+    if (lap.driverId) {
+      if (!lapsByDriver[lap.driverId]) lapsByDriver[lap.driverId] = [];
+      lapsByDriver[lap.driverId].push(lap);
+    }
+    if (lap.carId) {
+      if (!lapsByCar[lap.carId]) lapsByCar[lap.carId] = [];
+      lapsByCar[lap.carId].push(lap);
+    }
+  });
+
+  Object.values(lapsByDriver).forEach(driverLaps => {
+    driverLaps.sort((a, b) => a.lapTime - b.lapTime).slice(0, 10).forEach(l => protectedLapIds.add(l.id));
+  });
+  
+  Object.values(lapsByCar).forEach(carLaps => {
+    carLaps.sort((a, b) => a.lapTime - b.lapTime).slice(0, 10).forEach(l => protectedLapIds.add(l.id));
+  });
+
+  // 1. Identify all laps that exceed the maxHistoryPerEntity threshold
   // This is a naive global pruning for simplicity in V1: we just keep the last X laps globally
   // (A more advanced version would use cursors per driverId/carId)
   const txLaps = db.transaction('laps', 'readwrite');
   const lapsIndex = txLaps.store.index('timestamp');
   let lapCursor = await lapsIndex.openCursor(null, 'prev'); // Newest to oldest
-  
-  let globalLapCount = 0;
-  const GLOBAL_LAP_LIMIT = 5000; // E.g., keep 5000 laps max globally
+
 
   while (lapCursor) {
     globalLapCount++;

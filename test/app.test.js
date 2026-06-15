@@ -17,6 +17,7 @@ vi.mock('../public/js/db/idb_service.js', () => ({
   saveCar: vi.fn(),
   deleteDriver: vi.fn(),
   deleteCar: vi.fn(),
+  saveSession: vi.fn(),
   memCache: { drivers: [], cars: [], activeSessions: [] }
 }));
 
@@ -40,6 +41,13 @@ describe('App Controller (DOM)', () => {
     window.speechSynthesis = {
       getVoices: vi.fn(() => []),
       onvoiceschanged: null
+    };
+
+    window.bootstrap = {
+      Modal: class {
+        show() {}
+        hide() {}
+      }
     };
 
     // Setup DOM

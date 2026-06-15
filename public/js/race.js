@@ -6,7 +6,7 @@
 import { raceEngine } from './core/race_engine.js';
 import { sessionStore } from './core/session_store.js';
 import { bus } from './core/event_bus.js';
-import { getDrivers, getCars, saveCar, saveLap, saveSession, memCache } from './db/idb_service.js';
+import { getDrivers, getCars, saveCar, saveLap, saveSession, getLapsBySessionId, memCache } from './db/idb_service.js';
 import { getSettings } from './database.js';
 import { speak } from './speech.js';
 
@@ -49,20 +49,23 @@ function generateLeaderboard(state) {
 
 bus.on('leaderboardUpdated', (state) => {
   if (updateCallback) updateCallback({ state, leaderboard: generateLeaderboard(state) });
+  saveSession(state);
 });
 
-bus.on('timerUpdated', (data) => {
+bus.on('timerTick', (data) => {
   if (timerCallback) timerCallback(data);
 });
 
 bus.on('sessionStarted', (state) => {
   if (updateCallback) updateCallback({ state, leaderboard: generateLeaderboard(state) });
   speak(`${state.mode || 'practice'} session started. Good luck!`, true);
+  saveSession(state);
 });
 
 bus.on('sessionPaused', (state) => {
   if (updateCallback) updateCallback({ state, leaderboard: generateLeaderboard(state) });
   speak('Session paused.', true);
+  saveSession(state);
 });
 
 bus.on('sessionFinished', (state) => {
@@ -152,14 +155,31 @@ export function backupSessionState() {
   return sessionStore.getState();
 }
 
-export function recoverSessionState() {
+export async function recoverSessionState() {
   // Try to load from IndexedDB
   const activeSessions = memCache.activeSessions;
   if (activeSessions && activeSessions.length > 0) {
     const sessionToRecover = activeSessions[0];
     sessionStore.recover(sessionToRecover);
+
+    // Pull laps and reconstitute live memory state
+    const laps = await getLapsBySessionId(sessionToRecover.id);
+    laps.sort((a, b) => a.timestamp - b.timestamp);
+    raceEngine.reconstituteLaps(laps);
+
+    // Re-apply driver names to racers based on assignments
+    const drivers = memCache.drivers || [];
+    for (const [transponder, driverId] of Object.entries(sessionToRecover.assignments || {})) {
+      if (driverId) {
+        const driver = drivers.find(d => d.id === driverId);
+        if (driver) {
+          raceEngine.assignSessionDriver(transponder, driver.name, driver.id);
+        }
+      }
+    }
+
     if (updateCallback) {
-      updateCallback({ state: sessionStore.getState(), leaderboard: sessionToRecover.leaderboard || [] });
+      updateCallback({ state: sessionStore.getState(), leaderboard: generateLeaderboard(sessionStore.getState()) });
     }
     return sessionToRecover;
   }
@@ -206,4 +226,15 @@ export function assignUnregisteredRacer(transponder, driverId, carId) {
 export function refreshActiveRacers() {
   // Re-register cars in case settings changed
   raceEngine.registerCars(getCars());
+}
+
+export function assignSessionDriver(transponder, driverId) {
+  const drivers = getDrivers();
+  const driver = drivers.find((d) => d.id === driverId);
+  const driverName = driver ? driver.name : 'Unknown Driver';
+  raceEngine.assignSessionDriver(transponder, driverName, driverId);
+}
+
+export function removeCarFromSession(transponder) {
+  raceEngine.removeCarFromSession(transponder);
 }

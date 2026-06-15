@@ -24,8 +24,6 @@ export class RaceEngine {
     sessionStore.setState({
       mode: 'practice',
       status: 'ready',
-      limitType: config.limitType || 'time',
-      limitValue: parseFloat(config.limitValue) || 5,
       minLapTime: parseFloat(config.minLapTime) || 3.0,
       maxLapTime: parseFloat(config.maxLapTime) || 25.0
     });
@@ -40,13 +38,75 @@ export class RaceEngine {
   registerCars(cars) {
     const state = sessionStore.getState();
     cars.forEach(car => {
-      state.racers[car.transponder.toUpperCase()] = sessionStore.createRacerSessionData({
-        carName: car.name,
-        transponder: car.transponder.toUpperCase(),
-        color: car.color
-      });
+      const id = car.transponder.toUpperCase();
+      if (!state.racers[id]) {
+        state.racers[id] = sessionStore.createRacerSessionData({
+          carName: car.name,
+          transponder: id,
+          color: car.color
+        });
+      } else {
+        // Just update car metadata if they already exist
+        state.racers[id].carName = car.name;
+        state.racers[id].color = car.color;
+      }
     });
     bus.emit('leaderboardUpdated', state);
+  }
+
+  /**
+   * Rehydrate active session racers from a historical lap array
+   */
+  reconstituteLaps(laps) {
+    const state = sessionStore.getState();
+    this.overallBestLap = Infinity;
+    state.lapsLogged = laps.length;
+
+    // Group laps by transponder (carId)
+    const grouped = {};
+    laps.forEach(lap => {
+      const id = lap.carId.toUpperCase();
+      if (!grouped[id]) grouped[id] = [];
+      grouped[id].push(lap);
+    });
+
+    for (const [transponder, carLaps] of Object.entries(grouped)) {
+      let racer = state.racers[transponder];
+      if (!racer) {
+        racer = sessionStore.createRacerSessionData({ transponder });
+        state.racers[transponder] = racer;
+      }
+      
+      racer.isActive = true;
+      racer.laps = carLaps;
+      
+      // Update best lap tracking
+      carLaps.forEach(lap => {
+        if (lap.lapTime < racer.bestLap) racer.bestLap = lap.lapTime;
+        if (lap.lapTime < this.overallBestLap) this.overallBestLap = lap.lapTime;
+      });
+
+      // Recalculate stats
+      const assignedDriverId = state.assignments[transponder] || null;
+      const driverLaps = racer.laps.filter(l => l.driverId === assignedDriverId);
+      const lapTimes = driverLaps.map(l => l.lapTime);
+      
+      const stats = calculateRacerStats(lapTimes);
+      racer.averageLap = stats.averageLap;
+      racer.medianLap = stats.medianLap;
+      racer.stdDev = stats.stdDev;
+      racer.consistency = stats.consistency;
+      racer.longestStreak = stats.longestStreak;
+      racer.totalTime = stats.totalTime;
+
+      // Restore lastCrossingTime context (for clock recovery)
+      const lastLap = carLaps[carLaps.length - 1];
+      if (lastLap) {
+        // We can't perfectly recover performance.now() context, but we can set it to a placeholder.
+        // Actually, startTimer relies on elapsedTime, not lastCrossingTime.
+        racer.lastCrossingTime = null; 
+      }
+    }
   }
 
   /**
@@ -65,8 +125,12 @@ export class RaceEngine {
       state.startTime = performance.now() - state.elapsedTime;
       state.status = 'active';
       bus.emit('sessionResumed', state);
+    } else if (state.status === 'active') {
+      // If we recovered a session that was already active, we just need to restart the timer
+      // without resetting the state
+      state.startTime = performance.now() - state.elapsedTime;
     } else {
-      return; // Already active or finished
+      return; // finished
     }
 
     bus.emit('sessionStatusChanged', state);
@@ -120,13 +184,6 @@ export class RaceEngine {
       }
 
       bus.emit('timerTick', elapsedMs);
-
-      // Check Limits (Time based)
-      if (state.status === 'active' && state.limitType === 'time' && state.limitValue > 0) {
-        if (elapsedMs >= state.limitValue * 60000) {
-          this.stopSession();
-        }
-      }
     }, 50);
   }
 
@@ -240,6 +297,8 @@ export class RaceEngine {
     const stats = calculateRacerStats(lapTimes);
     
     racer.averageLap = stats.averageLap;
+    racer.medianLap = stats.medianLap;
+    racer.stdDev = stats.stdDev;
     racer.consistency = stats.consistency;
     racer.longestStreak = stats.longestStreak;
     racer.totalTime = stats.totalTime;
@@ -254,6 +313,62 @@ export class RaceEngine {
     // Fire events for UI and DB layer
     bus.emit('lapRecorded', { racer, lap: lapInfo });
     bus.emit('leaderboardUpdated', state);
+  }
+
+  /**
+   * Assigns a driver to a car for the current session.
+   * Also retroactively credits unassigned laps to the new driver.
+   */
+  assignSessionDriver(transponder, driverName, driverId) {
+    const state = sessionStore.getState();
+    const id = transponder.toUpperCase();
+
+    if (!driverId) {
+      state.assignments[id] = null;
+      if (state.racers[id]) {
+        state.racers[id].name = 'Unknown Driver';
+      }
+      bus.emit('leaderboardUpdated', state);
+      return;
+    }
+
+    // Unassign driver if they are assigned to another car
+    for (const [tId, dId] of Object.entries(state.assignments)) {
+      if (dId === driverId && tId !== id) {
+        state.assignments[tId] = null;
+        if (state.racers[tId]) {
+          state.racers[tId].name = 'Unknown Driver';
+        }
+      }
+    }
+
+    state.assignments[id] = driverId;
+
+    if (state.racers[id]) {
+      const racer = state.racers[id];
+      racer.name = driverName;
+
+      // Retroactively credit laps that have NO driver assigned yet in memory
+      racer.laps.forEach((lap) => {
+        if (!lap.driverId) {
+          lap.driverId = driverId;
+        }
+      });
+    }
+
+    bus.emit('leaderboardUpdated', state);
+  }
+
+  /**
+   * Removes a car from the session leaderboards.
+   */
+  removeCarFromSession(transponder) {
+    const state = sessionStore.getState();
+    const id = transponder.toUpperCase();
+    if (state.racers[id]) {
+      state.racers[id].isActive = false;
+      this.assignSessionDriver(id, 'Unknown Driver', null);
+    }
   }
 }
 

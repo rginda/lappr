@@ -24,8 +24,6 @@ describe('RaceEngine', () => {
 
     const state = sessionStore.getState();
     expect(state.status).toBe('ready');
-    expect(state.limitType).toBe('laps');
-    expect(state.limitValue).toBe(50);
     expect(state.minLapTime).toBe(5.0);
     expect(state.maxLapTime).toBe(30.0);
   });
@@ -128,22 +126,7 @@ describe('RaceEngine', () => {
     expect(sessionStore.getState().status).toBe('active');
   });
 
-  it('should stop session when limit is reached', () => {
-    const stopSpy = vi.spyOn(raceEngine, 'stopSession');
-    
-    raceEngine.initSession({ limitType: 'laps', limitValue: 2, minLapTime: 1.0 });
-    raceEngine.startSession();
 
-    // Out lap
-    raceEngine.processCrossing('LMT', 1000);
-    // Lap 1
-    raceEngine.processCrossing('LMT', 3000);
-    // Lap 2 (Should trigger stop)
-    raceEngine.processCrossing('LMT', 5000);
-
-    expect(stopSpy).toHaveBeenCalled();
-    expect(sessionStore.getState().status).toBe('finished');
-  });
 
   it('should ignore crossings when session is finished', () => {
     raceEngine.initSession({});

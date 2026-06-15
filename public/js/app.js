@@ -109,7 +109,7 @@ window.addEventListener('beforeunload', () => {
   backupSessionState();
 });
 
-const initApp = () => {
+const initApp = async () => {
   activeSettings = getSettings();
   loadSettingsUI();
   renderDriverList();
@@ -118,8 +118,27 @@ const initApp = () => {
   // Register service worker for PWA support
   registerServiceWorker();
 
-  // Init Session state machine
+  // Initialize UI callbacks and blank session first
   reinitSessionState();
+
+  // Attempt to recover an interrupted session (overwrites blank session if found)
+  const recovery = await recoverSessionState();
+  if (recovery) {
+    // Set UI to match recovered state
+    sessionTitle.textContent = recovery.mode.toUpperCase() + ' SESSION';
+    sessionSubtitle.textContent = recovery.status === 'active' ? 'RUNNING' : 'PAUSED';
+    currentSessionStatus = recovery.status;
+    btnSessionStart.textContent = recovery.status === 'active' ? 'Pause Session' : 'Start Session';
+    btnSessionStart.className = recovery.status === 'active' ? 'btn btn-warning' : 'btn btn-success';
+
+    if (recovery.status === 'active') {
+      startSession();
+    }
+  } else {
+    // Show setup modal if no session recovered
+    const setupModal = new bootstrap.Modal(document.getElementById('sessionSetupModal'));
+    setupModal.show();
+  }
 
   // Event listeners
   bindEvents();
@@ -151,10 +170,8 @@ const initApp = () => {
 
   // Handle hardware auto-connect
   if (activeSettings.connectAtStartup) {
-    const recovery = recoverSessionState();
-
     const resumeIfNeeded = () => {
-      if (recovery && recovery.wasRunning) {
+      if (recovery && recovery.status === 'active') {
         startSession();
       }
     };
@@ -166,7 +183,7 @@ const initApp = () => {
       autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
         if (!connected) {
           console.warn('Auto-connect HID failed. User gesture may be required first.');
-          if (recovery && recovery.wasRunning) {
+          if (recovery && recovery.status === 'active') {
             stopSession();
             alert('Hardware auto-connect failed. The recovered session has been paused. Please connect hardware and resume.');
           }
@@ -649,8 +666,6 @@ function populateSettingsView() {
 function reinitSessionState() {
   const config = {
     mode: 'practice',
-    limitType: 'time',
-    limitValue: 0,
     minLapTime: parseFloat(minLapTime.value) || 3.0,
     maxLapTime: parseFloat(maxLapTime.value) || 25.0
   };
@@ -1144,8 +1159,11 @@ function displayUnregisteredNotification(transponderId) {
 /**
  * Render Driver Details Panel (Stats, Laps, PRs)
  */
-function renderDriverDetails(driverId) {
+import { getLapsByDriverId, getLapsByCarId, deleteLap } from './db/idb_service.js';
+
+async function renderDriverDetails(driverId) {
   const drivers = getDrivers();
+  const cars = getCars();
   const driver = drivers.find((d) => d.id === driverId);
   if (!driver) return;
   if (selectedDriverId !== driver.id) {
@@ -1161,7 +1179,9 @@ function renderDriverDetails(driverId) {
   const driverPerCarBody = document.getElementById('driver-per-car-body');
   driverPerCarBody.innerHTML = '';
 
-  const laps = driver.laps || [];
+  const laps = await getLapsByDriverId(driver.id);
+  laps.sort((a, b) => a.timestamp - b.timestamp);
+  
   if (laps.length === 0) {
     driverPerCarBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No laps logged</td></tr>`;
   } else {
@@ -1184,15 +1204,18 @@ function renderDriverDetails(driverId) {
     let overallPr = Infinity;
 
     laps.forEach((lap) => {
-      if (!carStats[lap.carTransponder]) {
-        carStats[lap.carTransponder] = {
-          carTransponder: lap.carTransponder,
-          carName: lap.car,
+      const car = cars.find(c => c.transponder === lap.carId);
+      const carName = car ? car.name : 'Unknown Car';
+      
+      if (!carStats[lap.carId]) {
+        carStats[lap.carId] = {
+          carTransponder: lap.carId,
+          carName: carName,
           lapTimes: [],
           pr: lap.lapTime
         };
       }
-      const stat = carStats[lap.carTransponder];
+      const stat = carStats[lap.carId];
       stat.lapTimes.push(lap.lapTime);
       if (lap.lapTime < stat.pr) stat.pr = lap.lapTime;
 
@@ -1251,11 +1274,12 @@ function renderDriverDetails(driverId) {
   }
 
   // Render the chart
-  renderDriverLapChart(driver);
+  renderDriverLapChart(driver, laps);
 
-  // Render PRs
+  // Render PRs (Top 10 Fastest Laps)
   driverPrsBody.innerHTML = '';
-  const prs = driver.prs || [];
+  const prs = [...laps].sort((a, b) => a.lapTime - b.lapTime).slice(0, 10);
+  
   if (prs.length === 0) {
     driverPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
@@ -1263,15 +1287,17 @@ function renderDriverDetails(driverId) {
     prs.slice(0, 10).forEach((pr) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(pr.timestamp).toLocaleString();
+      const car = cars.find(c => c.transponder === pr.carId);
+      const carName = car ? car.name : 'Unknown Car';
       tr.innerHTML = `
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
-        <td>${pr.car}</td>
+        <td>${carName}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
         <td><button class="btn delete-lap-btn" data-lapid="${pr.id}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
-      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+      tr.querySelector('.delete-lap-btn').addEventListener('click', async () => {
         if (window.confirm('Delete this lap entirely?')) {
-          deleteLap(pr.id);
+          await deleteLap(pr.id);
           renderDriverDetails(driverId);
         }
       });
@@ -1303,17 +1329,19 @@ function renderDriverDetails(driverId) {
     const paginatedLaps = laps.slice(startIndex, startIndex + 15);
 
     paginatedLaps.forEach((lap) => {
+      const car = cars.find(c => c.transponder === lap.carId);
+      const carName = car ? car.name : 'Unknown Car';
       const tr = document.createElement('tr');
       const dateStr = new Date(lap.timestamp).toLocaleString();
       tr.innerHTML = `
         <td class="mono">${lap.lapTime.toFixed(3)}</td>
-        <td>${lap.car}</td>
+        <td>${carName}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
         <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
-      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+      tr.querySelector('.delete-lap-btn').addEventListener('click', async () => {
         if (window.confirm('Delete this lap entirely?')) {
-          deleteLap(lap.id);
+          await deleteLap(lap.id);
           renderDriverDetails(driverId);
         }
       });
@@ -1325,7 +1353,7 @@ function renderDriverDetails(driverId) {
 /**
  * Render a combined lap time distribution chart for the driver
  */
-function renderDriverLapChart(driver) {
+function renderDriverLapChart(driver, laps = []) {
   if (activeDriverChart) {
     activeDriverChart.destroy();
     activeDriverChart = null;
@@ -1334,7 +1362,6 @@ function renderDriverLapChart(driver) {
   const canvas = document.getElementById('driver-overall-chart');
   if (!canvas) return;
 
-  const laps = driver.laps || [];
   if (laps.length === 0) {
     return;
   }
@@ -1482,12 +1509,14 @@ function renderDriverLapChart(driver) {
 /**
  * Render Car Details Panel
  */
-function renderCarDetails(transponder) {
+async function renderCarDetails(transponder) {
   const cars = getCars();
+  const drivers = getDrivers();
   const car = cars.find((c) => c.transponder === transponder);
   if (!car) return;
-
-  selectedCarId = car.transponder;
+  if (selectedCarId !== car.transponder) {
+    selectedCarId = car.transponder;
+  }
 
   editCarName.value = car.name;
   editCarTransponder.value = car.transponder;
@@ -1501,7 +1530,8 @@ function renderCarDetails(transponder) {
   const carDriversBody = document.getElementById('car-drivers-body');
   carDriversBody.innerHTML = '';
 
-  const laps = car.laps || [];
+  const laps = await getLapsByCarId(car.transponder);
+  laps.sort((a, b) => a.timestamp - b.timestamp);
 
   if (laps.length === 0) {
     carDriversBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
@@ -1519,17 +1549,19 @@ function renderCarDetails(transponder) {
     const sortedBests = Object.values(driverBests).sort((a, b) => a.lapTime - b.lapTime);
 
     sortedBests.forEach((best) => {
+      const driver = drivers.find(d => d.id === best.driverId);
+      const driverName = driver ? driver.name : 'Unknown Driver';
       const tr = document.createElement('tr');
       const dateStr = new Date(best.timestamp).toLocaleString();
       tr.innerHTML = `
-        <td>${best.driverName}</td>
+        <td>${driverName}</td>
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${best.lapTime.toFixed(3)}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
         <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
-      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+      tr.querySelector('.delete-lap-btn').addEventListener('click', async () => {
         if (window.confirm('Delete this lap entirely?')) {
-          deleteLap(best.id);
+          await deleteLap(best.id);
           renderCarDetails(transponder);
         }
       });
@@ -1538,27 +1570,30 @@ function renderCarDetails(transponder) {
   }
 
   // Render the chart
-  renderCarLapChart(car);
+  renderCarLapChart(car, laps);
 
   // Render Top 10 Laps
   const carPrsBody = document.getElementById('car-prs-body');
   carPrsBody.innerHTML = '';
-  const prs = car.prs || [];
+  const prs = [...laps].sort((a, b) => a.lapTime - b.lapTime).slice(0, 10);
+
   if (prs.length === 0) {
     carPrsBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records yet</td></tr>`;
   } else {
     prs.slice(0, 10).forEach((pr) => {
+      const driver = drivers.find(d => d.id === pr.driverId);
+      const driverName = driver ? driver.name : 'Unknown Driver';
       const tr = document.createElement('tr');
       const dateStr = new Date(pr.timestamp).toLocaleString();
       tr.innerHTML = `
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
-        <td>${pr.driverName}</td>
+        <td>${driverName}</td>
         <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
         <td><button class="btn delete-lap-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
-      tr.querySelector('.delete-lap-btn').addEventListener('click', () => {
+      tr.querySelector('.delete-lap-btn').addEventListener('click', async () => {
         if (window.confirm('Delete this lap entirely?')) {
-          deleteLap(pr.id);
+          await deleteLap(pr.id);
           renderCarDetails(transponder);
         }
       });
@@ -1570,7 +1605,7 @@ function renderCarDetails(transponder) {
 /**
  * Render a combined lap time distribution chart for the car
  */
-function renderCarLapChart(car) {
+function renderCarLapChart(car, laps = []) {
   if (activeCarChart) {
     activeCarChart.destroy();
     activeCarChart = null;
@@ -1579,7 +1614,6 @@ function renderCarLapChart(car) {
   const canvas = document.getElementById('car-overall-chart');
   if (!canvas) return;
 
-  const laps = car.laps || [];
   if (laps.length === 0) return;
 
   // Calculate median to trim long tail outliers
@@ -1643,10 +1677,13 @@ function renderCarLapChart(car) {
     tension: 0.4
   });
 
+  const drivers = getDrivers();
   const driverGroups = {};
   laps.forEach((lap) => {
-    if (!driverGroups[lap.driverName]) driverGroups[lap.driverName] = [];
-    driverGroups[lap.driverName].push(lap);
+    const driver = drivers.find(d => d.id === lap.driverId);
+    const driverName = driver ? driver.name : 'Unknown Driver';
+    if (!driverGroups[driverName]) driverGroups[driverName] = [];
+    driverGroups[driverName].push(lap);
   });
 
   const colors = [
@@ -1778,10 +1815,13 @@ function renderSessionLapChart(leaderboard) {
     tension: 0.4
   });
 
+  const drivers = getDrivers();
   const driverGroups = {};
   laps.forEach((lap) => {
-    if (!driverGroups[lap.driverName]) driverGroups[lap.driverName] = [];
-    driverGroups[lap.driverName].push(lap);
+    const driver = drivers.find(d => d.id === lap.driverId);
+    const driverName = driver ? driver.name : 'Unknown Driver';
+    if (!driverGroups[driverName]) driverGroups[driverName] = [];
+    driverGroups[driverName].push(lap);
   });
 
   const colors = [

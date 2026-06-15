@@ -16,8 +16,6 @@ class SessionStore {
       startTime: null,
       endTime: null,
       elapsedTime: 0,
-      limitType: 'time',
-      limitValue: 5,
       minLapTime: 3.0,
       maxLapTime: 25.0,
       lapsLogged: 0,
@@ -46,7 +44,9 @@ class SessionStore {
    * Reconstitute session state from a crash recovery or historical load
    */
   recover(recoveredState) {
-    this.state = recoveredState;
+    this.state = { ...this.state, ...recoveredState };
+    if (!this.state.racers) this.state.racers = {};
+    if (!this.state.assignments) this.state.assignments = {};
   }
 
   /**
@@ -64,6 +64,8 @@ class SessionStore {
       lastCrossingTime: null,
       bestLap: Infinity,
       averageLap: 0,
+      medianLap: 0,
+      stdDev: 0,
       consistency: 100,
       longestStreak: 0,
       totalTime: 0,

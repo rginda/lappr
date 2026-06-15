@@ -64,21 +64,7 @@ The master table for all lap data. Replaces the duplicated arrays previously sto
   - `timestamp`: `Number` (Integer, Epoch ms of the crossing)
   - `lapTime`: `Number` (Float, seconds)
 
-### 5. `personalrecords`
-Maintains a list of top N milestone laps (PRs) for drivers and cars to decouple milestone status from the lap record itself.  Retaining multiple PRs preserves the progression of PRs over time, and ensures that if an invalidly *fast* lap is accidentally recorded, it can be easily found and deleted and the older PR restored.
 
-- **Key Path**: `id`
-- **Indexes**:
-  - `entityId`: To quickly query PRs for a specific driver or car
-  - `lapId`: To join back to the master `laps` table
-  - `prType`: To categorize PRs (e.g., 'overall_driver', 'overall_car', 'driver_car_combo')
-- **Fields**:
-  - `id`: `String` (Unique UUID, Primary Key)
-  - `lapId`: `String` (Foreign key referencing a lap `id`)
-  - `entityId`: `String` (Driver UUID or Car Hex ID)
-  - `prType`: `String` (Type of milestone)
-
----
 
 ## 3. Data Access & Loading Strategy
 
@@ -88,14 +74,14 @@ Because IndexedDB is asynchronous, data will be loaded on-demand rather than com
   - Query the `drivers` and `cars` stores to populate the dropdown menus and lists.
   - Query the `sessions` store for any session where `status === 'active'` or `'paused'`.
 - **Viewing a Driver Profile**:
-  - Open a cursor on the `laps` store using the `driverId` index.
-  - Fetch the most recent 100 laps (sorting by `timestamp` descending).
-  - Fetch personal records by querying the `personalrecords` store for that driver's `entityId`, then fetch the corresponding lap details from the `laps` store using the `lapId`s.
+  - Query the `laps` store using the `driverId` index.
+  - Fetch all laps for the driver.
+  - Dynamically calculate the Top 10 Personal Records (PRs) by sorting the lap records in memory by `lapTime` ascending.
 - **Viewing a Car Profile**:
-  - Open a cursor on the `laps` store using the `carId` index.
-  - Fetch the most recent laps and milestones identically to drivers.
+  - Query the `laps` store using the `carId` index.
+  - Dynamically calculate the Top 10 PRs identically to drivers.
 
-*Note on Session Bests: When a page reloads and recovers an active session (or when viewing a historical session), we simply query the `laps` table using the `sessionId` index. Because we pull all laps for that session into memory, the race engine can instantly reconstitute the "Overall Session Best" and "Driver Session Best" laps on the fly. Therefore, we do not need to pollute the `personalrecords` table with transient session milestones.*
+*Note on PRs and Session Bests: By completely eliminating the `personalrecords` table and dynamically deriving PRs and session bests directly from the master `laps` array, we eliminate duplicate data entirely and guarantee the UI is always perfectly synchronized with the user's lap history.*
 
 ---
 
