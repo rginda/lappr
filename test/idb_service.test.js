@@ -67,6 +67,9 @@ describe('IndexedDB Service', () => {
 
   describe('pruneDatabase', () => {
     it('should protect top 10 laps per driver and car during pruning', async () => {
+      const { saveSession } = await import('../public/js/db/idb_service.js');
+      await saveSession({ id: 'session1', status: 'finished' });
+      
       // Create a test driver and car
       await saveDriver({ id: 'driver1', name: 'Test Driver' });
       await saveCar({ id: 'car1', transponder: '111', name: 'Test Car' });
@@ -115,6 +118,61 @@ describe('IndexedDB Service', () => {
       const protectedLap = laps.find(l => l.id === 'lap_0');
       expect(protectedLap).toBeDefined();
       expect(protectedLap.lapTime).toBe(5.0);
+    });
+
+    it('should delete finished sessions that have no laps', async () => {
+      const { saveSession, getSession } = await import('../public/js/db/idb_service.js');
+      // Create empty session
+      await saveSession({ id: 'emptySession', status: 'finished' });
+      // Create populated session
+      await saveSession({ id: 'populatedSession', status: 'finished' });
+      await saveLap({ id: 'lap1', sessionId: 'populatedSession', driverId: 'driver1', lapTime: 12.0, timestamp: Date.now() });
+
+      await pruneDatabase();
+
+      expect(await getSession('emptySession')).toBeUndefined();
+      expect(await getSession('populatedSession')).toBeDefined();
+    });
+
+    it('should delete laps from finished sessions with unknown drivers', async () => {
+      const { saveSession, getSession, getLapsBySessionId } = await import('../public/js/db/idb_service.js');
+      
+      // Active session shouldn't prune unknown driver laps
+      await saveSession({ id: 'activeSession', status: 'active' });
+      await saveLap({ id: 'lapActive', sessionId: 'activeSession', driverId: null, lapTime: 10, timestamp: Date.now() });
+      
+      // Finished session should prune unknown driver laps
+      await saveSession({ id: 'finishedSession', status: 'finished' });
+      await saveLap({ id: 'lapUnknown', sessionId: 'finishedSession', driverId: null, lapTime: 10, timestamp: Date.now() });
+      await saveLap({ id: 'lapKnown', sessionId: 'finishedSession', driverId: 'driver1', lapTime: 12, timestamp: Date.now() });
+
+      await pruneDatabase();
+
+      const activeLaps = await getLapsBySessionId('activeSession');
+      expect(activeLaps.length).toBe(1);
+
+      const finishedLaps = await getLapsBySessionId('finishedSession');
+      expect(finishedLaps.length).toBe(1);
+      expect(finishedLaps[0].id).toBe('lapKnown'); // Only the known driver lap survives
+    });
+
+    it('should delete laps with invalid or non-existent session IDs', async () => {
+      const { saveSession, getLapsBySessionId } = await import('../public/js/db/idb_service.js');
+      
+      // Create lap pointing to missing session
+      await saveLap({ id: 'lapOrphan', sessionId: 'missingSession', driverId: 'driver1', lapTime: 10, timestamp: Date.now() });
+
+      // Valid session
+      await saveSession({ id: 'validSession', status: 'active' });
+      await saveLap({ id: 'lapValid', sessionId: 'validSession', driverId: 'driver1', lapTime: 10, timestamp: Date.now() });
+
+      await pruneDatabase();
+
+      const orphanedLaps = await getLapsBySessionId('missingSession');
+      expect(orphanedLaps.length).toBe(0); // Pruned
+
+      const validLaps = await getLapsBySessionId('validSession');
+      expect(validLaps.length).toBe(1); // Kept
     });
   });
 });

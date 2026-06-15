@@ -321,6 +321,7 @@ export async function pruneDatabase(maxHistoryPerEntity = 500) {
 
   // Get finished sessions to clean up their unknown-driver laps
   const allSessionsData = await db.getAll('sessions');
+  const validSessionIds = new Set(allSessionsData.map(s => s.id));
   const finishedSessionIds = new Set(allSessionsData.filter(s => s.status === 'finished').map(s => s.id));
 
   let globalLapCount = 0;
@@ -334,6 +335,8 @@ export async function pruneDatabase(maxHistoryPerEntity = 500) {
   const lapsByCar = {};
   
   allLaps.forEach(lap => {
+    if (!validSessionIds.has(lap.sessionId)) return; // Don't protect laps from invalid sessions
+    
     if (lap.driverId) {
       if (!lapsByDriver[lap.driverId]) lapsByDriver[lap.driverId] = [];
       lapsByDriver[lap.driverId].push(lap);
@@ -363,8 +366,14 @@ export async function pruneDatabase(maxHistoryPerEntity = 500) {
   while (lapCursor) {
     const lap = lapCursor.value;
     
+    // Delete laps from invalid sessions
+    if (!validSessionIds.has(lap.sessionId)) {
+      if (!protectedLapIds.has(lap.id)) {
+        await lapCursor.delete();
+      }
+    } 
     // Delete laps from inactive sessions with unknown drivers
-    if (!lap.driverId && finishedSessionIds.has(lap.sessionId)) {
+    else if (!lap.driverId && finishedSessionIds.has(lap.sessionId)) {
       if (!protectedLapIds.has(lap.id)) {
         await lapCursor.delete();
       }
