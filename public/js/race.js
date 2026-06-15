@@ -151,10 +151,6 @@ export function processCrossing(transponder, ticks) {
   raceEngine.processCrossing(transponder, ticks);
 }
 
-export function backupSessionState() {
-  return sessionStore.getState();
-}
-
 export async function recoverSessionState() {
   // Try to load from IndexedDB
   const activeSessions = memCache.activeSessions;

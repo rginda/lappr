@@ -108,10 +108,10 @@ When an assignment occurs:
 
 ## 4. Crash Recovery & Session Resume
 
-To protect against accidental page reloads or browser crashes during an active race, Lappr maintains a rolling backup.
+To protect against accidental page reloads or browser crashes during an active race, Lappr uses continuous asynchronous persistence rather than relying on brittle `beforeunload` events.
 
-1. **Backup Phase**: Whenever the session is `active` or `paused`, an event listener on the window (`beforeunload`) fires before the page refreshes. The system serializes the entire `sessionStore` state into a temporary LocalStorage key (`lappr-session-backup`) or flushes it to IndexedDB.
-2. **Recovery Phase**: Upon reloading, `app.js` runs `recoverSessionState()`. If a recent backup is found, it injects the serialized `racers` and `assignments` back into memory, calculates the offset for `elapsedTime`, and flags the session as `paused`. The user can then hit "Resume" to seamlessly continue the session with zero data loss.
+1. **Continuous Persistence**: As a race runs, the Core Engine emits events for every new lap and session status change (e.g. paused, resumed). The Data Layer listens to these events and instantly saves the individual `laps` and the updated `session` metadata directly to IndexedDB in the background.
+2. **Recovery Phase**: Upon reloading, `app.js` calls `recoverSessionState()`. It queries IndexedDB for any session where `status === 'active'` or `'paused'`. If an interrupted session is found, it loads all of the laps for that session, recalculates the elapsed time, reconstitutes the live memory `racers` map, and flags the session as `paused`. The user can then hit "Resume" to seamlessly continue the race exactly where they left off with zero data loss.
 
 ---
 

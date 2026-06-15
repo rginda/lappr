@@ -24,7 +24,6 @@ import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './seria
 
 import {
   initSession,
-  backupSessionState,
   recoverSessionState,
   startSession,
   stopSession,
@@ -105,9 +104,6 @@ let currentSessionStatus = 'ready';
 /**
  * Initialize application.
  */
-window.addEventListener('beforeunload', () => {
-  backupSessionState();
-});
 
 const initApp = async () => {
   activeSettings = getSettings();
