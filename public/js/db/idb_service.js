@@ -133,7 +133,21 @@ export async function saveCar(car) {
 export async function deleteCar(id) {
   memCache.cars = memCache.cars.filter(c => c.id !== id);
   const db = await initDB();
-  await db.delete('cars', id);
+  
+  const tx = db.transaction(['cars', 'laps'], 'readwrite');
+  
+  // 1. Delete the car
+  await tx.objectStore('cars').delete(id);
+  
+  // 2. Cascade delete all associated laps
+  const lapIndex = tx.objectStore('laps').index('carId');
+  let cursor = await lapIndex.openCursor(id);
+  while (cursor) {
+    await cursor.delete();
+    cursor = await cursor.continue();
+  }
+  
+  await tx.done;
 }
 
 // ==========================================
