@@ -232,8 +232,10 @@ export function assignUnregisteredRacer(transponder, driverId, carId) {
 }
 
 export function refreshActiveRacers() {
-  // Re-register cars in case settings changed
-  raceEngine.registerCars(getCars());
+  const state = sessionStore.getState();
+  const activeTransponders = Object.keys(state.racers);
+  const activeCars = getCars().filter(c => activeTransponders.includes(c.transponder));
+  raceEngine.registerCars(activeCars);
 }
 
 export function assignSessionDriver(transponder, driverId) {

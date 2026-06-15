@@ -529,11 +529,19 @@ function bindEvents() {
 
   btnDeleteCar.addEventListener('click', () => {
     if (selectedCarId && !btnDeleteCar.disabled) {
-      deleteCar(selectedCarId);
-      selectedCarId = null;
-      renderCarList();
-      refreshActiveRacers();
-      switchView('view-session');
+      const car = getCars().find(c => c.transponder === selectedCarId);
+      if (car) {
+        deleteCar(car.id);
+      }
+      
+      // Remove it from the live race engine
+      import('./race.js').then((module) => {
+        module.removeCarFromSession(selectedCarId);
+        selectedCarId = null;
+        renderCarList();
+        refreshActiveRacers();
+        switchView('view-session');
+      });
     }
   });
 
