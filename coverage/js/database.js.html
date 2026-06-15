@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for race.js</title>
+    <title>Code coverage report for js/database.js</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="prettify.css" />
-    <link rel="stylesheet" href="base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(sort-arrow-sprite.png);
+            background-image: url(../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> race.js</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">js</a> database.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">53.62% </span>
+                <span class="strong">91.47% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>148/276</span>
+                <span class='fraction'>279/305</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.39% </span>
+                <span class="strong">68.58% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>64/141</span>
+                <span class='fraction'>107/156</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.16% </span>
+                <span class="strong">95.55% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>23/37</span>
+                <span class='fraction'>43/45</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.5% </span>
+                <span class="strong">95.38% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>139/255</span>
+                <span class='fraction'>248/260</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -665,535 +665,140 @@
 <a name='L600'></a><a href='#L600'>600</a>
 <a name='L601'></a><a href='#L601'>601</a>
 <a name='L602'></a><a href='#L602'>602</a>
-<a name='L603'></a><a href='#L603'>603</a>
-<a name='L604'></a><a href='#L604'>604</a>
-<a name='L605'></a><a href='#L605'>605</a>
-<a name='L606'></a><a href='#L606'>606</a>
-<a name='L607'></a><a href='#L607'>607</a>
-<a name='L608'></a><a href='#L608'>608</a>
-<a name='L609'></a><a href='#L609'>609</a>
-<a name='L610'></a><a href='#L610'>610</a>
-<a name='L611'></a><a href='#L611'>611</a>
-<a name='L612'></a><a href='#L612'>612</a>
-<a name='L613'></a><a href='#L613'>613</a>
-<a name='L614'></a><a href='#L614'>614</a>
-<a name='L615'></a><a href='#L615'>615</a>
-<a name='L616'></a><a href='#L616'>616</a>
-<a name='L617'></a><a href='#L617'>617</a>
-<a name='L618'></a><a href='#L618'>618</a>
-<a name='L619'></a><a href='#L619'>619</a>
-<a name='L620'></a><a href='#L620'>620</a>
-<a name='L621'></a><a href='#L621'>621</a>
-<a name='L622'></a><a href='#L622'>622</a>
-<a name='L623'></a><a href='#L623'>623</a>
-<a name='L624'></a><a href='#L624'>624</a>
-<a name='L625'></a><a href='#L625'>625</a>
-<a name='L626'></a><a href='#L626'>626</a>
-<a name='L627'></a><a href='#L627'>627</a>
-<a name='L628'></a><a href='#L628'>628</a>
-<a name='L629'></a><a href='#L629'>629</a>
-<a name='L630'></a><a href='#L630'>630</a>
-<a name='L631'></a><a href='#L631'>631</a>
-<a name='L632'></a><a href='#L632'>632</a>
-<a name='L633'></a><a href='#L633'>633</a>
-<a name='L634'></a><a href='#L634'>634</a>
-<a name='L635'></a><a href='#L635'>635</a>
-<a name='L636'></a><a href='#L636'>636</a>
-<a name='L637'></a><a href='#L637'>637</a>
-<a name='L638'></a><a href='#L638'>638</a>
-<a name='L639'></a><a href='#L639'>639</a>
-<a name='L640'></a><a href='#L640'>640</a>
-<a name='L641'></a><a href='#L641'>641</a>
-<a name='L642'></a><a href='#L642'>642</a>
-<a name='L643'></a><a href='#L643'>643</a>
-<a name='L644'></a><a href='#L644'>644</a>
-<a name='L645'></a><a href='#L645'>645</a>
-<a name='L646'></a><a href='#L646'>646</a>
-<a name='L647'></a><a href='#L647'>647</a>
-<a name='L648'></a><a href='#L648'>648</a>
-<a name='L649'></a><a href='#L649'>649</a>
-<a name='L650'></a><a href='#L650'>650</a>
-<a name='L651'></a><a href='#L651'>651</a>
-<a name='L652'></a><a href='#L652'>652</a>
-<a name='L653'></a><a href='#L653'>653</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L603'></a><a href='#L603'>603</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1201,823 +806,1068 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">114x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">108x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">108x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * Apex Timing - Race &amp; Timing Engine
- * Manages practice/race sessions, timestamps crossings, tracks statistics,
- * and maintains the sorted leaderboard state.
+ * Apex Timing - Database / Storage Module
+ * Uses LocalStorage for local-first, offline-ready state persistence.
  */
 &nbsp;
-import {
-  getDrivers,
-  getCars,
-  saveSession,
-  logLap,
-  assignHistoricalLaps,
-  getSettings
-} from './database.js';
-import { speak } from './speech.js';
-&nbsp;
-let sessionState = {
-  mode: 'practice',
-  status: 'ready', // 'ready', 'warmup', 'active', 'finished'
-  startTime: null, // Browser performance.now()
-  endTime: null,
-  limitType: 'time', // 'time', 'laps'
-  limitValue: 5, // 5 minutes or 50 laps
-  minLapTime: 3.0, // Filter out double triggers
-  lapsLogged: 0,
-  assignments: {}, // Map of transponder -&gt; driverId
-  racers: {} // Map of transponder -&gt; RacerSessionState
+const STORAGE_KEYS = {
+  DRIVERS: 'lappr_drivers',
+  CARS: 'lappr_cars',
+  SESSIONS: 'apex_timing_sessions',
+  SETTINGS: 'apex_timing_settings',
+  TRACKS: 'apex_timing_tracks'
 };
 &nbsp;
-let leaderboard = [];
-let updateCallback = null;
-let timerInterval = null;
-let timerCallback = null;
-let overallBestLap = Infinity;
+// Default setup if no data exists
+const DEFAULT_DRIVERS = [
+  { id: 'driver-1', name: 'Mock Driver A', laps: [], prs: [] },
+  { id: 'driver-2', name: 'Mock Driver B', laps: [], prs: [] }
+];
+&nbsp;
+const DEFAULT_CARS = [
+  { transponder: 'CDFD4C', name: 'Red Mini-Z RWD', color: '#ef4444', laps: [], prs: [] },
+  { transponder: '00FFAB', name: 'Blue Mini-Z AWD', color: '#06b6d4', laps: [], prs: [] }
+];
 &nbsp;
 /**
- * Initialize a new session.
- * @param {Object} config - Config parameters.
- * @param {Function} onUpdate - Triggered when leaderboard changes.
- * @param {Function} onTimerUpdate - Triggered every 10ms for clock.
+ * Get all registered drivers.
  */
-export function initSession(config, onUpdate, onTimerUpdate) {
-  stopSessionTimer();
-&nbsp;
-  sessionState = {
-    mode: 'practice',
-    status: 'ready',
-    startTime: null,
-    endTime: null,
-    limitType: config.limitType || 'time',
-    limitValue: parseFloat(config.limitValue) || 5,
-    minLapTime: parseFloat(config.minLapTime) || 3.0,
-    maxLapTime: parseFloat(config.maxLapTime) || 25.0,
-    lapsLogged: 0,
-    assignments: {},
-    racers: {}
-  };
-&nbsp;
-  leaderboard = [];
-  overallBestLap = Infinity;
-  updateCallback = onUpdate;
-  timerCallback = onTimerUpdate;
-&nbsp;
-  // Pre-load all registered profiles
-  const cars = getCars();
-  cars.forEach((c) =&gt; {
-    // Initial assignments are empty (unassigned)
-    sessionState.racers[c.transponder.toUpperCase()] = createRacerSessionData({
-      driverName: 'Unknown Driver',
-      carName: c.name,
-      transponder: c.transponder.toUpperCase(),
-      color: c.color
-    });
-  });
-&nbsp;
-  triggerUpdate();
-}
-&nbsp;
-function createRacerSessionData(profile) {
-  return {
-    name: profile.driverName,
-    carName: profile.carName,
-    transponder: profile.transponder,
-    color: profile.color,
-    laps: [],
-    lastCrossingTicks: null,
-    lastCrossingTime: null,
-    bestLap: Infinity,
-    averageLap: 0,
-    consistency: 100, // Percentage consistency
-    totalTime: 0, // Total active running time
-    gap: '',
-    isActive: false
-  };
-}
-&nbsp;
-/**
- * Start the active session timer and countdown.
- */
-export function startSession() {
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (sessionState.status === 'active') <span class="cstat-no" title="statement not covered" >return;</span>
-&nbsp;
-  sessionState.status = 'active';
-  sessionState.startTime = performance.now();
-&nbsp;
-  speak(`${sessionState.mode} session started. Good luck!`, true);
-&nbsp;
-  startSessionTimer();
-  triggerUpdate();
-}
-&nbsp;
-/**
- * Stop/Finish the current session.
- */
-export function <span class="fstat-no" title="function not covered" >stopSession(</span>) {
-<span class="cstat-no" title="statement not covered" >  if (sessionState.status === 'finished') <span class="cstat-no" title="statement not covered" >return;</span></span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  sessionState.status = 'finished';</span>
-<span class="cstat-no" title="statement not covered" >  sessionState.endTime = performance.now();</span>
-<span class="cstat-no" title="statement not covered" >  stopSessionTimer();</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  speak('Checkered flag! Session finished.', true);</span>
-&nbsp;
-  // Save results to history database
-  const results = <span class="cstat-no" title="statement not covered" >{</span>
-    date: new Date().toISOString(),
-    mode: sessionState.mode,
-    leaderboard: leaderboard.map(<span class="fstat-no" title="function not covered" >(r</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
-      name: r.name,
-      laps: r.laps.length,
-      bestLap: r.bestLap,
-      averageLap: r.averageLap,
-      consistency: r.consistency
-    }))
-  };
-<span class="cstat-no" title="statement not covered" >  saveSession(results);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  triggerUpdate();</span>
-}
-&nbsp;
-/**
- * Reset/Clear current laps.
- */
-export function <span class="fstat-no" title="function not covered" >clearSession(</span>) {
-<span class="cstat-no" title="statement not covered" >  stopSessionTimer();</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  sessionState.status = 'ready';</span>
-<span class="cstat-no" title="statement not covered" >  sessionState.startTime = null;</span>
-<span class="cstat-no" title="statement not covered" >  sessionState.endTime = null;</span>
-<span class="cstat-no" title="statement not covered" >  sessionState.lapsLogged = 0;</span>
-<span class="cstat-no" title="statement not covered" >  overallBestLap = Infinity;</span>
-&nbsp;
-  // Clear lap lists for all racers
-<span class="cstat-no" title="statement not covered" >  Object.keys(sessionState.racers).forEach(<span class="fstat-no" title="function not covered" >(i</span>d) =&gt; {</span>
-    const r = <span class="cstat-no" title="statement not covered" >sessionState.racers[id];</span>
-<span class="cstat-no" title="statement not covered" >    r.laps = [];</span>
-<span class="cstat-no" title="statement not covered" >    r.lastCrossingTicks = null;</span>
-<span class="cstat-no" title="statement not covered" >    r.lastCrossingTime = null;</span>
-<span class="cstat-no" title="statement not covered" >    r.bestLap = Infinity;</span>
-<span class="cstat-no" title="statement not covered" >    r.averageLap = 0;</span>
-<span class="cstat-no" title="statement not covered" >    r.consistency = 100;</span>
-<span class="cstat-no" title="statement not covered" >    r.totalTime = 0;</span>
-<span class="cstat-no" title="statement not covered" >    r.gap = '';</span>
-<span class="cstat-no" title="statement not covered" >    r.isActive = false;</span>
-  });
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  if (timerCallback) {</span>
-<span class="cstat-no" title="statement not covered" >    timerCallback(0);</span>
+export function getDrivers() {
+  const data = localStorage.getItem(STORAGE_KEYS.DRIVERS);
+  if (!data) {
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(DEFAULT_DRIVERS));
+    return DEFAULT_DRIVERS;
   }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  triggerUpdate();</span>
+  return JSON.parse(data);
 }
 &nbsp;
 /**
- * Primary hardware parser interface.
- * Process a crossing packet (transponder ID and hardware ticks).
- * @param {string} transponderId - Hex string.
- * @param {number} ticks - 24-bit integer timestamp in 0.25ms units.
+ * Save or update a driver.
  */
-export function processCrossing(transponderId, ticks) {
-  // If session is finished, ignore new laps
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (sessionState.status === 'finished') <span class="cstat-no" title="statement not covered" >return;</span>
-&nbsp;
-  const id = transponderId.toUpperCase();
-  const now = performance.now();
-&nbsp;
-  // Auto-start on first crossing
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (sessionState.status === 'ready') {
-<span class="cstat-no" title="statement not covered" >    startSession();</span>
-  }
-&nbsp;
-  // If session hasn't started yet (e.g. waiting for race lights), ignore crossing
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (sessionState.status === 'ready') <span class="cstat-no" title="statement not covered" >return;</span>
-&nbsp;
-  const cars = getCars();
+export function saveDriver(driver) {
   const drivers = getDrivers();
-  const car = cars.find((c) =&gt; c.transponder.toUpperCase() === id) || <span class="branch-1 cbranch-no" title="branch not covered" >{</span>
-    name: 'Unknown Car',
-    color: '#ef4444'
-  };
+  const index = drivers.findIndex((d) =&gt; d.id === driver.id);
+  if (index !== -1) {
+    drivers[index] = driver;
+  } else {
+    drivers.push(driver);
+  }
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  return drivers;
+}
 &nbsp;
-  const assignedDriverId = sessionState.assignments[id] || null;
-  const driver = drivers.find((d) =&gt; d.id === assignedDriverId) || { name: 'Unknown Driver' };
+/**
+ * Delete a driver by ID.
+ */
+export function deleteDriver(id) {
+  let drivers = getDrivers();
+  drivers = drivers.filter((d) =&gt; d.id !== id);
+  localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
 &nbsp;
-  // Retrieve or create racer profile (in case of unregistered transponder)
-  let racer = sessionState.racers[id];
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (!racer) {
-<span class="cstat-no" title="statement not covered" >    racer = createRacerSessionData({</span>
-      driverName: driver.name,
-      carName: car.name,
-      transponder: id,
-      color: car.color
-    });
-<span class="cstat-no" title="statement not covered" >    sessionState.racers[id] = racer;</span>
+  return drivers;
+}
 &nbsp;
-    // Fire unregistered notification callback
-<span class="cstat-no" title="statement not covered" >    if (car.name === 'Unknown Car') {</span>
-<span class="cstat-no" title="statement not covered" >      triggerUnregisteredAlert(id);</span>
+/**
+ * Log a lap to both driver and car history. Maintains last 100 laps and a history of PRs for both.
+ */
+export function logLap(driverId, transponder, lapTime) {
+  const now = Date.now();
+  const lapId = 'lap_' + now.toString(36) + Math.random().toString(36).substr(2, 5);
+&nbsp;
+  let driverResult = { driver: null, isPR: false };
+  let carResult = { car: null, isPR: false };
+&nbsp;
+  const drivers = getDrivers();
+  const cars = getCars();
+&nbsp;
+  const carIndex = cars.findIndex((c) =&gt; c.transponder.toUpperCase() === transponder.toUpperCase());
+  const driverIndex = drivers.findIndex((d) =&gt; d.id === driverId);
+&nbsp;
+  const car = carIndex !== -1 ? cars[carIndex] : <span class="branch-1 cbranch-no" title="branch not covered" >null;</span>
+  const driver = driverIndex !== -1 ? drivers[driverIndex] : null;
+&nbsp;
+  // 1. Log for Driver (if assigned and known)
+  if (driver &amp;&amp; car) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!driver.laps) driver.laps = [];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!driver.prs) driver.prs = [];
+&nbsp;
+    const driverLapEntry = {
+      car: car.name,
+      carTransponder: transponder,
+      timestamp: now,
+      lapTime: lapTime,
+      id: lapId
+    };
+&nbsp;
+    driver.laps.unshift(driverLapEntry);
+    pruneDriverLaps(driver);
+&nbsp;
+    let isPR = false;
+    if (driver.prs.length === 0) {
+      isPR = true;
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+      const currentBest = <span class="cstat-no" title="statement not covered" >driver.prs[0].lapTime;</span>
+<span class="cstat-no" title="statement not covered" >      if (lapTime &lt; currentBest) <span class="cstat-no" title="statement not covered" >isPR = true;</span></span>
+    }
+&nbsp;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (isPR) {
+      driver.prs.unshift(driverLapEntry);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (driver.prs.length &gt; 15) <span class="cstat-no" title="statement not covered" >driver.prs.pop();</span>
+    }
+&nbsp;
+    let isDriverCarPR = false;
+    // previous laps on this specific car excluding the one we just unshifted
+    const previousDriverCarLaps = driver.laps.filter(
+      (l) =&gt; l.carTransponder === transponder &amp;&amp; l.id !== lapId
+    );
+    if (previousDriverCarLaps.length === 0) {
+      isDriverCarPR = true;
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+      const bestDriverCarLap = <span class="cstat-no" title="statement not covered" >Math.min(...previousDriverCarLaps.map(<span class="fstat-no" title="function not covered" >(l</span>) =&gt; <span class="cstat-no" title="statement not covered" >l.lapTime)</span>);</span>
+<span class="cstat-no" title="statement not covered" >      if (lapTime &lt; bestDriverCarLap) <span class="cstat-no" title="statement not covered" >isDriverCarPR = true;</span></span>
+    }
+&nbsp;
+    driverResult = { driver, isPR, isDriverCarPR };
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  }
+&nbsp;
+  // 2. Log for Car (always logged even if no driver, but here we require transponder to be valid)
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (car) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!car.laps) car.laps = [];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!car.prs) car.prs = [];
+&nbsp;
+    // We store driverId to be able to group by driver on the car profile
+    const carLapEntry = {
+      driverId: driver ? driver.id : null,
+      driverName: driver ? driver.name : 'Unknown',
+      timestamp: now,
+      lapTime: lapTime,
+      id: lapId
+    };
+&nbsp;
+    car.laps.unshift(carLapEntry);
+    pruneCarLaps(car);
+&nbsp;
+    let isPR = false;
+    if (car.prs.length === 0) {
+      isPR = true;
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+      const currentBest = <span class="cstat-no" title="statement not covered" >car.prs[0].lapTime;</span>
+<span class="cstat-no" title="statement not covered" >      if (lapTime &lt; currentBest) <span class="cstat-no" title="statement not covered" >isPR = true;</span></span>
+    }
+&nbsp;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (isPR) {
+      car.prs.unshift(carLapEntry);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (car.prs.length &gt; 15) <span class="cstat-no" title="statement not covered" >car.prs.pop();</span>
+    }
+&nbsp;
+    carResult = { car, isPR };
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
+&nbsp;
+  return { driverResult, carResult };
+}
+&nbsp;
+/**
+ * Helper to recalculate historical PRs from a laps array
+ */
+function recalculatePRs(lapsArray) {
+  if (!lapsArray || lapsArray.length === 0) return [];
+  // lapsArray is sorted newest first. Reverse to chronological
+  const chronological = [...lapsArray].reverse();
+  const prs = [];
+  let best = Infinity;
+  for (const lap of chronological) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (lap.lapTime &lt; best) {
+      best = lap.lapTime;
+      prs.unshift(lap); // newest PR stays at index 0
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (prs.length &gt; 15) <span class="cstat-no" title="statement not covered" >prs.pop();</span>
+    }
+  }
+  return prs;
+}
+&nbsp;
+/**
+ * Delete a lap by its ID from all cars and drivers and recalculate PRs.
+ */
+export function deleteLap(lapId) {
+  const drivers = getDrivers();
+  const cars = getCars();
+  let changed = false;
+&nbsp;
+  // Clean Drivers
+  for (const driver of drivers) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (driver.laps) {
+      const originalLen = driver.laps.length;
+      driver.laps = driver.laps.filter((l) =&gt; l.id !== lapId);
+      if (driver.laps.length !== originalLen) {
+        changed = true;
+        driver.prs = recalculatePRs(driver.laps);
+      }
     }
   }
 &nbsp;
-  racer.isActive = true;
-&nbsp;
-  // CASE 1: First crossing of the session (Lap 0 - Out Lap)
-  if (racer.lastCrossingTicks === null) {
-    racer.lastCrossingTicks = ticks;
-    racer.lastCrossingTime = now;
-&nbsp;
-    speak(`${racer.name} is on track.`);
-    triggerUpdate();
-    return;
+  // Clean Cars
+  for (const car of cars) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (car.laps) {
+      const originalLen = car.laps.length;
+      car.laps = car.laps.filter((l) =&gt; l.id !== lapId);
+      if (car.laps.length !== originalLen) {
+        changed = true;
+        car.prs = recalculatePRs(car.laps);
+      }
+    }
   }
 &nbsp;
-  // CASE 2: Subsequent crossing - Calculate lap time
-  // Hardware ticks are 1.0ms units.
-  // Handle timer rollover (assuming 24-bit timer, but hardware might be 32-bit. We use 24-bit handling as a guess)
-  let tickDelta = ticks - racer.lastCrossingTicks;
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (tickDelta &lt; 0) {
-    // 24-bit integer rollover (16,777,216 ticks)
-<span class="cstat-no" title="statement not covered" >    tickDelta += 16777216;</span>
-  }
-&nbsp;
-  const lapTimeSeconds = (tickDelta * 1.0) / 1000.0;
-&nbsp;
-  // Double trigger filter: reject if faster than minimum lap time threshold
-  if (lapTimeSeconds &lt; sessionState.minLapTime) {
-    console.log(`[Filter] Rejected double trigger for ID ${id}: ${lapTimeSeconds}s`);
-    return;
-  }
-&nbsp;
-  // Update crossing references for all valid single-triggers
-  racer.lastCrossingTicks = ticks;
-  racer.lastCrossingTime = now;
-&nbsp;
-  // Max lap time filter: reject if slower than maximum threshold (e.g. flipped, pitted)
-  if (sessionState.maxLapTime &gt; 0 &amp;&amp; lapTimeSeconds &gt; sessionState.maxLapTime) {
-    console.log(`[Filter] Rejected slow lap for ID ${id}: ${lapTimeSeconds}s`);
-    return;
-  }
-&nbsp;
-  // Record the lap
-  const lapNumber = racer.laps.length + 1;
-  const isDriverSessionBest = lapTimeSeconds &lt; racer.bestLap;
-  let isOverallBest = false;
-&nbsp;
-  if (isDriverSessionBest) {
-    racer.bestLap = lapTimeSeconds;
-  }
-&nbsp;
-  if (lapTimeSeconds &lt; overallBestLap) {
-    overallBestLap = lapTimeSeconds;
-    isOverallBest = true;
-  }
-&nbsp;
-  const lapInfo = {
-    lapNumber,
-    lapTime: lapTimeSeconds,
-    gap: '',
-    isDriverSessionBest,
-    isOverallBest,
-    timestamp: now,
-    driverId: assignedDriverId
-  };
-  racer.laps.push(lapInfo);
-  sessionState.lapsLogged++;
-&nbsp;
-  // Log to database
-  const dbResult = logLap(assignedDriverId, id, lapTimeSeconds);
-&nbsp;
-  // Recalculate Racer Statistics
-  recalculateRacerStats(racer);
-&nbsp;
-  announceLap(racer, lapInfo, dbResult);
-&nbsp;
-  triggerUpdate();
-}
-&nbsp;
-/**
- * Re-evaluate racer average and consistency (standard deviation percentage).
- * @param {Object} racer
- */
-function recalculateRacerStats(racer) {
-  const lapTimes = racer.laps.map((l) =&gt; l.lapTime);
-  const totalLaps = lapTimes.length;
-&nbsp;
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (totalLaps === 0) <span class="cstat-no" title="statement not covered" >return;</span>
-&nbsp;
-  // Average Lap
-  const sum = lapTimes.reduce((a, b) =&gt; a + b, 0);
-  racer.averageLap = sum / totalLaps;
-  racer.totalTime = sum;
-&nbsp;
-  // Consistency (standard deviation relative to average)
-  if (totalLaps &gt; 1) {
-    const variance =
-      lapTimes.reduce((acc, t) =&gt; acc + Math.pow(t - racer.averageLap, 2), 0) / totalLaps;
-    const stdDev = Math.sqrt(variance);
-    // Convert to consistency score (100% is perfect consistency)
-    racer.consistency = Math.max(
-      0,
-      Math.min(100, Math.round(100 - (stdDev / racer.averageLap) * 100))
-    );
-  } else {
-    racer.consistency = 100;
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (changed) {
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
   }
 }
 &nbsp;
 /**
- * Perform speech synthesis audio callouts.
- * @param {Object} racer
- * @param {Object} lap
- * @param {Object} dbResult
+ * Delete all laps for a specific driver and car combination.
  */
-function announceLap(racer, lap, dbResult) {
-  const formattedTime = lap.lapTime.toFixed(2);
-  let announcement = '';
+export function deleteDriverCarStats(driverId, carTransponder) {
+  const drivers = getDrivers();
+  const cars = getCars();
+  let changed = false;
 &nbsp;
-  const isCarRecord = dbResult?.carResult?.isPR;
-  const isDriverBestEver = dbResult?.driverResult?.isPR;
-  const isDriverCarPR = dbResult?.driverResult?.isDriverCarPR;
+  const driver = drivers.find((d) =&gt; d.id === driverId);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!driver || !driver.laps) <span class="cstat-no" title="statement not covered" >return;</span>
 &nbsp;
-  const settings = getSettings();
-  const ann = settings.announcements || {};
+  // Find all lap IDs for this car
+  const lapIdsToDelete = driver.laps
+    .filter((l) =&gt; l.carTransponder === carTransponder)
+    .map((l) =&gt; l.id);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (lapIdsToDelete.length === 0) <span class="cstat-no" title="statement not covered" >return;</span>
 &nbsp;
-  // Helper to replace tokens
-  const formatMsg = (template, streakLen = 0) =&gt; {
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (!template) return '';
-<span class="cstat-no" title="statement not covered" >    return template</span>
-      .replace(/{driver}/g, racer.name)
-      .replace(/{car}/g, racer.carName)
-      .replace(/{time}/g, formattedTime)
-      .replace(/{streak}/g, streakLen);
-  };
-&nbsp;
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (isDriverBestEver) {
-<span class="cstat-no" title="statement not covered" >    announcement = formatMsg(ann.driverBestEver);</span>
-  } else <span class="missing-if-branch" title="if path not taken" >I</span>if (isCarRecord) {
-<span class="cstat-no" title="statement not covered" >    announcement = formatMsg(ann.carRecord);</span>
-  } else <span class="missing-if-branch" title="if path not taken" >I</span>if (isDriverCarPR) {
-<span class="cstat-no" title="statement not covered" >    announcement = formatMsg(ann.driverCarPR);</span>
-  } else if (lap.isOverallBest) {
-    announcement = formatMsg(ann.sessionFastest);
-  } else <span class="missing-if-branch" title="if path not taken" >I</span>if (lap.isDriverSessionBest) {
-<span class="cstat-no" title="statement not covered" >    announcement = formatMsg(ann.driverSessionBest);</span>
-  } else {
-    announcement = formatMsg(ann.normal);
+  // Clean Drivers
+  for (const d of drivers) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (d.laps) {
+      const originalLen = d.laps.length;
+      d.laps = d.laps.filter((l) =&gt; !lapIdsToDelete.includes(l.id));
+      if (d.laps.length !== originalLen) {
+        changed = true;
+        d.prs = recalculatePRs(d.laps);
+      }
+    }
   }
 &nbsp;
-  // Calculate Ongoing Consistency Streak
-  const streakSettings = settings.streak || {
+  // Clean Cars
+  for (const c of cars) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (c.laps) {
+      const originalLen = c.laps.length;
+      c.laps = c.laps.filter((l) =&gt; !lapIdsToDelete.includes(l.id));
+      if (c.laps.length !== originalLen) {
+        changed = true;
+        c.prs = recalculatePRs(c.laps);
+      }
+    }
+  }
+&nbsp;
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (changed) {
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  }
+}
+&nbsp;
+/**
+ * Get all registered cars.
+ */
+export function getCars() {
+  const data = localStorage.getItem(STORAGE_KEYS.CARS);
+  if (!data) {
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(DEFAULT_CARS));
+    return DEFAULT_CARS;
+  }
+  return JSON.parse(data);
+}
+&nbsp;
+/**
+ * Save or update a car.
+ */
+export function saveCar(car) {
+  const cars = getCars();
+  const index = cars.findIndex(
+    (c) =&gt; c.transponder.toUpperCase() === car.transponder.toUpperCase()
+  );
+  if (index !== -1) {
+    cars[index] = car;
+  } else {
+    cars.push(car);
+  }
+  localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  return cars;
+}
+&nbsp;
+/**
+ * Delete a car by transponder ID.
+ */
+export function deleteCar(transponder) {
+  let cars = getCars();
+  cars = cars.filter((c) =&gt; c.transponder.toUpperCase() !== transponder.toUpperCase());
+  localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+  return cars;
+}
+&nbsp;
+/**
+ * Save settings to storage.
+ * @param {Object} settings
+ */
+export function saveSettings(settings) {
+  const current = getSettings();
+  const updated = { ...current, ...settings };
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+  return updated;
+}
+&nbsp;
+/**
+ * Default configuration settings.
+ */
+export const DEFAULT_SETTINGS = {
+  speechEnabled: true,
+  speechVolume: 0.8,
+  speechVoice: '',
+  speechPitch: 1.0,
+  speechRate: 1.1,
+  overlayEnabled: true,
+  overlayTimeout: 12,
+  announcements: {
+    driverOverallPR: '{driver} Overall PR {time}',
+    overallCarBest: 'Overall {car} record {time}',
+    driverCarPR: '{driver} {car} PR {time}',
+    overallSessionBest: 'Overall session best {driver}, {time}',
+    driverSessionBest: '{driver} session best, {time}',
+    normalLap: '{driver}, {time}',
+    consistentStreak: 'times {streak}'
+  },
+  streak: {
     minLaps: 3,
-    varianceThreshold: 0.1,
+    varianceThreshold: 10,
     mustBeFast: true
+  },
+  minLapTime: 3.0,
+  maxLapTime: 25.0,
+  hardwareType: 'robotronic',
+  connectAtStartup: false
+};
+&nbsp;
+/**
+ * Fetch settings.
+ * @returns {Object} Settings object.
+ */
+export function getSettings() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (!data) return DEFAULT_SETTINGS;
+    const parsed = JSON.parse(data);
+    // Merge deeply
+    return {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      announcements: { ...DEFAULT_SETTINGS.announcements, ...(parsed.announcements || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span> },
+      streak: { ...DEFAULT_SETTINGS.streak, ...(parsed.streak || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span> }
+    };
+  } catch (e) {
+<span class="cstat-no" title="statement not covered" >    return DEFAULT_SETTINGS;</span>
+  }
+}
+&nbsp;
+/**
+ * Save a completed race or practice session to history.
+ * @param {Object} session - Completed session details.
+ */
+export function saveSession(session) {
+  const sessions = getSessions();
+  sessions.unshift(session); // Add to the beginning of the list
+  // Limit to last 50 sessions to conserve localStorage space
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (sessions.length &gt; 50) {
+<span class="cstat-no" title="statement not covered" >    sessions.pop();</span>
+  }
+  localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+  return sessions;
+}
+&nbsp;
+/**
+ * Get session history.
+ * @returns {Array} List of completed sessions.
+ */
+export function getSessions() {
+  const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+  return data ? JSON.parse(data) : [];
+}
+&nbsp;
+/**
+ * Export all data as a JSON string.
+ */
+export function exportDatabase() {
+  const db = {
+    drivers: getDrivers(),
+    cars: getCars(),
+    settings: getSettings(),
+    sessions: getSessions()
   };
-  const totalLaps = racer.laps.length;
-&nbsp;
-  if (totalLaps &gt;= streakSettings.minLaps) {
-    let streakLength = 1;
-    let minLap = lap.lapTime;
-    let maxLap = lap.lapTime;
-&nbsp;
-    // Scan backward to find consecutive laps within the variance threshold
-    for (let i = totalLaps - 2; i &gt;= 0; i--) {
-      const prevLap = racer.laps[i].lapTime;
-      const newMin = Math.min(minLap, prevLap);
-      const newMax = Math.max(maxLap, prevLap);
-&nbsp;
-      if (newMax - newMin &lt;= streakSettings.varianceThreshold) {
-        streakLength++;
-        minLap = newMin;
-        maxLap = newMax;
-      } else {
-        break;
-      }
-    }
-&nbsp;
-    // Check if streak meets criteria
-    if (streakLength &gt;= streakSettings.minLaps) {
-      let qualifies = true;
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (streakSettings.mustBeFast &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >lap.lapTime &gt;= racer.averageLap)</span> {
-<span class="cstat-no" title="statement not covered" >        qualifies = false;</span>
-      }
-&nbsp;
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (qualifies &amp;&amp; ann.consistent) {
-<span class="cstat-no" title="statement not covered" >        announcement += ` ${formatMsg(ann.consistent, streakLength)}`;</span>
-      }
-    }
-  }
-&nbsp;
-  // Speak the main announcement with global settings
-  speak(announcement);
+  return JSON.stringify(db, null, 2);
 }
 &nbsp;
 /**
- * Re-sort and build the leaderboard array.
+ * Import and overwrite database with imported JSON string.
  */
-function sortLeaderboard() {
-  const racersList = Object.values(sessionState.racers).filter((r) =&gt; r.isActive);
-&nbsp;
-  // Sorted by fastest single lap
-  racersList.sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >a.bestLap - b.bestLap)</span>;
-&nbsp;
-  // Compute Gaps
-  if (racersList.length &gt; 0) {
-    const leader = racersList[0];
-    leader.gap = 'Leader';
-&nbsp;
-    for (let i = 1; i &lt; racersList.length; i++) {
-      const current = <span class="cstat-no" title="statement not covered" >racersList[i];</span>
-<span class="cstat-no" title="statement not covered" >      if (current.bestLap === Infinity) {</span>
-<span class="cstat-no" title="statement not covered" >        current.gap = '--';</span>
-      } else {
-        const gapTime = <span class="cstat-no" title="statement not covered" >current.bestLap - leader.bestLap;</span>
-<span class="cstat-no" title="statement not covered" >        current.gap = `+${gapTime.toFixed(3)}s`;</span>
-      }
-    }
-  }
-&nbsp;
-  // Update best laps overlays (mark overall best)
-  racersList.forEach((r) =&gt; {
-    r.laps.forEach((l) =&gt; {
-      l.isOverallBest = l.lapTime === overallBestLap;
-    });
-  });
-&nbsp;
-  leaderboard = racersList;
-}
-&nbsp;
-function triggerUpdate() {
-  sortLeaderboard();
-  if (updateCallback) {
-    updateCallback({
-      state: sessionState,
-      leaderboard
-    });
+export function importDatabase(jsonString) {
+  try {
+    const db = JSON.parse(jsonString);
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (db.drivers) localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(db.drivers));
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (db.cars) localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(db.cars));
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (db.settings) localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(db.settings));
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (db.sessions) localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(db.sessions));
+    return true;
+  } catch (e) {
+<span class="cstat-no" title="statement not covered" >    console.error('Failed to import database:', e);</span>
+<span class="cstat-no" title="statement not covered" >    return false;</span>
   }
 }
 &nbsp;
 /**
- * Handle session timer loop.
+ * Retroactively assigns unassigned laps on a car to a new driver,
+ * provided the laps occurred within the current session timeframe.
  */
-function startSessionTimer() {
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (timerInterval) <span class="cstat-no" title="statement not covered" >clearInterval(timerInterval);</span>
-&nbsp;
-  timerInterval = setInterval(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >    if (!sessionState.startTime || sessionState.status !== 'active') <span class="cstat-no" title="statement not covered" >return;</span></span>
-&nbsp;
-    const elapsedMs = <span class="cstat-no" title="statement not covered" >performance.now() - sessionState.startTime;</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    if (timerCallback) {</span>
-<span class="cstat-no" title="statement not covered" >      timerCallback(elapsedMs);</span>
-    }
-  }, 50); // Fast enough updates for smooth clocks
-}
-&nbsp;
-function stopSessionTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
-&nbsp;
-/**
- * Notification handler when an unregistered transponder crosses.
- */
-let unregisteredAlertCallback = null;
-export function onUnregisteredAlert(callback) {
-  unregisteredAlertCallback = callback;
-}
-&nbsp;
-function <span class="fstat-no" title="function not covered" >triggerUnregisteredAlert(</span>transponderId) {
-<span class="cstat-no" title="statement not covered" >  if (unregisteredAlertCallback) {</span>
-<span class="cstat-no" title="statement not covered" >    unregisteredAlertCallback(transponderId);</span>
-  }
-}
-&nbsp;
-/**
- * Dynamically assign a transponder to a newly registered profile.
- */
-export function assignUnregisteredRacer(_transponderId, _name, _color, _vehicle) {
-  // Deprecated: reinitSessionState will handle the reload
-}
-&nbsp;
-/**
- * Assign a driver to a car for the current session.
- * Retroactively credits unassigned laps to the new driver.
- */
-export function <span class="fstat-no" title="function not covered" >assignSessionDriver(</span>transponder, driverId) {
-  const drivers =<span class="cstat-no" title="statement not covered" > getDrivers();</span>
-  const driver = <span class="cstat-no" title="statement not covered" >drivers.find(<span class="fstat-no" title="function not covered" >(d</span>) =&gt; <span class="cstat-no" title="statement not covered" >d.id === driverId)</span>;</span>
-  const id = <span class="cstat-no" title="statement not covered" >transponder.toUpperCase();</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!driver) {</span>
-    // Unassign
-<span class="cstat-no" title="statement not covered" >    sessionState.assignments[id] = null;</span>
-<span class="cstat-no" title="statement not covered" >    if (sessionState.racers[id]) {</span>
-<span class="cstat-no" title="statement not covered" >      sessionState.racers[id].name = 'Unknown Driver';</span>
-    }
-<span class="cstat-no" title="statement not covered" >    triggerUpdate();</span>
-<span class="cstat-no" title="statement not covered" >    return;</span>
-  }
-&nbsp;
-  // If the driver is already assigned to another car, unassign them from that car
-<span class="cstat-no" title="statement not covered" >  for (const [tId, dId] of Object.entries(sessionState.assignments)) {</span>
-<span class="cstat-no" title="statement not covered" >    if (dId === driverId &amp;&amp; tId !== id) {</span>
-<span class="cstat-no" title="statement not covered" >      sessionState.assignments[tId] = null;</span>
-<span class="cstat-no" title="statement not covered" >      if (sessionState.racers[tId]) {</span>
-<span class="cstat-no" title="statement not covered" >        sessionState.racers[tId].name = 'Unknown Driver';</span>
-      }
-    }
-  }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  sessionState.assignments[id] = driverId;</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  if (sessionState.racers[id]) {</span>
-    const racer = <span class="cstat-no" title="statement not covered" >sessionState.racers[id];</span>
-<span class="cstat-no" title="statement not covered" >    racer.name = driver.name;</span>
-&nbsp;
-    // Retroactively credit laps that have NO driver assigned yet in memory
-<span class="cstat-no" title="statement not covered" >    racer.laps.forEach(<span class="fstat-no" title="function not covered" >(l</span>ap) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (!lap.driverId) {</span>
-<span class="cstat-no" title="statement not covered" >        lap.driverId = driverId;</span>
-      }
-    });
-&nbsp;
-    // Safely apply the batch edit to the database without duplicating laps
-<span class="cstat-no" title="statement not covered" >    assignHistoricalLaps(id, driverId, sessionState.startTime);</span>
-  }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  triggerUpdate();</span>
-}
-&nbsp;
-/**
- * Re-sync the names and colors of active racers in the session
- * with the latest data from the database.
- */
-export function refreshActiveRacers() {
+export function assignHistoricalLaps(carTransponder, driverId, sessionStartTime) {
   const drivers = getDrivers();
   const cars = getCars();
 &nbsp;
-  for (const [id, racer] of Object.entries(sessionState.racers)) {
-    const car = <span class="cstat-no" title="statement not covered" >cars.find(<span class="fstat-no" title="function not covered" >(c</span>) =&gt; <span class="cstat-no" title="statement not covered" >c.transponder === id)</span>;</span>
-<span class="cstat-no" title="statement not covered" >    if (car) {</span>
-<span class="cstat-no" title="statement not covered" >      racer.carName = car.name;</span>
-<span class="cstat-no" title="statement not covered" >      racer.color = car.color;</span>
+  const car = cars.find((c) =&gt; c.transponder === carTransponder);
+  const driver = drivers.find((d) =&gt; d.id === driverId);
+&nbsp;
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!car || !driver) <span class="cstat-no" title="statement not covered" >return;</span>
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!car.laps) <span class="cstat-no" title="statement not covered" >car.laps = [];</span>
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (!driver.laps) driver.laps = [];
+&nbsp;
+  let lapsToAssign = [];
+&nbsp;
+  // Scan car laps for unassigned laps in this session
+  for (let i = 0; i &lt; car.laps.length; i++) {
+    const lap = car.laps[i];
+    // Stop if we hit an older lap before this session
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (lap.timestamp &lt; sessionStartTime) {
+<span class="cstat-no" title="statement not covered" >      break;</span>
+    }
+    // Stop if we hit a lap that is ALREADY assigned
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (lap.driverId) {
+<span class="cstat-no" title="statement not covered" >      break;</span>
     }
 &nbsp;
-    const driverId = <span class="cstat-no" title="statement not covered" >sessionState.assignments[id];</span>
-<span class="cstat-no" title="statement not covered" >    if (driverId) {</span>
-      const driver = <span class="cstat-no" title="statement not covered" >drivers.find(<span class="fstat-no" title="function not covered" >(d</span>) =&gt; <span class="cstat-no" title="statement not covered" >d.id === driverId)</span>;</span>
-<span class="cstat-no" title="statement not covered" >      if (driver) {</span>
-<span class="cstat-no" title="statement not covered" >        racer.name = driver.name;</span>
-      }
-    }
+    // Unassigned lap in this session -&gt; Reassign it!
+    lap.driverId = driver.id;
+    lap.driverName = driver.name;
+&nbsp;
+    // Make a copy for the driver
+    const driverLapEntry = {
+      id: lap.id,
+      car: car.name,
+      carTransponder: car.transponder,
+      timestamp: lap.timestamp,
+      lapTime: lap.lapTime
+    };
+    lapsToAssign.push(driverLapEntry);
   }
-  triggerUpdate();
+&nbsp;
+  // Also update any PRs on the car that belong to these laps
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (car.prs &amp;&amp; lapsToAssign.length &gt; 0) {
+    const assignedLapIds = new Set(lapsToAssign.map((l) =&gt; l.id));
+    car.prs.forEach((pr) =&gt; {
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (assignedLapIds.has(pr.id)) {
+        pr.driverId = driver.id;
+        pr.driverName = driver.name;
+      }
+    });
+  }
+&nbsp;
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (lapsToAssign.length &gt; 0) {
+    // Inject the new laps into the driver's lap history and sort
+    driver.laps.push(...lapsToAssign);
+    driver.laps.sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.timestamp - a.timestamp)</span>;
+    pruneDriverLaps(driver);
+&nbsp;
+    // Recalculate PRs for the driver
+    driver.prs = recalculatePRs(driver.laps);
+&nbsp;
+    localStorage.setItem(STORAGE_KEYS.CARS, JSON.stringify(cars));
+    localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(drivers));
+  }
 }
 &nbsp;
 /**
- * Backs up the current session assignments to localStorage.
+ * Intelligently prune driver laps to keep 100 per car combo + preserve PRs
  */
-export function <span class="fstat-no" title="function not covered" >backupSessionState(</span>) {
-<span class="cstat-no" title="statement not covered" >  if (sessionState.status === 'active') {</span>
-<span class="cstat-no" title="statement not covered" >    localStorage.setItem(</span>
-      'lappr-session-backup',
-      JSON.stringify({
-        timestamp: Date.now(),
-        status: sessionState.status,
-        assignments: sessionState.assignments,
-        racers: sessionState.racers,
-        lapsLogged: sessionState.lapsLogged,
-        sessionElapsedTime:
-          sessionState.status === 'active' ? performance.now() - sessionState.startTime : null
-      })
-    );
-  } else {
-<span class="cstat-no" title="statement not covered" >    localStorage.removeItem('lappr-session-backup');</span>
+export function pruneDriverLaps(driver) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!driver.laps) <span class="cstat-no" title="statement not covered" >return;</span>
+&nbsp;
+  const protectedLapIds = new Set();
+  
+  // Protect all laps in driver.prs
+  if (driver.prs) {
+    driver.prs.forEach(pr =&gt; protectedLapIds.add(pr.id));
   }
+  
+  // Group laps by carTransponder to find the best lap per car
+  const lapsByCar = {};
+  driver.laps.forEach(lap =&gt; {
+    if (!lapsByCar[lap.carTransponder]) {
+      lapsByCar[lap.carTransponder] = [];
+    }
+    lapsByCar[lap.carTransponder].push(lap);
+  });
+  
+  // Protect the best lap for each car
+  for (const transponder in lapsByCar) {
+    const carLaps = lapsByCar[transponder];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (carLaps.length &gt; 0) {
+      const bestLap = carLaps.reduce((best, current) =&gt; current.lapTime &lt; best.lapTime ? current : best, carLaps[0]);
+      protectedLapIds.add(bestLap.id);
+    }
+  }
+  
+  const keptCounts = {};
+  for (const transponder in lapsByCar) {
+    keptCounts[transponder] = 0;
+  }
+  
+  const newLaps = [];
+  for (let i = 0; i &lt; driver.laps.length; i++) {
+    const lap = driver.laps[i];
+    const transponder = lap.carTransponder;
+    
+    if (protectedLapIds.has(lap.id)) {
+      newLaps.push(lap);
+      keptCounts[transponder]++;
+    } else {
+      if (keptCounts[transponder] &lt; 100) {
+        newLaps.push(lap);
+        keptCounts[transponder]++;
+      }
+    }
+  }
+  
+  driver.laps = newLaps;
 }
 &nbsp;
 /**
- * Recovers session assignments if less than a minute old.
+ * Intelligently prune car laps to keep 100 per driver combo + preserve PRs
  */
-export function <span class="fstat-no" title="function not covered" >recoverSessionState(</span>) {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const data = <span class="cstat-no" title="statement not covered" >localStorage.getItem('lappr-session-backup');</span>
-<span class="cstat-no" title="statement not covered" >    if (!data) <span class="cstat-no" title="statement not covered" >return { recovered: false, wasRunning: false };</span></span>
+export function pruneCarLaps(car) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!car.laps) <span class="cstat-no" title="statement not covered" >return;</span>
 &nbsp;
-    const backup = <span class="cstat-no" title="statement not covered" >JSON.parse(data);</span>
-<span class="cstat-no" title="statement not covered" >    if (Date.now() - backup.timestamp &gt; 60000 || backup.status !== 'active') {</span>
-<span class="cstat-no" title="statement not covered" >      localStorage.removeItem('lappr-session-backup');</span>
-<span class="cstat-no" title="statement not covered" >      return { recovered: false, wasRunning: false };</span>
-    }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    if (backup.assignments) {</span>
-<span class="cstat-no" title="statement not covered" >      for (const [transponder, driverId] of Object.entries(backup.assignments)) {</span>
-<span class="cstat-no" title="statement not covered" >        if (driverId) {</span>
-<span class="cstat-no" title="statement not covered" >          assignSessionDriver(transponder, driverId);</span>
-        }
-      }
-    }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    if (backup.racers) {</span>
-      let restoredBestLap = <span class="cstat-no" title="statement not covered" >Infinity;</span>
-<span class="cstat-no" title="statement not covered" >      for (const r of Object.values(backup.racers)) {</span>
-<span class="cstat-no" title="statement not covered" >        if (r.bestLap === null) {</span>
-<span class="cstat-no" title="statement not covered" >          r.bestLap = Infinity;</span>
-        }
-<span class="cstat-no" title="statement not covered" >        if (r.bestLap &lt; restoredBestLap) {</span>
-<span class="cstat-no" title="statement not covered" >          restoredBestLap = r.bestLap;</span>
-        }
-      }
-&nbsp;
-      // I need to set the global overallBestLap. Since it's not exported, I can just assign it.
-      // Wait! Is overallBestLap in scope? Yes, it's at the top of race.js.
-<span class="cstat-no" title="statement not covered" >      overallBestLap = restoredBestLap;</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      sessionState.racers = backup.racers;</span>
-<span class="cstat-no" title="statement not covered" >      sessionState.lapsLogged = backup.lapsLogged || 0;</span>
-<span class="cstat-no" title="statement not covered" >      if (backup.sessionElapsedTime != null) {</span>
-<span class="cstat-no" title="statement not covered" >        sessionState.startTime = performance.now() - backup.sessionElapsedTime;</span>
-      }
-<span class="cstat-no" title="statement not covered" >      sortLeaderboard();</span>
-<span class="cstat-no" title="statement not covered" >      triggerUpdate();</span>
-    }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    return { recovered: true, wasRunning: backup.status === 'active' };</span>
-  } catch (err) {
-<span class="cstat-no" title="statement not covered" >    console.error('Recovery failed:', err);</span>
-<span class="cstat-no" title="statement not covered" >    return { recovered: false, wasRunning: false };</span>
+  const protectedLapIds = new Set();
+  
+  // Protect all laps in car.prs
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (car.prs) {
+    car.prs.forEach(pr =&gt; protectedLapIds.add(pr.id));
   }
+  
+  // Group laps by driverId to find the best lap per driver
+  const lapsByDriver = {};
+  car.laps.forEach(lap =&gt; {
+    const dId = lap.driverId || 'unknown';
+    if (!lapsByDriver[dId]) {
+      lapsByDriver[dId] = [];
+    }
+    lapsByDriver[dId].push(lap);
+  });
+  
+  // Protect the best lap for each driver
+  for (const dId in lapsByDriver) {
+    const driverLaps = lapsByDriver[dId];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (driverLaps.length &gt; 0) {
+      const bestLap = driverLaps.reduce((best, current) =&gt; current.lapTime &lt; best.lapTime ? current : best, driverLaps[0]);
+      protectedLapIds.add(bestLap.id);
+    }
+  }
+  
+  const keptCounts = {};
+  for (const dId in lapsByDriver) {
+    keptCounts[dId] = 0;
+  }
+  
+  const newLaps = [];
+  for (let i = 0; i &lt; car.laps.length; i++) {
+    const lap = car.laps[i];
+    const dId = lap.driverId || 'unknown';
+    
+    if (protectedLapIds.has(lap.id)) {
+      newLaps.push(lap);
+      keptCounts[dId]++;
+    } else {
+      if (keptCounts[dId] &lt; 100) {
+        newLaps.push(lap);
+        keptCounts[dId]++;
+      }
+    }
+  }
+  
+  car.laps = newLaps;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -2026,16 +1876,16 @@ export function <span class="fstat-no" title="function not covered" >recoverSess
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-13T19:56:27.438Z
+                at 2026-06-15T03:09:26.591Z
             </div>
-        <script src="prettify.js"></script>
+        <script src="../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
     </body>
 </html>
     

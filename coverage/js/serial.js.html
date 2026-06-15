@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for serial.js</title>
+    <title>Code coverage report for js/serial.js</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="prettify.css" />
-    <link rel="stylesheet" href="base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(sort-arrow-sprite.png);
+            background-image: url(../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> serial.js</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">js</a> serial.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">53.22% </span>
+                <span class="strong">53.96% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>66/124</span>
+                <span class='fraction'>68/126</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">27.08% </span>
+                <span class="strong">28.84% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>13/48</span>
+                <span class='fraction'>15/52</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">53.71% </span>
+                <span class="strong">54.47% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>65/121</span>
+                <span class='fraction'>67/123</span>
             </div>
         
             
@@ -326,7 +326,11 @@
 <a name='L261'></a><a href='#L261'>261</a>
 <a name='L262'></a><a href='#L262'>262</a>
 <a name='L263'></a><a href='#L263'>263</a>
-<a name='L264'></a><a href='#L264'>264</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -417,6 +421,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -469,6 +475,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -679,7 +687,9 @@ function <span class="fstat-no" title="function not covered" >handleLegacyAsciiL
 &nbsp;
 async function internalConnect(device, baudRate, onLineCallback, onStatusChange) {
   hidDevice = device;
-  await hidDevice.open();
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (!hidDevice.opened) {
+    await hidDevice.open();
+  }
 &nbsp;
   const configData = new Uint8Array(8);
   configData[0] = (baudRate &gt;&gt; 24) &amp; 0xff;
@@ -731,7 +741,9 @@ export async function connectHID(baudRate, onLineCallback, onStatusChange) {
     }
 &nbsp;
     hidDevice = devices[0];
-    await hidDevice.open();
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!hidDevice.opened) {
+      await hidDevice.open();
+    }
 &nbsp;
     // 1. Configure UART parameters (Report ID 0x50)
     // Format: baudRate (4 bytes big-endian), parity (1 byte: 0=None), flowControl (1 byte: 0=None), dataBits (1 byte: 3=8bits), stopBits (1 byte: 0=1 stop)
@@ -859,16 +871,16 @@ export async function autoConnectHID(baudRate, onLineCallback, onStatusChange) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-13T19:56:27.438Z
+                at 2026-06-15T03:09:26.591Z
             </div>
-        <script src="prettify.js"></script>
+        <script src="../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
     </body>
 </html>
     
