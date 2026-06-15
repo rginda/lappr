@@ -29,7 +29,7 @@ import {
   stopSession,
   clearSession,
   processCrossing,
-  onUnregisteredAlert,
+  setUnregisteredAlertCallback,
   assignUnregisteredRacer,
   refreshActiveRacers
 } from './race.js';
@@ -538,7 +538,7 @@ function bindEvents() {
   });
 
   // Unregistered transponder callback hooks
-  onUnregisteredAlert(displayUnregisteredNotification);
+  setUnregisteredAlertCallback(displayUnregisteredNotification);
 
   // Settings Events
   const handleSettingsUpdate = () => {

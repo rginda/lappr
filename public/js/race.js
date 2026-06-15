@@ -112,6 +112,32 @@ bus.on('lapRejected', ({ reason, transponder, time }) => {
   console.warn(`[Lap Rejected] ${transponder} due to ${reason} (${time})`);
 });
 
+let unregisteredQueue = [];
+let unregisteredAlertCallback = null;
+export function setUnregisteredAlertCallback(cb) {
+  unregisteredAlertCallback = cb;
+}
+
+bus.on('unregisteredTransponder', ({ transponder, ticks }) => {
+  const cars = getCars();
+  const knownCar = cars.find(c => c.transponder === transponder);
+  
+  if (knownCar) {
+    // Known car's first lap in this session - register it and re-process!
+    raceEngine.registerCars([knownCar]);
+    raceEngine.processCrossing(transponder, ticks);
+  } else {
+    // Truly unregistered
+    if (unregisteredQueue.some(u => u.transponder === transponder)) return;
+    unregisteredQueue.push({ transponder, timestamp: Date.now() });
+
+    if (unregisteredAlertCallback) {
+      unregisteredAlertCallback(transponder);
+    }
+    speak(`Unregistered transponder detected. Check alert dialog.`);
+  }
+});
+
 // ==========================================
 // Exported Adapter Methods for app.js
 // ==========================================
@@ -121,10 +147,6 @@ export function initSession(config, onUpdate, onTimerUpdate) {
   timerCallback = onTimerUpdate;
 
   raceEngine.initSession(config);
-
-  // Register all known cars to engine
-  const cars = getCars();
-  raceEngine.registerCars(cars);
 
   if (updateCallback) {
     updateCallback({ state: sessionStore.getState(), leaderboard: [] });
@@ -182,17 +204,7 @@ export async function recoverSessionState() {
   return null;
 }
 
-// Unregistered transponder logic from original race.js
-let unregisteredQueue = [];
-export function onUnregisteredAlert(transponder, ticks) {
-  if (unregisteredQueue.some(u => u.transponder === transponder)) return;
-  unregisteredQueue.push({ transponder, timestamp: Date.now() });
-
-  // Let UI handle alert
-  const event = new CustomEvent('unregistered_transponder', { detail: { transponder } });
-  document.dispatchEvent(event);
-  speak(`Unregistered transponder detected. Check alert dialog.`);
-}
+// Unregistered transponder alert logic is now handled in bus listener
 
 export function assignUnregisteredRacer(transponder, driverId, carId) {
   const driver = getDrivers().find(d => d.id === driverId);
