@@ -18,18 +18,18 @@ We will create an IndexedDB database named `lappr_db` with the following object 
 Stores user profiles.
 - **Key Path**: `id`
 - **Fields**:
-  - `id`: Unique UUID (Primary Key)
-  - `name`: String
-  - `createdAt`: Timestamp
+  - `id`: `String` (Unique UUID, Primary Key)
+  - `name`: `String`
+  - `createdAt`: `Number` (Integer, Epoch ms)
 
 ### 2. `cars`
 Stores vehicle profiles.
 - **Key Path**: `transponder`
 - **Fields**:
-  - `transponder`: Hex string (Primary Key)
-  - `name`: String
-  - `color`: Hex color string
-  - `createdAt`: Timestamp
+  - `transponder`: `String` (Hex string, Primary Key)
+  - `name`: `String`
+  - `color`: `String` (Hex color string)
+  - `createdAt`: `Number` (Integer, Epoch ms)
 
 ### 3. `sessions`
 Stores both historical completed sessions and the currently active/paused session snapshot.
@@ -37,12 +37,12 @@ Stores both historical completed sessions and the currently active/paused sessio
 - **Indexes**:
   - `status`: To quickly find 'active' or 'paused' sessions for recovery.
 - **Fields**:
-  - `id`: Unique UUID (Primary Key)
-  - `mode`: String ('practice')
-  - `status`: String ('active', 'paused', 'finished')
-  - `startTime`: Timestamp
-  - `endTime`: Timestamp (nullable)
-  - `assignments`: Object mapping transponders to driver IDs
+  - `id`: `String` (Unique UUID, Primary Key)
+  - `mode`: `String` ('practice')
+  - `status`: `String` ('active', 'paused', 'finished')
+  - `startTime`: `Number` (Integer, Epoch ms)
+  - `endTime`: `Number` | `null` (Integer, Epoch ms)
+  - `assignments`: `Object` (Record mapping `String` transponders to `String` driver IDs)
 
 ### 4. `laps`
 The master table for all lap data. Replaces the duplicated arrays previously stored in driver and car objects.
@@ -54,13 +54,13 @@ The master table for all lap data. Replaces the duplicated arrays previously sto
   - `lapTime`: To query absolute best laps (PRs)
   - `timestamp`: To sort laps chronologically
 - **Fields**:
-  - `id`: Unique UUID (Primary Key)
-  - `sessionId`: UUID of the session
-  - `driverId`: UUID of the driver
-  - `carTransponder`: ID of the car
-  - `timestamp`: Epoch timestamp of the crossing
-  - `lapTime`: Float (seconds)
-  - `isMilestone`: Boolean (true if this lap is a PR or session best)
+  - `id`: `String` (Unique UUID, Primary Key)
+  - `sessionId`: `String` (UUID of the session)
+  - `driverId`: `String` | `null` (UUID of the driver)
+  - `carTransponder`: `String` (Hex ID of the car)
+  - `timestamp`: `Number` (Integer, Epoch ms of the crossing)
+  - `lapTime`: `Number` (Float, seconds)
+  - `isMilestone`: `Boolean` (true if this lap is a PR or session best)
 
 ---
 
