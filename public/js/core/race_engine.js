@@ -4,9 +4,9 @@
  * 100% decoupled from the UI and Database.
  */
 
-import { bus } from './EventBus.js';
-import { sessionStore } from './SessionStore.js';
-import { calculateRacerStats } from './StatCalculator.js';
+import { bus } from './event_bus.js';
+import { sessionStore } from './session_store.js';
+import { calculateRacerStats } from './stat_calculator.js';
 
 export class RaceEngine {
   constructor() {
