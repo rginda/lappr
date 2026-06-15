@@ -685,7 +685,7 @@ export function refreshActiveRacers() {
  * Backs up the current session assignments to localStorage.
  */
 export function backupSessionState() {
-  if (sessionState.status === 'active') {
+  if (sessionState.status === 'active' || sessionState.status === 'paused') {
     localStorage.setItem(
       'lappr-session-backup',
       JSON.stringify({
@@ -695,7 +695,7 @@ export function backupSessionState() {
         racers: sessionState.racers,
         lapsLogged: sessionState.lapsLogged,
         sessionElapsedTime:
-          sessionState.status === 'active' ? performance.now() - sessionState.startTime : null
+          sessionState.status === 'active' ? performance.now() - sessionState.startTime : sessionState.elapsedTime
       })
     );
   } else {
@@ -712,17 +712,9 @@ export function recoverSessionState() {
     if (!data) return { recovered: false, wasRunning: false };
 
     const backup = JSON.parse(data);
-    if (Date.now() - backup.timestamp > 60000 || backup.status !== 'active') {
+    if (Date.now() - backup.timestamp > 60000 || (backup.status !== 'active' && backup.status !== 'paused')) {
       localStorage.removeItem('lappr-session-backup');
       return { recovered: false, wasRunning: false };
-    }
-
-    if (backup.assignments) {
-      for (const [transponder, driverId] of Object.entries(backup.assignments)) {
-        if (driverId) {
-          assignSessionDriver(transponder, driverId);
-        }
-      }
     }
 
     if (backup.racers) {
@@ -736,7 +728,6 @@ export function recoverSessionState() {
         }
       }
 
-      // I need to set the global overallBestLap. Since it's not exported, I can just assign it.
       // Wait! Is overallBestLap in scope? Yes, it's at the top of race.js.
       overallBestLap = restoredBestLap;
 
@@ -744,7 +735,20 @@ export function recoverSessionState() {
       sessionState.lapsLogged = backup.lapsLogged || 0;
       if (backup.sessionElapsedTime != null) {
         sessionState.startTime = performance.now() - backup.sessionElapsedTime;
+        sessionState.elapsedTime = backup.sessionElapsedTime;
       }
+      sessionState.status = 'paused';
+    }
+
+    if (backup.assignments) {
+      for (const [transponder, driverId] of Object.entries(backup.assignments)) {
+        if (driverId) {
+          assignSessionDriver(transponder, driverId);
+        }
+      }
+    }
+
+    if (backup.racers) {
       sortLeaderboard();
       triggerUpdate();
     }
