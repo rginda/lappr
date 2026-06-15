@@ -55,6 +55,7 @@ class SessionStore {
   createRacerSessionData(profile) {
     return {
       driverId: profile.driverId || null,
+      carId: profile.carId || crypto.randomUUID(),
       name: profile.driverName || 'Unknown Driver',
       carName: profile.carName || 'Unknown Car',
       transponder: profile.transponder.toUpperCase(),

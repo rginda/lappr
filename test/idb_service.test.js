@@ -47,20 +47,20 @@ describe('IndexedDB Service', () => {
 
     it('should delete all associated laps when a car is deleted', async () => {
       await saveCar({ id: 'car1', transponder: 'T1', name: 'Test Car' });
-      await saveLap({ id: 'lap1', driverId: 'driver1', carId: 'T1' });
-      await saveLap({ id: 'lap2', driverId: 'driver2', carId: 'T1' });
-      await saveLap({ id: 'lap3', driverId: 'driver1', carId: 'T2' }); // Different car
+      await saveLap({ id: 'lap1', driverId: 'driver1', carId: 'car1' });
+      await saveLap({ id: 'lap2', driverId: 'driver2', carId: 'car1' });
+      await saveLap({ id: 'lap3', driverId: 'driver1', carId: 'car2' }); // Different car
 
       const { getLapsByCarId, deleteCar } = await import('../public/js/db/idb_service.js');
-      let carLaps = await getLapsByCarId('T1');
+      let carLaps = await getLapsByCarId('car1');
       expect(carLaps.length).toBe(2);
 
       await deleteCar('car1');
 
-      carLaps = await getLapsByCarId('T1');
+      carLaps = await getLapsByCarId('car1');
       expect(carLaps.length).toBe(0); // Laps deleted
       
-      const otherCarLaps = await getLapsByCarId('T2');
+      const otherCarLaps = await getLapsByCarId('car2');
       expect(otherCarLaps.length).toBe(1); // Other car's lap untouched
     });
   });

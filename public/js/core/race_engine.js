@@ -57,26 +57,35 @@ export class RaceEngine {
   /**
    * Rehydrate active session racers from a historical lap array
    */
-  reconstituteLaps(laps) {
+  reconstituteLaps(laps, cars = []) {
     const state = sessionStore.getState();
     this.overallBestLap = Infinity;
     state.lapsLogged = laps.length;
 
-    // Group laps by transponder (carId)
+    // Group laps by transponder
     const grouped = {};
     laps.forEach(lap => {
-      const id = lap.carId.toUpperCase();
-      if (!grouped[id]) grouped[id] = [];
-      grouped[id].push(lap);
+      // Find transponder for the lap's carId UUID
+      const car = cars.find(c => c.id === lap.carId);
+      const transponder = car ? car.transponder.toUpperCase() : lap.carId.toUpperCase();
+      if (!grouped[transponder]) grouped[transponder] = [];
+      grouped[transponder].push(lap);
     });
 
     for (const [transponder, carLaps] of Object.entries(grouped)) {
       let racer = state.racers[transponder];
+      const car = cars.find(c => c.transponder.toUpperCase() === transponder);
+      
       if (!racer) {
-        racer = sessionStore.createRacerSessionData({ transponder });
+        racer = sessionStore.createRacerSessionData({ 
+          transponder,
+          carId: car ? car.id : carLaps[0].carId,
+          carName: car ? car.name : 'Unknown Car'
+        });
         state.racers[transponder] = racer;
       }
       
+      racer.carId = car ? car.id : carLaps[0].carId; // Ensure updated
       racer.isActive = true;
       racer.laps = carLaps;
       
@@ -217,11 +226,11 @@ export class RaceEngine {
     
     // Unregistered transponder alert
     if (!racer) {
-      bus.emit('unregisteredTransponder', id);
       racer = sessionStore.createRacerSessionData({
         transponder: id
       });
       state.racers[id] = racer;
+      bus.emit('unregisteredTransponder', { transponder: id, carId: racer.carId });
     }
 
     racer.isActive = true;
@@ -277,7 +286,7 @@ export class RaceEngine {
       id: crypto.randomUUID(),
       sessionId: state.id,
       driverId: assignedDriverId,
-      carId: id, // Transponder as fallback car ID
+      carId: racer.carId, // Native UUID
       timestamp: Date.now(), // Real clock time for DB
       lapTime: lapTimeSeconds,
       lapNumber: racer.laps.length + 1,

@@ -7,7 +7,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'lappr_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Bumped to 2 for carId UUID migration
 
 // ==========================================
 // Memory Cache for Synchronous UI Access
@@ -46,6 +46,39 @@ export async function initDB() {
           lapStore.createIndex('lapTime', 'lapTime', { unique: false });
           lapStore.createIndex('timestamp', 'timestamp', { unique: false });
         }
+      }
+      
+      if (oldVersion < 2) {
+        // Migrate laps to use car UUID instead of transponder
+        console.log('[IndexedDB] Migrating lap carIds to UUID...');
+        const carStore = transaction.objectStore('cars');
+        const lapStore = transaction.objectStore('laps');
+        
+        // Load all cars into memory for mapping
+        carStore.getAll().then(cars => {
+          const transponderToId = {};
+          cars.forEach(car => {
+            if (car.transponder && !transponderToId[car.transponder]) {
+              transponderToId[car.transponder] = car.id; // Map first seen transponder to UUID
+            }
+          });
+
+          // Iterate all laps and update carId
+          lapStore.openCursor().then(function updateLap(cursor) {
+            if (!cursor) {
+              console.log('[IndexedDB] Lap migration complete.');
+              return;
+            }
+            const lap = cursor.value;
+            // Check if carId looks like a transponder (not a UUID format)
+            // Or simply, if carId exists in transponderToId mapping
+            if (lap.carId && transponderToId[lap.carId]) {
+              lap.carId = transponderToId[lap.carId];
+              cursor.update(lap);
+            }
+            cursor.continue().then(updateLap);
+          });
+        });
       }
     }
   });
@@ -154,21 +187,17 @@ export async function deleteCar(id) {
   
   const tx = db.transaction(['cars', 'laps'], 'readwrite');
   
-  // 1. Fetch the car to get its transponder
-  const car = await tx.objectStore('cars').get(id);
+  // 1. Delete the car
+  await tx.objectStore('cars').delete(id);
   
-  if (car && car.transponder) {
-    // 2. Cascade delete all associated laps using transponder (which is used as carId in laps)
-    const lapIndex = tx.objectStore('laps').index('carId');
-    let cursor = await lapIndex.openCursor(car.transponder);
-    while (cursor) {
-      await cursor.delete();
-      cursor = await cursor.continue();
-    }
+  // 2. Cascade delete all associated laps using the UUID (which is now used as carId in laps)
+  const lapIndex = tx.objectStore('laps').index('carId');
+  let cursor = await lapIndex.openCursor(id);
+  while (cursor) {
+    await cursor.delete();
+    cursor = await cursor.continue();
   }
 
-  // 3. Delete the car
-  await tx.objectStore('cars').delete(id);
   await tx.done;
 
   memCache.cars = memCache.cars.filter(c => c.id !== id);

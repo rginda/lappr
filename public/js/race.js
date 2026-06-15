@@ -112,9 +112,14 @@ bus.on('lapRejected', ({ reason, transponder, time }) => {
   console.warn(`[Lap Rejected] ${transponder} due to ${reason} (${time})`);
 });
 
-bus.on('unregisteredTransponder', async (transponder) => {
-  if (typeof transponder === 'object' && transponder !== null) {
-    transponder = transponder.transponder || transponder.id;
+bus.on('unregisteredTransponder', async (data) => {
+  let transponder;
+  let generatedCarId = null;
+  if (typeof data === 'object' && data !== null) {
+    transponder = data.transponder || data.id;
+    generatedCarId = data.carId;
+  } else {
+    transponder = data;
   }
   if (!transponder) return;
   
@@ -132,7 +137,7 @@ bus.on('unregisteredTransponder', async (transponder) => {
   } else {
     // Truly unregistered, auto-create a new car record
     const newCar = {
-      id: crypto.randomUUID(),
+      id: generatedCarId || crypto.randomUUID(),
       transponder: transponder,
       name: `Car ${transponder}`,
       color: '#ffffff'

@@ -1200,12 +1200,15 @@ async function renderDriverDetails(driverId) {
     let overallPr = Infinity;
 
     laps.forEach((lap) => {
-      const car = cars.find(c => c.transponder === lap.carId);
+      // lap.carId is now a UUID
+      const car = cars.find(c => c.id === lap.carId);
       const carName = car ? car.name : 'Unknown Car';
+      const carTransponder = car ? car.transponder : 'Unknown';
       
       if (!carStats[lap.carId]) {
         carStats[lap.carId] = {
-          carTransponder: lap.carId,
+          carId: lap.carId,
+          carTransponder: carTransponder,
           carName: carName,
           lapTimes: [],
           pr: lap.lapTime
@@ -1253,7 +1256,7 @@ async function renderDriverDetails(driverId) {
         <td class="mono" style="text-align: center;">${avg.toFixed(3)}</td>
         <td class="mono" style="text-align: center;">${median.toFixed(3)}</td>
         <td class="mono" style="text-align: center; color: var(--text-muted);">&plusmn;${stdDev.toFixed(3)}</td>
-        <td><button class="btn delete-car-stats-btn" data-cartransponder="${stat.carTransponder}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
+        <td><button class="btn delete-car-stats-btn" data-carid="${stat.carId}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background:transparent; color:var(--color-error);">&times;</button></td>
       `;
       tr.querySelector('.delete-car-stats-btn').addEventListener('click', () => {
         if (
@@ -1261,7 +1264,7 @@ async function renderDriverDetails(driverId) {
             `Delete all laps for ${stat.carName} by this driver? This action cannot be undone.`
           )
         ) {
-          deleteDriverCarStats(driverId, stat.carTransponder);
+          deleteDriverCarStats(driverId, stat.carId);
           renderDriverDetails(driverId);
         }
       });
@@ -1283,7 +1286,7 @@ async function renderDriverDetails(driverId) {
     prs.slice(0, 10).forEach((pr) => {
       const tr = document.createElement('tr');
       const dateStr = new Date(pr.timestamp).toLocaleString();
-      const car = cars.find(c => c.transponder === pr.carId);
+      const car = cars.find(c => c.id === pr.carId);
       const carName = car ? car.name : 'Unknown Car';
       tr.innerHTML = `
         <td class="mono" style="color:var(--color-success); font-weight:bold;">${pr.lapTime.toFixed(3)}</td>
@@ -1325,7 +1328,7 @@ async function renderDriverDetails(driverId) {
     const paginatedLaps = laps.slice(startIndex, startIndex + 15);
 
     paginatedLaps.forEach((lap) => {
-      const car = cars.find(c => c.transponder === lap.carId);
+      const car = cars.find(c => c.id === lap.carId);
       const carName = car ? car.name : 'Unknown Car';
       const tr = document.createElement('tr');
       const dateStr = new Date(lap.timestamp).toLocaleString();
