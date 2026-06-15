@@ -24,9 +24,12 @@ Stores user profiles.
 
 ### 2. `cars`
 Stores vehicle profiles.
-- **Key Path**: `transponder`
+- **Key Path**: `id`
+- **Indexes**:
+  - `transponder`: To map hardware hits to cars
 - **Fields**:
-  - `transponder`: `String` (Hex string, Primary Key)
+  - `id`: `String` (Unique UUID, Primary Key)
+  - `transponder`: `String` (Hex string)
   - `name`: `String`
   - `color`: `String` (Hex color string)
   - `createdAt`: `Number` (Integer, Epoch ms)
@@ -42,14 +45,14 @@ Stores both historical completed sessions and the currently active/paused sessio
   - `status`: `String` ('active', 'paused', 'finished')
   - `startTime`: `Number` (Integer, Epoch ms)
   - `endTime`: `Number` | `null` (Integer, Epoch ms)
-  - `assignments`: `Object` (Record mapping `String` transponders to `String` driver IDs)
+  - `assignments`: `Object` (Record mapping `String` car IDs to `String` driver IDs)
 
 ### 4. `laps`
 The master table for all lap data. Replaces the duplicated arrays previously stored in driver and car objects.
 - **Key Path**: `id`
 - **Indexes**:
   - `driverId`: To query laps by driver
-  - `carTransponder`: To query laps by car
+  - `carId`: To query laps by car
   - `sessionId`: To query laps by session
   - `lapTime`: To query absolute best laps (PRs)
   - `timestamp`: To sort laps chronologically
@@ -57,7 +60,7 @@ The master table for all lap data. Replaces the duplicated arrays previously sto
   - `id`: `String` (Unique UUID, Primary Key)
   - `sessionId`: `String` (UUID of the session)
   - `driverId`: `String` | `null` (UUID of the driver)
-  - `carTransponder`: `String` (Hex ID of the car)
+  - `carId`: `String` (UUID of the car)
   - `timestamp`: `Number` (Integer, Epoch ms of the crossing)
   - `lapTime`: `Number` (Float, seconds)
 
@@ -88,7 +91,7 @@ Because IndexedDB is asynchronous, data will be loaded on-demand rather than com
   - Fetch the most recent 100 laps (sorting by `timestamp` descending).
   - Fetch personal records by querying the `personalrecords` store for that driver's `entityId`, then fetch the corresponding lap details from the `laps` store using the `lapId`s.
 - **Viewing a Car Profile**:
-  - Open a cursor on the `laps` store using the `carTransponder` index.
+  - Open a cursor on the `laps` store using the `carId` index.
   - Fetch the most recent laps and milestones identically to drivers.
 
 ---
