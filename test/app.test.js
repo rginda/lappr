@@ -4,12 +4,20 @@ import path from 'path';
 
 // Mock race and database first
 vi.mock('../public/js/database.js', () => ({
+  getSettings: vi.fn(() => ({ minLapTime: 3.0 })),
+  saveSettings: vi.fn(),
+  DEFAULT_SETTINGS: {}
+}));
+
+vi.mock('../public/js/db/idb_service.js', () => ({
+  initDB: vi.fn(() => Promise.resolve()),
   getDrivers: vi.fn(() => []),
   getCars: vi.fn(() => []),
-  getSettings: vi.fn(() => ({ minLapTime: 3.0 })),
   saveDriver: vi.fn(),
   saveCar: vi.fn(),
-  saveSettings: vi.fn()
+  deleteDriver: vi.fn(),
+  deleteCar: vi.fn(),
+  memCache: { drivers: [], cars: [], activeSessions: [] }
 }));
 
 vi.mock('../public/js/serial.js', () => ({
@@ -72,7 +80,7 @@ describe('App Controller (DOM)', () => {
     const event = new Event('submit', { cancelable: true });
     driverForm.dispatchEvent(event);
     
-    const db = await import('../public/js/database.js');
+    const db = await import('../public/js/db/idb_service.js');
     expect(db.saveDriver).toHaveBeenCalledWith(expect.objectContaining({
       name: 'Test Driver'
     }));
@@ -89,7 +97,7 @@ describe('App Controller (DOM)', () => {
     const event = new Event('submit', { cancelable: true });
     carForm.dispatchEvent(event);
     
-    const db = await import('../public/js/database.js');
+    const db = await import('../public/js/db/idb_service.js');
     expect(db.saveCar).toHaveBeenCalledWith(expect.objectContaining({
       transponder: 'AAAAAA',
       name: 'Test Car',

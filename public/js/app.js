@@ -5,18 +5,20 @@
  */
 
 import {
+  getSettings,
+  saveSettings,
+  DEFAULT_SETTINGS
+} from './database.js';
+
+import {
+  initDB,
   getDrivers,
   saveDriver,
   deleteDriver,
   getCars,
   saveCar,
-  deleteCar,
-  deleteLap,
-  deleteDriverCarStats,
-  getSettings,
-  saveSettings,
-  DEFAULT_SETTINGS
-} from './database.js';
+  deleteCar
+} from './db/idb_service.js';
 
 import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './serial.js';
 
@@ -177,9 +179,12 @@ const initApp = () => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', async () => {
+    await initDB();
+    initApp();
+  });
 } else {
-  initApp();
+  initDB().then(() => initApp());
 }
 
 /**

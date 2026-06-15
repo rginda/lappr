@@ -9,6 +9,15 @@ import { openDB } from 'idb';
 const DB_NAME = 'lappr_db';
 const DB_VERSION = 1;
 
+// ==========================================
+// Memory Cache for Synchronous UI Access
+// ==========================================
+export const memCache = {
+  drivers: [],
+  cars: [],
+  activeSessions: []
+};
+
 let dbPromise;
 
 /**
@@ -20,24 +29,15 @@ export async function initDB() {
   dbPromise = openDB(DB_NAME, DB_VERSION, {
     upgrade(db, oldVersion, newVersion, transaction) {
       if (oldVersion < 1) {
-        // 1. Drivers Store
-        if (!db.objectStoreNames.contains('drivers')) {
-          db.createObjectStore('drivers', { keyPath: 'id' });
-        }
-
-        // 2. Cars Store
+        if (!db.objectStoreNames.contains('drivers')) db.createObjectStore('drivers', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('cars')) {
           const carStore = db.createObjectStore('cars', { keyPath: 'id' });
           carStore.createIndex('transponder', 'transponder', { unique: false });
         }
-
-        // 3. Sessions Store
         if (!db.objectStoreNames.contains('sessions')) {
           const sessionStore = db.createObjectStore('sessions', { keyPath: 'id' });
           sessionStore.createIndex('status', 'status', { unique: false });
         }
-
-        // 4. Laps Store
         if (!db.objectStoreNames.contains('laps')) {
           const lapStore = db.createObjectStore('laps', { keyPath: 'id' });
           lapStore.createIndex('driverId', 'driverId', { unique: false });
@@ -46,8 +46,6 @@ export async function initDB() {
           lapStore.createIndex('lapTime', 'lapTime', { unique: false });
           lapStore.createIndex('timestamp', 'timestamp', { unique: false });
         }
-
-        // 5. Personal Records Store
         if (!db.objectStoreNames.contains('personalrecords')) {
           const prStore = db.createObjectStore('personalrecords', { keyPath: 'id' });
           prStore.createIndex('entityId', 'entityId', { unique: false });
@@ -58,6 +56,18 @@ export async function initDB() {
     }
   });
 
+  const db = await dbPromise;
+
+  // Hydrate Cache
+  memCache.drivers = await db.getAll('drivers');
+  memCache.cars = await db.getAll('cars');
+  
+  const tx = db.transaction('sessions', 'readonly');
+  const index = tx.store.index('status');
+  const active = await index.getAll('active');
+  const paused = await index.getAll('paused');
+  memCache.activeSessions = [...active, ...paused];
+
   return dbPromise;
 }
 
@@ -65,9 +75,8 @@ export async function initDB() {
 // Drivers
 // ==========================================
 
-export async function getDrivers() {
-  const db = await initDB();
-  return db.getAll('drivers');
+export function getDrivers() {
+  return memCache.drivers;
 }
 
 export async function getDriver(id) {
@@ -76,12 +85,17 @@ export async function getDriver(id) {
 }
 
 export async function saveDriver(driver) {
+  const idx = memCache.drivers.findIndex(d => d.id === driver.id);
+  if (idx > -1) memCache.drivers[idx] = driver;
+  else memCache.drivers.push(driver);
+
   const db = await initDB();
   await db.put('drivers', driver);
   return driver;
 }
 
 export async function deleteDriver(id) {
+  memCache.drivers = memCache.drivers.filter(d => d.id !== id);
   const db = await initDB();
   await db.delete('drivers', id);
 }
@@ -90,9 +104,8 @@ export async function deleteDriver(id) {
 // Cars
 // ==========================================
 
-export async function getCars() {
-  const db = await initDB();
-  return db.getAll('cars');
+export function getCars() {
+  return memCache.cars;
 }
 
 export async function getCar(id) {
@@ -106,12 +119,17 @@ export async function getCarByTransponder(transponder) {
 }
 
 export async function saveCar(car) {
+  const idx = memCache.cars.findIndex(c => c.id === car.id);
+  if (idx > -1) memCache.cars[idx] = car;
+  else memCache.cars.push(car);
+
   const db = await initDB();
   await db.put('cars', car);
   return car;
 }
 
 export async function deleteCar(id) {
+  memCache.cars = memCache.cars.filter(c => c.id !== id);
   const db = await initDB();
   await db.delete('cars', id);
 }
@@ -168,6 +186,19 @@ export async function deleteLap(id) {
 export async function getLapsForSession(sessionId) {
   const db = await initDB();
   return db.getAllFromIndex('laps', 'sessionId', sessionId);
+}
+
+export async function deleteDriverCarStats(driverId, carId) {
+  const db = await initDB();
+  const tx = db.transaction('laps', 'readwrite');
+  const index = tx.store.index('driverId');
+  let cursor = await index.openCursor(driverId);
+  while (cursor) {
+    if (cursor.value.carId === carId) {
+      await cursor.delete();
+    }
+    cursor = await cursor.continue();
+  }
 }
 
 /**
