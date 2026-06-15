@@ -65,7 +65,57 @@ The master table for all lap data.
   - `lapTime`: `Number` (Float, seconds)
 
 
-## 3. Data Access & Dynamic Stats Derivation
+## 3. In-Memory Runtime State (`sessionStore`)
+
+While a session is actively running, race data is held in-memory within the `sessionStore`. This allows for extremely fast updates (every 10ms for the clock/UI) without constantly blocking on database I/O.
+
+### `sessionStore` State Object
+```javascript
+{
+  id: 'uuid...',             // Session ID
+  mode: 'practice',          // Session type
+  status: 'active',          // 'ready', 'active', 'paused', 'finished'
+  startTime: 12345.678,      // High-resolution performance.now() timestamp
+  elapsedTime: 0,            // Total elapsed time if paused
+  assignments: {             // Transponder -> Driver ID mappings
+    "CDFD4C": "driver-uuid-123"
+  },
+  racers: {                  // Live statistical tracking per car
+    "CDFD4C": {
+      name: "Jane Doe",
+      carName: "Red Mini-Z RWD",
+      transponder: "CDFD4C",
+      color: "#ef4444",
+      laps: [ /* Array of lap objects recorded in THIS session */ ],
+      bestLap: 10.453,
+      averageLap: 10.985,
+      consistency: 94.5,
+      longestStreak: 5,
+      isActive: true
+    }
+  }
+}
+```
+
+### Driver Assignments & Retroactive Crediting
+During a session, a car (transponder) can be dynamically assigned to a driver.
+When an assignment occurs:
+1. The `assignments` map is updated in the `sessionStore`.
+2. The runtime `racers` object updates the display name for that transponder.
+3. Any laps already completed by that car in the current session are *retroactively* credited to the newly assigned driver, both in the memory store and in the persistent `laps` table via `assignHistoricalLaps`.
+
+---
+
+## 4. Crash Recovery & Session Resume
+
+To protect against accidental page reloads or browser crashes during an active race, Lappr maintains a rolling backup.
+
+1. **Backup Phase**: Whenever the session is `active` or `paused`, an event listener on the window (`beforeunload`) fires before the page refreshes. The system serializes the entire `sessionStore` state into a temporary LocalStorage key (`lappr-session-backup`) or flushes it to IndexedDB.
+2. **Recovery Phase**: Upon reloading, `app.js` runs `recoverSessionState()`. If a recent backup is found, it injects the serialized `racers` and `assignments` back into memory, calculates the offset for `elapsedTime`, and flags the session as `paused`. The user can then hit "Resume" to seamlessly continue the session with zero data loss.
+
+---
+
+## 5. Data Access & Dynamic Stats Derivation
 
 Because IndexedDB is asynchronous, data is loaded on-demand rather than comprehensively at startup. 
 
@@ -84,7 +134,7 @@ Instead of managing a brittle secondary table for "Personal Records", Lappr dyna
 
 ---
 
-## 4. Pruning Strategy
+## 6. Pruning Strategy
 
 To prevent the database from growing indefinitely with standard/slow laps, a background pruning strategy runs on app startup.
 
@@ -100,7 +150,7 @@ After lap pruning is complete, the routine queries the `sessions` table. Any his
 
 ---
 
-## 5. Architectural Separation & Testing Strategy
+## 7. Architectural Separation & Testing Strategy
 
 Lappr uses a cleanly separated, event-driven architecture to support the asynchronous nature of IndexedDB and maintain high test coverage.
 
