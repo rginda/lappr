@@ -86,6 +86,14 @@ export async function getDriver(id) {
   return db.get('drivers', id);
 }
 
+export async function closeDB() {
+  if (dbPromise) {
+    const db = await dbPromise;
+    db.close();
+    dbPromise = null;
+  }
+}
+
 export async function saveDriver(driver) {
   const idx = memCache.drivers.findIndex(d => d.id === driver.id);
   if (idx > -1) memCache.drivers[idx] = driver;
@@ -99,7 +107,18 @@ export async function saveDriver(driver) {
 export async function deleteDriver(id) {
   memCache.drivers = memCache.drivers.filter(d => d.id !== id);
   const db = await initDB();
-  await db.delete('drivers', id);
+  
+  const tx = db.transaction(['drivers', 'laps'], 'readwrite');
+  await tx.objectStore('drivers').delete(id);
+  
+  const lapIndex = tx.objectStore('laps').index('driverId');
+  let cursor = await lapIndex.openCursor(id);
+  while (cursor) {
+    await cursor.delete();
+    cursor = await cursor.continue();
+  }
+  
+  await tx.done;
 }
 
 // ==========================================

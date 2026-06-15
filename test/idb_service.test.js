@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   initDB,
+  closeDB,
   saveDriver,
   saveCar,
   saveLap,
@@ -9,12 +10,58 @@ import {
 } from '../public/js/db/idb_service.js';
 
 describe('IndexedDB Service', () => {
+  afterEach(async () => {
+    // Properly close the DB connection after each test
+    await closeDB();
+  });
+
   beforeEach(async () => {
     // Clear the fake-indexeddb database before each test
     const req = indexedDB.deleteDatabase('lappr_db');
     await new Promise((resolve) => {
       req.onsuccess = resolve;
       req.onerror = resolve;
+      req.onblocked = resolve;
+    });
+  });
+
+  describe('Deletions (Cascade)', () => {
+    it('should delete all associated laps when a driver is deleted', async () => {
+      await saveDriver({ id: 'driver1', name: 'Test Driver' });
+      await saveLap({ id: 'lap1', driverId: 'driver1', carId: 'car1' });
+      await saveLap({ id: 'lap2', driverId: 'driver1', carId: 'car2' });
+      await saveLap({ id: 'lap3', driverId: 'driver2', carId: 'car1' }); // Different driver
+
+      let driverLaps = await getLapsByDriverId('driver1');
+      expect(driverLaps.length).toBe(2);
+
+      const { deleteDriver } = await import('../public/js/db/idb_service.js');
+      await deleteDriver('driver1');
+
+      driverLaps = await getLapsByDriverId('driver1');
+      expect(driverLaps.length).toBe(0); // Laps deleted
+      
+      const otherDriverLaps = await getLapsByDriverId('driver2');
+      expect(otherDriverLaps.length).toBe(1); // Other driver's lap untouched
+    });
+
+    it('should delete all associated laps when a car is deleted', async () => {
+      await saveCar({ id: 'car1', name: 'Test Car' });
+      await saveLap({ id: 'lap1', driverId: 'driver1', carId: 'car1' });
+      await saveLap({ id: 'lap2', driverId: 'driver2', carId: 'car1' });
+      await saveLap({ id: 'lap3', driverId: 'driver1', carId: 'car2' }); // Different car
+
+      const { getLapsByCarId, deleteCar } = await import('../public/js/db/idb_service.js');
+      let carLaps = await getLapsByCarId('car1');
+      expect(carLaps.length).toBe(2);
+
+      await deleteCar('car1');
+
+      carLaps = await getLapsByCarId('car1');
+      expect(carLaps.length).toBe(0); // Laps deleted
+      
+      const otherCarLaps = await getLapsByCarId('car2');
+      expect(otherCarLaps.length).toBe(1); // Other car's lap untouched
     });
   });
 
