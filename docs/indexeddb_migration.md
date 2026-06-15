@@ -112,7 +112,7 @@ When a lap qualifies as a new PR, a record is added to the `personalrecords` tab
 3. **Preserve Saved Sessions**: If a session is marked as "saved" or "locked" by the user, its associated laps are retained.
 
 **Execution**:
-When a session finishes, a cleanup routine queries the `laps` store for laps that do NOT meet the retention criteria. Before deleting a lap, the routine checks if its `id` exists in the `personalrecords` table; if it does, the lap is skipped. Unprotected laps are deleted in a batch transaction.
+Instead of relying on the user to properly "finish" a session (which is easily bypassed if they simply close the browser tab), the cleanup routine will fire asynchronously on **app startup**. While the UI initializes, the background worker will query the `laps` store for laps that do NOT meet the retention criteria. Before deleting a lap, the routine checks if its `id` exists in the `personalrecords` table; if it does, the lap is skipped. Unprotected laps are deleted in a batch transaction.
 
 **Session Cleanup**:
 After lap pruning is complete, the routine queries the `sessions` table. Any historical session (e.g., `status === 'finished'`) that no longer has any corresponding laps remaining in the `laps` table is deleted to prevent the database from filling up with empty "ghost" sessions.
