@@ -1061,11 +1061,12 @@ function handleAddCar(e) {
   const color = document.getElementById('car-color').value;
 
   const car = {
+    id: 'car_' + Date.now(),
     name,
     transponder,
     chassis,
     color,
-    driverId: ''
+    createdAt: Date.now()
   };
 
   saveCar(car);
@@ -1073,7 +1074,7 @@ function handleAddCar(e) {
   renderCarList();
 
   // Hot-reload profile in the active timing engine
-  assignUnregisteredRacer(transponder, name, color, 'Mini-Z');
+  assignUnregisteredRacer(transponder, null, car.id);
   refreshActiveRacers();
   switchView('view-session');
 }
