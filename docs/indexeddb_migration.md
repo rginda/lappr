@@ -60,7 +60,19 @@ The master table for all lap data. Replaces the duplicated arrays previously sto
   - `carTransponder`: `String` (Hex ID of the car)
   - `timestamp`: `Number` (Integer, Epoch ms of the crossing)
   - `lapTime`: `Number` (Float, seconds)
-  - `isMilestone`: `Boolean` (true if this lap is a PR or session best)
+
+### 5. `personalrecords`
+Maintains a list of top N milestone laps (PRs) for drivers and cars to decouple milestone status from the lap record itself.
+- **Key Path**: `id`
+- **Indexes**:
+  - `entityId`: To quickly query PRs for a specific driver or car
+  - `lapId`: To join back to the master `laps` table
+  - `prType`: To categorize PRs (e.g., 'overall_driver', 'overall_car', 'driver_car_combo')
+- **Fields**:
+  - `id`: `String` (Unique UUID, Primary Key)
+  - `lapId`: `String` (Foreign key referencing a lap `id`)
+  - `entityId`: `String` (Driver UUID or Car Hex ID)
+  - `prType`: `String` (Type of milestone)
 
 ---
 
@@ -74,7 +86,7 @@ Because IndexedDB is asynchronous, data will be loaded on-demand rather than com
 - **Viewing a Driver Profile**:
   - Open a cursor on the `laps` store using the `driverId` index.
   - Fetch the most recent 100 laps (sorting by `timestamp` descending).
-  - Fetch personal records by querying the `isMilestone` laps for that driver, sorted by `lapTime`.
+  - Fetch personal records by querying the `personalrecords` store for that driver's `entityId`, then fetch the corresponding lap details from the `laps` store using the `lapId`s.
 - **Viewing a Car Profile**:
   - Open a cursor on the `laps` store using the `carTransponder` index.
   - Fetch the most recent laps and milestones identically to drivers.
@@ -85,10 +97,13 @@ Because IndexedDB is asynchronous, data will be loaded on-demand rather than com
 
 To prevent the database from growing indefinitely with standard/slow laps, we will implement a background pruning strategy:
 
-**Rules for Pruning**:
-1. **Preserve Milestones**: Any lap where `isMilestone === true` is permanently retained.
+**Adding New PRs**:
+When a lap qualifies as a new PR, a record is added to the `personalrecords` table. If the list of PRs for that entity/type exceeds the limit (e.g., top 15), the slowest PR is culled from the `personalrecords` table. (The underlying lap record remains in the `laps` table until caught by the global cleanup.)
+
+**Global Lap Cleanup Rules**:
+1. **Preserve Milestones**: Any lap whose `id` exists in the `personalrecords` table is permanently retained. (Because we track invalid/slow laps in the PR list intentionally so users can easily find and delete them, they are protected here).
 2. **Preserve Recent History**: We retain the last `N` laps (e.g., 500) globally or per-driver/car.
 3. **Preserve Saved Sessions**: If a session is marked as "saved" or "locked" by the user, its associated laps are retained.
 
 **Execution**:
-When a session finishes, a cleanup routine queries the `laps` store for laps that do NOT meet the retention criteria (e.g., `isMilestone === false`, `timestamp < [Threshold]`). These laps are deleted in a batch transaction.
+When a session finishes, a cleanup routine queries the `laps` store for laps that do NOT meet the retention criteria. Before deleting a lap, the routine checks if its `id` exists in the `personalrecords` table; if it does, the lap is skipped. Unprotected laps are deleted in a batch transaction.
