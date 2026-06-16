@@ -146,6 +146,9 @@ bus.on('unregisteredTransponder', async (data) => {
     // Save to DB and cache
     await saveCar(newCar);
     
+    // Notify UI that a new car was added to the database
+    bus.emit('carCreated', newCar);
+    
     // Register it
     raceEngine.registerCars([newCar]);
 

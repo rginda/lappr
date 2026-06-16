@@ -35,6 +35,8 @@ import {
 
 import { configureSpeech } from './speech.js';
 
+import { bus } from './core/event_bus.js';
+
 const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
@@ -110,6 +112,10 @@ let currentSessionStatus = 'ready';
 /**
  * Initialize application.
  */
+
+bus.on('carCreated', () => {
+  renderCarList();
+});
 
 const initApp = async () => {
   activeSettings = getSettings();
