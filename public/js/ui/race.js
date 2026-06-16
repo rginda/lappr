@@ -6,7 +6,7 @@
 import { raceEngine } from '../core/race_engine.js';
 import { sessionStore } from '../core/session_store.js';
 import { bus } from '../core/event_bus.js';
-import { getDrivers, getCars, saveCar, saveLap, saveSession, getLapsBySessionId, memCache } from '../storage/idb_service.js';
+import { getDrivers, getCars, saveCar, saveLap, saveSession, getLapsBySessionId, memCache, getLapsByCarId, getLapsByDriverId } from '../storage/idb_service.js';
 import { getSettings } from '../storage/settings.js';
 import { speak } from './speech.js';
 
@@ -84,24 +84,55 @@ bus.on('racerOnTrack', (data) => {
   speak(`${data.name} is on track.`);
 });
 
-bus.on('lapRecorded', ({ racer, lap, isPR, isBestInSession }) => {
-  // Speech Logic
-  let announcement = `${racer.name}, ${lap.lapTime.toFixed(1)}`;
-  if (isPR) {
-    announcement = `Personal Record! ${announcement}`;
-  } else if (isBestInSession) {
-    announcement = `Fastest Lap! ${announcement}`;
-  }
-  speak(announcement);
-
-  // Determine driver id
+bus.on('lapRecorded', async ({ racer, lap }) => {
   const driver = getDrivers().find(d => d.name === racer.name);
   const driverId = driver ? driver.id : null;
+  const carId = lap.carId;
+
+  // 1. Determine All-Time PRs before saving this lap (so we compare to past laps)
+  let isOverallCarBest = false;
+  let isDriverOverallPR = false;
+  let isDriverCarPR = false;
+
+  const carLaps = await getLapsByCarId(carId);
+  if (carLaps.length === 0 || lap.lapTime < Math.min(...carLaps.map(l => l.lapTime))) {
+    isOverallCarBest = true;
+  }
+
+  if (driverId) {
+    const driverLaps = await getLapsByDriverId(driverId);
+    if (driverLaps.length === 0 || lap.lapTime < Math.min(...driverLaps.map(l => l.lapTime))) {
+      isDriverOverallPR = true;
+    }
+    const driverCarLaps = driverLaps.filter(l => l.carId === carId);
+    if (driverCarLaps.length === 0 || lap.lapTime < Math.min(...driverCarLaps.map(l => l.lapTime))) {
+      isDriverCarPR = true;
+    }
+  }
+
+  // 2. Select the highest priority announcement template
+  const settings = getSettings();
+  const tpl = settings.announcements;
+  let templateStr = tpl.normalLap;
+
+  if (isOverallCarBest) templateStr = tpl.overallCarBest;
+  else if (isDriverOverallPR) templateStr = tpl.driverOverallPR;
+  else if (isDriverCarPR) templateStr = tpl.driverCarPR;
+  else if (lap.isOverallBest) templateStr = tpl.overallSessionBest;
+  else if (lap.isDriverSessionBest) templateStr = tpl.driverSessionBest;
+
+  // 3. Format strings
+  const announcement = templateStr
+    .replace('{driver}', racer.name)
+    .replace('{car}', racer.carName)
+    .replace('{time}', lap.lapTime.toFixed(1));
+
+  speak(announcement);
 
   saveLap({
     id: lap.id,
     driverId,
-    carId: lap.carId, // Assuming lap has carId from somewhere
+    carId: lap.carId,
     sessionId: sessionStore.getState().id,
     lapTime: lap.lapTime,
     timestamp: lap.timestamp
