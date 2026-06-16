@@ -308,7 +308,7 @@ function bindEvents() {
       btn.style.color = '#000';
       setTimeout(() => {
         btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.color = '#text-primary';
+        btn.style.color = 'var(--text-primary)';
       }, 150);
     });
     
