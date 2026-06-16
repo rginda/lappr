@@ -298,8 +298,9 @@ function bindEvents() {
     btn.innerHTML = `<span>${transponderId}</span> <span style="font-size: 0.75rem; color: var(--accent-primary);">Trigger &rarr;</span>`;
     
     btn.addEventListener('click', () => {
-      // Bypass serial parsing and trigger crossing directly
-      const ticks = Math.floor(Date.now() / 10);
+      // Generate 1 tick per ms, mimicking the 1000Hz resolution expected by race engine
+      // Modulo 24-bit (16777216) to emulate hardware timer wrap
+      const ticks = Math.floor(performance.now()) % 16777216;
       processCrossing(transponderId, ticks);
       
       // Visual feedback
