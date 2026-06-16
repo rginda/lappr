@@ -39,7 +39,14 @@ const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
 const minLapTime = document.getElementById('setting-min-lap-time');
-const maxLapTime = document.getElementById('setting-max-lap-time');
+const settingMaxLapTime = document.getElementById('setting-max-lap-time');
+
+// Mock Hardware DOM Elements
+const mockHardwareDropdown = document.getElementById('mock-hardware-dropdown');
+const mockTranspondersList = document.getElementById('mock-transponders-list');
+const btnAddMock = document.getElementById('btn-add-mock');
+const btnCloseMock = document.getElementById('btn-close-mock');
+let mockTransponderCount = 0;
 const btnSessionStart = document.getElementById('btn-session-start');
 const btnSessionStop = document.getElementById('btn-session-stop');
 
@@ -136,7 +143,7 @@ const initApp = async () => {
       limitType: 'time',
       limitValue: 0,
       minLapTime: parseFloat(minLapTime.value) || 3.0,
-      maxLapTime: parseFloat(maxLapTime.value) || 25.0
+      maxLapTime: parseFloat(settingMaxLapTime.value) || 25.0
     };
 
     initSession(config, renderLeaderboard, updateTimerDisplay);
@@ -177,18 +184,17 @@ const initApp = async () => {
   }
 
   // Handle hardware auto-connect
-  if (activeSettings.connectAtStartup) {
-    const resumeIfNeeded = () => {
-      if (recovery && recovery.status === 'active') {
-        startSession();
-      }
-    };
+  const resumeIfNeeded = () => {
+    if (recovery && recovery.status === 'active') {
+      startSession();
+    }
+  };
 
-    if (activeSettings.hardwareType === 'mock') {
-      toggleSimulator(true, onLineReceived, onStatusChange);
-      resumeIfNeeded();
-    } else {
-      autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
+  if (activeSettings.hardwareType === 'mock') {
+    onStatusChange({ connected: true, type: 'mock', name: 'MOCK HARDWARE' });
+    resumeIfNeeded();
+  } else if (activeSettings.connectAtStartup) {
+    autoConnectHID(38400, onLineReceived, onStatusChange).then((connected) => {
         if (!connected) {
           console.warn('Auto-connect HID failed. User gesture may be required first.');
           if (recovery && recovery.status === 'active') {
@@ -217,7 +223,7 @@ if (document.readyState === 'loading') {
  */
 function loadSettingsUI() {
   minLapTime.value = activeSettings.minLapTime || 3.0;
-  maxLapTime.value = activeSettings.maxLapTime || 25.0;
+  settingMaxLapTime.value = activeSettings.maxLapTime || 25.0;
 
   speechToggle.checked = activeSettings.speechEnabled;
   speechVolume.value = activeSettings.speechVolume || 0.8;
@@ -277,11 +283,48 @@ window.speechSynthesis.onvoiceschanged = populateVoiceDropdowns;
 function bindEvents() {
   // Connection Events
   connectionBadge.addEventListener('click', handleConnectClick);
+  
+  // Mock Hardware Events
+  btnCloseMock.addEventListener('click', () => {
+    mockHardwareDropdown.style.display = 'none';
+  });
+  
+  btnAddMock.addEventListener('click', () => {
+    mockTransponderCount++;
+    const transponderId = `MOCK${mockTransponderCount.toString().padStart(2, '0')}`;
+    
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer;';
+    btn.innerHTML = `<span>${transponderId}</span> <span style="font-size: 0.75rem; color: var(--accent-primary);">Trigger &rarr;</span>`;
+    
+    btn.addEventListener('click', () => {
+      // Simulate crossing format: ID[6 chars]Timestamp[8 chars]
+      const ts = Math.floor(Date.now() / 10).toString(16).padStart(8, '0');
+      onLineReceived(transponderId + ts);
+      
+      // Visual feedback
+      btn.style.background = 'var(--accent-primary)';
+      btn.style.color = '#000';
+      setTimeout(() => {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.color = '#text-primary';
+      }, 150);
+    });
+    
+    mockTranspondersList.appendChild(btn);
+  });
 
   // Session Settings Events
   const handleSessionSettingChange = () => {
     saveActiveSettings();
     reinitSessionState();
+
+    if (activeSettings.hardwareType === 'mock') {
+      onStatusChange({ connected: true, type: 'mock', name: 'MOCK HARDWARE' });
+    } else if (connectionBadge.classList.contains('connected') && connectionStatusText.textContent === 'MOCK HARDWARE') {
+      onStatusChange({ connected: false });
+    }
 
     // Quick inline notification
     const notif = document.createElement('div');
@@ -296,7 +339,7 @@ function bindEvents() {
   };
 
   minLapTime.addEventListener('change', handleSessionSettingChange);
-  maxLapTime.addEventListener('change', handleSessionSettingChange);
+  settingMaxLapTime.addEventListener('change', handleSessionSettingChange);
 
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
@@ -712,6 +755,11 @@ function saveActiveSettings() {
  * Hardware Connection Click.
  */
 async function handleConnectClick(e) {
+  if (activeSettings.hardwareType === 'mock') {
+    mockHardwareDropdown.style.display = mockHardwareDropdown.style.display === 'none' ? 'block' : 'none';
+    return;
+  }
+
   if (connectionBadge.classList.contains('connected')) {
     await disconnect(onStatusChange);
     return;
@@ -788,9 +836,11 @@ async function handleSessionStartToggle(e) {
     module.startSession();
   } else {
     if (currentSessionStatus !== 'paused' && !connectionBadge.classList.contains('connected')) {
-      await handleConnectClick(e);
-      if (!connectionBadge.classList.contains('connected')) {
-        return; // Abort starting session if connection failed
+      if (activeSettings.hardwareType !== 'mock') {
+        await handleConnectClick(e);
+        if (!connectionBadge.classList.contains('connected')) {
+          return; // Abort starting session if connection failed
+        }
       }
     }
     import('./race.js').then((module) => module.startSession());
