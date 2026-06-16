@@ -1115,6 +1115,7 @@ function updateTimerDisplay(elapsedMs) {
  */
 function handleAddDriver(e) {
   e.preventDefault();
+  console.log('handleAddDriver called with:', document.getElementById('driver-name').value);
 
   const name = document.getElementById('driver-name').value.trim();
   const id = 'd_' + Date.now().toString(36);
@@ -1491,29 +1492,26 @@ function renderDriverLapChart(driver, laps = []) {
 
   // Per-car datasets
   const carGroups = {};
+  const cars = getCars();
+  
   laps.forEach((lap) => {
-    if (!carGroups[lap.carTransponder]) {
-      carGroups[lap.carTransponder] = {
-        name: lap.car,
+    if (!carGroups[lap.carId]) {
+      const car = cars.find(c => c.id === lap.carId);
+      carGroups[lap.carId] = {
+        name: car ? car.name : 'Unknown Car',
+        color: car ? car.color : '#aaaaaa',
         laps: []
       };
     }
-    carGroups[lap.carTransponder].laps.push(lap);
+    carGroups[lap.carId].laps.push(lap);
   });
 
-  const cars = getCars();
-
-  for (const transponder in carGroups) {
+  for (const carId in carGroups) {
     // if there's only 1 car, don't show an extra overlapping dataset
     if (Object.keys(carGroups).length === 1) break;
 
-    const group = carGroups[transponder];
-    const carObj = cars.find((c) => c.transponder === transponder);
-    
-    let hexColor = '#888888'; // Fallback gray
-    if (carObj && carObj.color) {
-      hexColor = carObj.color;
-    }
+    const group = carGroups[carId];
+    let hexColor = group.color;
 
     // Convert hex to rgba for background
     let r = 136, g = 136, b = 136;

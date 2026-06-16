@@ -260,11 +260,23 @@ export function refreshActiveRacers() {
   raceEngine.registerCars(activeCars);
 }
 
-export function assignSessionDriver(transponder, driverId) {
+export async function assignSessionDriver(transponder, driverId) {
   const drivers = getDrivers();
   const driver = drivers.find((d) => d.id === driverId);
   const driverName = driver ? driver.name : 'Unknown Driver';
+  
+  // Update memory
   raceEngine.assignSessionDriver(transponder, driverName, driverId);
+
+  // Update DB for retroactively assigned laps
+  const state = sessionStore.getState();
+  const id = transponder.toUpperCase();
+  if (state.racers[id]) {
+    const racer = state.racers[id];
+    for (const lap of racer.laps) {
+      await saveLap(lap);
+    }
+  }
 }
 
 export function removeCarFromSession(transponder) {
