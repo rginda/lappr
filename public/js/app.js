@@ -8,7 +8,7 @@ import {
   getSettings,
   saveSettings,
   DEFAULT_SETTINGS
-} from './database.js';
+} from './storage/settings.js';
 
 import {
   initDB,
@@ -18,9 +18,9 @@ import {
   getCars,
   saveCar,
   deleteCar
-} from './db/idb_service.js';
+} from './storage/idb_service.js';
 
-import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './serial.js';
+import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './hardware/serial.js';
 
 import {
   initSession,
@@ -31,9 +31,9 @@ import {
   processCrossing,
   assignUnregisteredRacer,
   refreshActiveRacers
-} from './race.js';
+} from './ui/race.js';
 
-import { configureSpeech } from './speech.js';
+import { configureSpeech } from './ui/speech.js';
 
 import { bus } from './core/event_bus.js';
 
@@ -408,7 +408,7 @@ function bindEvents() {
           }
         }
 
-        import('./speech.js').then((speech) => {
+        import('./ui/speech.js').then((speech) => {
           speech.speak(previewText, true, speechOpts);
         });
       }
@@ -590,7 +590,7 @@ function bindEvents() {
       }
       
       // Remove it from the live race engine
-      import('./race.js').then((module) => {
+      import('./ui/race.js').then((module) => {
         module.removeCarFromSession(selectedCarId);
         selectedCarId = null;
         renderCarList();
@@ -633,7 +633,7 @@ function bindEvents() {
     activeSettings.overlayTimeout = settings.overlayTimeout;
 
     // Configure speech engine immediately
-    import('./speech.js').then((m) =>
+    import('./ui/speech.js').then((m) =>
       m.configureSpeech({
         enabled: settings.speechEnabled,
         volume: settings.speechVolume,
@@ -835,7 +835,7 @@ function onLineReceived(line) {
  */
 async function handleSessionStartToggle(e) {
   if (currentSessionStatus === 'active') {
-    import('./race.js').then((module) => module.pauseSession());
+    import('./ui/race.js').then((module) => module.pauseSession());
   } else if (currentSessionStatus === 'finished') {
     const config = {
       mode: 'practice',
@@ -844,7 +844,7 @@ async function handleSessionStartToggle(e) {
       minLapTime: parseFloat(minLapTime.value) || 3.0,
       maxLapTime: parseFloat(maxLapTime.value) || 25.0
     };
-    const module = await import('./race.js');
+    const module = await import('./ui/race.js');
     module.initSession(config, renderLeaderboard, updateTimerDisplay);
     module.startSession();
   } else {
@@ -856,7 +856,7 @@ async function handleSessionStartToggle(e) {
         }
       }
     }
-    import('./race.js').then((module) => module.startSession());
+    import('./ui/race.js').then((module) => module.startSession());
   }
 }
 
@@ -864,7 +864,7 @@ async function handleSessionStartToggle(e) {
  * Session Stop.
  */
 function handleSessionStop() {
-  import('./race.js').then((module) => module.stopSession());
+  import('./ui/race.js').then((module) => module.stopSession());
 }
 
 /**
@@ -1037,14 +1037,14 @@ function renderLeaderboard({ state, leaderboard }) {
         });
       } else {
         row.querySelector('.leaderboard-driver-assign').addEventListener('change', (e) => {
-          import('./race.js').then((module) => {
+          import('./ui/race.js').then((module) => {
             module.assignSessionDriver(racer.transponder, e.target.value);
           });
         });
       }
 
       row.querySelector('.leaderboard-car-remove').addEventListener('click', (e) => {
-        import('./race.js').then((module) => {
+        import('./ui/race.js').then((module) => {
           module.removeCarFromSession(racer.transponder);
         });
       });
@@ -1219,7 +1219,7 @@ function renderCarList() {
 /**
  * Render Driver Details Panel (Stats, Laps, PRs)
  */
-import { getLapsByDriverId, getLapsByCarId, deleteLap } from './db/idb_service.js';
+import { getLapsByDriverId, getLapsByCarId, deleteLap } from './storage/idb_service.js';
 
 async function renderDriverDetails(driverId) {
   const drivers = getDrivers();

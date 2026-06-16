@@ -7,7 +7,7 @@ import {
   saveLap,
   getLapsByDriverId,
   pruneDatabase
-} from '../public/js/db/idb_service.js';
+} from '../public/js/storage/idb_service.js';
 
 describe('IndexedDB Service', () => {
   afterEach(async () => {
@@ -35,7 +35,7 @@ describe('IndexedDB Service', () => {
       let driverLaps = await getLapsByDriverId('driver1');
       expect(driverLaps.length).toBe(2);
 
-      const { deleteDriver } = await import('../public/js/db/idb_service.js');
+      const { deleteDriver } = await import('../public/js/storage/idb_service.js');
       await deleteDriver('driver1');
 
       driverLaps = await getLapsByDriverId('driver1');
@@ -51,7 +51,7 @@ describe('IndexedDB Service', () => {
       await saveLap({ id: 'lap2', driverId: 'driver2', carId: 'car1' });
       await saveLap({ id: 'lap3', driverId: 'driver1', carId: 'car2' }); // Different car
 
-      const { getLapsByCarId, deleteCar } = await import('../public/js/db/idb_service.js');
+      const { getLapsByCarId, deleteCar } = await import('../public/js/storage/idb_service.js');
       let carLaps = await getLapsByCarId('car1');
       expect(carLaps.length).toBe(2);
 
@@ -67,7 +67,7 @@ describe('IndexedDB Service', () => {
 
   describe('pruneDatabase', () => {
     it('should protect top 10 laps per driver and car during pruning', async () => {
-      const { saveSession } = await import('../public/js/db/idb_service.js');
+      const { saveSession } = await import('../public/js/storage/idb_service.js');
       await saveSession({ id: 'session1', status: 'finished' });
       
       // Create a test driver and car
@@ -121,7 +121,7 @@ describe('IndexedDB Service', () => {
     });
 
     it('should delete finished sessions that have no laps', async () => {
-      const { saveSession, getSession } = await import('../public/js/db/idb_service.js');
+      const { saveSession, getSession } = await import('../public/js/storage/idb_service.js');
       // Create empty session
       await saveSession({ id: 'emptySession', status: 'finished' });
       // Create populated session
@@ -135,7 +135,7 @@ describe('IndexedDB Service', () => {
     });
 
     it('should delete laps from finished sessions with unknown drivers', async () => {
-      const { saveSession, getSession, getLapsBySessionId } = await import('../public/js/db/idb_service.js');
+      const { saveSession, getSession, getLapsBySessionId } = await import('../public/js/storage/idb_service.js');
       
       // Active session shouldn't prune unknown driver laps
       await saveSession({ id: 'activeSession', status: 'active' });
@@ -157,7 +157,7 @@ describe('IndexedDB Service', () => {
     });
 
     it('should delete laps with invalid or non-existent session IDs', async () => {
-      const { saveSession, getLapsBySessionId } = await import('../public/js/db/idb_service.js');
+      const { saveSession, getLapsBySessionId } = await import('../public/js/storage/idb_service.js');
       
       // Create lap pointing to missing session
       await saveLap({ id: 'lapOrphan', sessionId: 'missingSession', driverId: 'driver1', lapTime: 10, timestamp: Date.now() });

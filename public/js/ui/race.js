@@ -3,11 +3,11 @@
  * Bridges the pure JS core engine (race_engine.js) with the UI and Database.
  */
 
-import { raceEngine } from './core/race_engine.js';
-import { sessionStore } from './core/session_store.js';
-import { bus } from './core/event_bus.js';
-import { getDrivers, getCars, saveCar, saveLap, saveSession, getLapsBySessionId, memCache } from './db/idb_service.js';
-import { getSettings } from './database.js';
+import { raceEngine } from '../core/race_engine.js';
+import { sessionStore } from '../core/session_store.js';
+import { bus } from '../core/event_bus.js';
+import { getDrivers, getCars, saveCar, saveLap, saveSession, getLapsBySessionId, memCache } from '../storage/idb_service.js';
+import { getSettings } from '../storage/settings.js';
 import { speak } from './speech.js';
 
 let updateCallback = null;

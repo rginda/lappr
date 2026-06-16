@@ -3,13 +3,13 @@ import fs from 'fs';
 import path from 'path';
 
 // Mock serial and speech to prevent errors
-vi.mock('../public/js/serial.js', () => ({
+vi.mock('../public/js/hardware/serial.js', () => ({
   connectHID: vi.fn(),
   disconnect: vi.fn(),
   toggleSimulator: vi.fn()
 }));
 
-vi.mock('../public/js/speech.js', () => ({
+vi.mock('../public/js/ui/speech.js', () => ({
   configureSpeech: vi.fn(),
   speak: vi.fn()
 }));
@@ -61,7 +61,7 @@ describe('Lappr Full Integration', () => {
     document.body.innerHTML = bodyMatch ? bodyMatch[1] : html;
 
     // We must manually import idb_service to ensure DB initializes
-    dbModule = await import('../public/js/db/idb_service.js');
+    dbModule = await import('../public/js/storage/idb_service.js');
     await dbModule.initDB();
 
     // Import app.js (which dynamically imports race.js)
@@ -174,7 +174,7 @@ describe('Lappr Full Integration', () => {
 
     // 2. Trigger Mock Transponder (Unregistered)
     // We can simulate a mock crossing by programmatically invoking processCrossing
-    const { processCrossing } = await import('../public/js/race.js');
+    const { processCrossing } = await import('../public/js/ui/race.js');
     
     processCrossing('MOCK01', 1000); // Hit at 1 second
     await new Promise(r => setTimeout(r, 50));
@@ -212,7 +212,7 @@ describe('Lappr Full Integration', () => {
     const driverSelect = newActiveRows2[0].querySelector('.leaderboard-driver-assign');
     
     // Find Max's ID
-    const { getDrivers } = await import('../public/js/db/idb_service.js');
+    const { getDrivers } = await import('../public/js/storage/idb_service.js');
     const drivers = await getDrivers();
     const maxDriver = drivers.find(d => d.name === 'Max Verstappen');
     

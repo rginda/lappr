@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { toggleSimulator, connectHID, disconnect } from '../public/js/serial.js';
-import * as race from '../public/js/race.js';
+import { toggleSimulator, connectHID, disconnect } from '../public/js/hardware/serial.js';
+import * as race from '../public/js/ui/race.js';
 
-vi.mock('../public/js/race.js', () => ({
+vi.mock('../public/js/ui/race.js', () => ({
   processCrossing: vi.fn()
 }));
 
@@ -79,7 +79,7 @@ describe('Serial/Simulator Module', () => {
       const onLineMock = vi.fn();
       const onStatusMock = vi.fn();
 
-      await import('../public/js/serial.js').then((module) =>
+      await import('../public/js/hardware/serial.js').then((module) =>
         module.autoConnectHID(115200, onLineMock, onStatusMock)
       );
 

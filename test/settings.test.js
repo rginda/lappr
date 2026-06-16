@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import * as db from '../public/js/database.js';
+import * as db from '../public/js/storage/settings.js';
 
 describe('Database Module', () => {
   beforeEach(() => {

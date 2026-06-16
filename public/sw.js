@@ -5,11 +5,12 @@ const ASSETS_TO_CACHE = [
   './index.css',
   './manifest.json',
   './js/app.js',
-  './js/database.js',
-  './js/serial.js',
-  './js/simulator.js',
-  './js/speech.js',
-  './js/race.js'
+  './js/storage/settings.js',
+  './js/storage/idb_service.js',
+  './js/hardware/serial.js',
+  './js/hardware/simulator.js',
+  './js/ui/speech.js',
+  './js/ui/race.js'
 ];
 
 // Install Event - cache core static resources

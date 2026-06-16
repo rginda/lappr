@@ -3,13 +3,13 @@ import fs from 'fs';
 import path from 'path';
 
 // Mock race and database first
-vi.mock('../public/js/database.js', () => ({
+vi.mock('../public/js/storage/settings.js', () => ({
   getSettings: vi.fn(() => ({ minLapTime: 3.0 })),
   saveSettings: vi.fn(),
   DEFAULT_SETTINGS: {}
 }));
 
-vi.mock('../public/js/db/idb_service.js', () => ({
+vi.mock('../public/js/storage/idb_service.js', () => ({
   initDB: vi.fn(() => Promise.resolve()),
   getDrivers: vi.fn(() => []),
   getCars: vi.fn(() => []),
@@ -21,13 +21,13 @@ vi.mock('../public/js/db/idb_service.js', () => ({
   memCache: { drivers: [], cars: [], activeSessions: [] }
 }));
 
-vi.mock('../public/js/serial.js', () => ({
+vi.mock('../public/js/hardware/serial.js', () => ({
   connectHID: vi.fn(),
   disconnect: vi.fn(),
   toggleSimulator: vi.fn()
 }));
 
-vi.mock('../public/js/speech.js', () => ({
+vi.mock('../public/js/ui/speech.js', () => ({
   configureSpeech: vi.fn(),
   speak: vi.fn()
 }));
@@ -88,7 +88,7 @@ describe('App Controller (DOM)', () => {
     const event = new Event('submit', { cancelable: true });
     driverForm.dispatchEvent(event);
     
-    const db = await import('../public/js/db/idb_service.js');
+    const db = await import('../public/js/storage/idb_service.js');
     expect(db.saveDriver).toHaveBeenCalledWith(expect.objectContaining({
       name: 'Test Driver'
     }));
@@ -105,7 +105,7 @@ describe('App Controller (DOM)', () => {
     const event = new Event('submit', { cancelable: true });
     carForm.dispatchEvent(event);
     
-    const db = await import('../public/js/db/idb_service.js');
+    const db = await import('../public/js/storage/idb_service.js');
     expect(db.saveCar).toHaveBeenCalledWith(expect.objectContaining({
       transponder: 'AAAAAA',
       name: 'Test Car',

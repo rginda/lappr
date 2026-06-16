@@ -30,7 +30,7 @@ describe('Speech Module', () => {
       this.removeEventListener = vi.fn();
     });
 
-    speech = await import('../public/js/speech.js');
+    speech = await import('../public/js/ui/speech.js');
     speech.cancelSpeech();
     speech.configureSpeech({ enabled: true, volume: 1.0, voiceName: 'Test Voice' });
     vi.clearAllMocks();
