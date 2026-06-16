@@ -288,7 +288,7 @@ function bindEvents() {
     mockHardwareDropdown.style.display = 'none';
   });
   
-  btnAddMock.addEventListener('click', () => {
+  const addMockTransponder = () => {
     mockTransponderCount++;
     const transponderId = `MOCK${mockTransponderCount.toString().padStart(2, '0')}`;
     
@@ -312,7 +312,14 @@ function bindEvents() {
     });
     
     mockTranspondersList.appendChild(btn);
-  });
+  };
+
+  btnAddMock.addEventListener('click', addMockTransponder);
+
+  // Pre-populate 3 default transponders
+  for (let i = 0; i < 3; i++) {
+    addMockTransponder();
+  }
 
   // Session Settings Events
   const handleSessionSettingChange = () => {
