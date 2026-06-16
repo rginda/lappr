@@ -240,7 +240,12 @@ export class RaceEngine {
     if (racer.lastCrossingTicks === null) {
       racer.lastCrossingTicks = ticks;
       racer.lastCrossingTime = now;
-      bus.emit('racerOnTrack', racer);
+      
+      // Only announce 'On Track' if this is truly their first crossing of the session
+      if (racer.laps.length === 0) {
+        bus.emit('racerOnTrack', racer);
+      }
+      
       bus.emit('leaderboardUpdated', state);
       return;
     }
