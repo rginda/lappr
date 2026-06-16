@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apex Timing - EasyLap CP2110 Diagnostic Tool
+Lappr - EasyLap CP2110 Diagnostic Tool
 Simplified diagnostic utility for connecting to CP2110 devices using the cp2110 library.
 """
 
@@ -59,7 +59,7 @@ def parse_packet(packet):
 
 if __name__ == '__main__':
   print("==================================================")
-  print("  Apex Timing - EasyLap CP2110 Diagnostic Tool    ")
+  print("  Lappr - EasyLap CP2110 Diagnostic Tool    ")
   print("==================================================")
 
   # Initialize CP2110 device (will throw standard exceptions if connection fails)

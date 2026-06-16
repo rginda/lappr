@@ -1,5 +1,5 @@
 /**
- * Apex Timing - Speech Synthesis Module
+ * Lappr - Speech Synthesis Module
  * Utilizes the browser's Web Speech API for voice announcements.
  */
 

@@ -1,5 +1,5 @@
 /**
- * Apex Timing - Hardware Connection Module
+ * Lappr - Hardware Connection Module
  * Handles Web Serial API and WebHID API (CP2110) connections, byte decoding, and line accumulation.
  */
 

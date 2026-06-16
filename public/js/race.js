@@ -1,5 +1,5 @@
 /**
- * Apex Timing - UI Adapter for Core Engine
+ * Lappr - UI Adapter for Core Engine
  * Bridges the pure JS core engine (race_engine.js) with the UI and Database.
  */
 

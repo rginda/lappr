@@ -1,5 +1,5 @@
 /**
- * Apex Timing - Hardware Simulator Module
+ * Lappr - Hardware Simulator Module
  * Mocks the Robitronic/EasyLap serial protocol to generate simulated crossings.
  */
 

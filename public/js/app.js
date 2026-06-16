@@ -1,5 +1,5 @@
 /**
- * Apex Timing - Application Controller
+ * Lappr - Application Controller
  * Connects UI elements, handles events, handles serial parsing,
  * and renders the leaderboard.
  */

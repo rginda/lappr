@@ -1,5 +1,5 @@
 /**
- * Apex Timing - Database / Storage Module
+ * Lappr - Database / Storage Module
  * Uses LocalStorage for local-first, offline-ready state persistence.
  */
 
