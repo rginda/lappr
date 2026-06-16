@@ -39,7 +39,7 @@ const connectionBadge = document.getElementById('connection-badge');
 const connectionStatusText = document.getElementById('connection-status-text');
 
 const minLapTime = document.getElementById('setting-min-lap-time');
-const settingMaxLapTime = document.getElementById('setting-max-lap-time');
+const maxLapTime = document.getElementById('setting-max-lap-time');
 
 // Mock Hardware DOM Elements
 const mockHardwareDropdown = document.getElementById('mock-hardware-dropdown');
@@ -143,7 +143,7 @@ const initApp = async () => {
       limitType: 'time',
       limitValue: 0,
       minLapTime: parseFloat(minLapTime.value) || 3.0,
-      maxLapTime: parseFloat(settingMaxLapTime.value) || 25.0
+      maxLapTime: parseFloat(maxLapTime.value) || 25.0
     };
 
     initSession(config, renderLeaderboard, updateTimerDisplay);
@@ -205,7 +205,6 @@ const initApp = async () => {
           resumeIfNeeded();
         }
       });
-    }
   }
 };
 
@@ -223,7 +222,7 @@ if (document.readyState === 'loading') {
  */
 function loadSettingsUI() {
   minLapTime.value = activeSettings.minLapTime || 3.0;
-  settingMaxLapTime.value = activeSettings.maxLapTime || 25.0;
+  maxLapTime.value = activeSettings.maxLapTime || 25.0;
 
   speechToggle.checked = activeSettings.speechEnabled;
   speechVolume.value = activeSettings.speechVolume || 0.8;
@@ -339,7 +338,7 @@ function bindEvents() {
   };
 
   minLapTime.addEventListener('change', handleSessionSettingChange);
-  settingMaxLapTime.addEventListener('change', handleSessionSettingChange);
+  maxLapTime.addEventListener('change', handleSessionSettingChange);
 
   // Session Action Events
   btnSessionStart.addEventListener('click', handleSessionStartToggle);
