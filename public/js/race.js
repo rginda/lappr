@@ -202,7 +202,7 @@ export async function recoverSessionState() {
     // Pull laps and reconstitute live memory state
     const laps = await getLapsBySessionId(sessionToRecover.id);
     laps.sort((a, b) => a.timestamp - b.timestamp);
-    raceEngine.reconstituteLaps(laps);
+    raceEngine.reconstituteLaps(laps, getCars());
 
     // Re-apply driver names to racers based on assignments
     const drivers = memCache.drivers || [];
