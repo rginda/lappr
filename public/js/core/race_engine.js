@@ -375,8 +375,9 @@ export class RaceEngine {
     const state = sessionStore.getState();
     const id = transponder.toUpperCase();
     if (state.racers[id]) {
-      state.racers[id].isActive = false;
-      this.assignSessionDriver(id, 'Unknown Driver', null);
+      delete state.racers[id];
+      delete state.assignments[id];
+      bus.emit('leaderboardUpdated', state);
     }
   }
 }

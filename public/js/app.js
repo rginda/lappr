@@ -526,11 +526,11 @@ function bindEvents() {
     }
   });
 
-  btnDeleteCar.addEventListener('click', () => {
+  btnDeleteCar.addEventListener('click', async () => {
     if (selectedCarId && !btnDeleteCar.disabled) {
       const car = getCars().find(c => c.transponder === selectedCarId);
       if (car) {
-        deleteCar(car.id);
+        await deleteCar(car.id);
       }
       
       // Remove it from the live race engine
