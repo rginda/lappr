@@ -1586,7 +1586,7 @@ async function renderCarDetails(transponder) {
   const carDriversBody = document.getElementById('car-drivers-body');
   carDriversBody.innerHTML = '';
 
-  const laps = await getLapsByCarId(car.transponder);
+  const laps = await getLapsByCarId(car.id);
   laps.sort((a, b) => a.timestamp - b.timestamp);
 
   if (laps.length === 0) {
