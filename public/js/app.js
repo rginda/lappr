@@ -298,9 +298,9 @@ function bindEvents() {
     btn.innerHTML = `<span>${transponderId}</span> <span style="font-size: 0.75rem; color: var(--accent-primary);">Trigger &rarr;</span>`;
     
     btn.addEventListener('click', () => {
-      // Simulate crossing format: ID[6 chars]Timestamp[8 chars]
-      const ts = Math.floor(Date.now() / 10).toString(16).padStart(8, '0');
-      onLineReceived(transponderId + ts);
+      // Bypass serial parsing and trigger crossing directly
+      const ticks = Math.floor(Date.now() / 10);
+      processCrossing(transponderId, ticks);
       
       // Visual feedback
       btn.style.background = 'var(--accent-primary)';
