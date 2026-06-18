@@ -315,6 +315,7 @@ export class RaceEngine {
     racer.stdDev = stats.stdDev;
     racer.consistency = stats.consistency;
     racer.longestStreak = stats.longestStreak;
+    racer.currentStreak = stats.currentStreak;
     racer.totalTime = stats.totalTime;
 
     // Check lap limit

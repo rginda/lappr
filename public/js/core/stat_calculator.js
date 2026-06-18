@@ -84,12 +84,45 @@ export function calculateRacerStats(lapTimes, streakSettings = { minLaps: 3, var
     }
   }
 
+  let currentActiveStreak = 0;
+  if (totalLaps >= streakSettings.minLaps) {
+    let minL = lapTimes[totalLaps - 1];
+    let maxL = lapTimes[totalLaps - 1];
+    let tempStreak = 1;
+    for (let i = totalLaps - 2; i >= 0; i--) {
+      minL = Math.min(minL, lapTimes[i]);
+      maxL = Math.max(maxL, lapTimes[i]);
+      if (maxL - minL <= minL * varianceRatio) {
+        tempStreak++;
+      } else {
+        break;
+      }
+    }
+    
+    let qualifies = true;
+    if (tempStreak >= streakSettings.minLaps) {
+      if (streakSettings.mustBeFast) {
+        let streakSum = 0;
+        for (let i = totalLaps - tempStreak; i < totalLaps; i++) {
+          streakSum += lapTimes[i];
+        }
+        if (streakSum / tempStreak > bestLap * 1.1) {
+          qualifies = false;
+        }
+      }
+      if (qualifies) {
+        currentActiveStreak = tempStreak;
+      }
+    }
+  }
+
   return {
     averageLap,
     medianLap,
     stdDev,
     consistency,
     longestStreak: maxStreak,
+    currentStreak: currentActiveStreak,
     totalTime,
     bestLap
   };

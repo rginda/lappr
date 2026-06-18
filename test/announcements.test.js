@@ -27,7 +27,11 @@ vi.mock('../public/js/storage/settings.js', () => ({
       driverCarPR: '{driver} {car} PR {time}',
       overallSessionBest: 'Overall session best {driver}, {time}',
       driverSessionBest: '{driver} session best, {time}',
-      normalLap: '{driver}, {time}'
+      normalLap: '{driver}, {time}',
+      consistentStreak: 'times {streak}'
+    },
+    streak: {
+      minLaps: 3
     }
   })
 }));
@@ -180,5 +184,25 @@ describe('Speech Announcements', () => {
     await new Promise(r => setTimeout(r, 10));
 
     expect(speak).toHaveBeenCalledWith('Overall Car 1 record 2.5');
+  });
+
+  it('should announce consistent streak', async () => {
+    getLapsByCarId.mockResolvedValue([{ lapTime: 3.0 }]);
+    getLapsByDriverId.mockResolvedValue([{ lapTime: 3.0, carId: 'c1' }]);
+
+    const eventData = {
+      racer: { name: 'Test Driver', carName: 'Car 1', currentStreak: 4 },
+      lap: {
+        carId: 'c1',
+        lapTime: 4.0, // Not a PR
+        isOverallBest: false,
+        isDriverSessionBest: false
+      }
+    };
+
+    bus.emit('lapRecorded', eventData);
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(speak).toHaveBeenCalledWith('times 4');
   });
 });
