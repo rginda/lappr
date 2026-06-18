@@ -115,9 +115,9 @@ bus.on('lapRecorded', async ({ racer, lap }) => {
   const tpl = settings.announcements;
   let templateStr = tpl.normalLap;
 
-  if (isOverallCarBest) templateStr = tpl.overallCarBest;
-  else if (isDriverOverallPR) templateStr = tpl.driverOverallPR;
+  if (isDriverOverallPR) templateStr = tpl.driverOverallPR;
   else if (isDriverCarPR) templateStr = tpl.driverCarPR;
+  else if (isOverallCarBest) templateStr = tpl.overallCarBest;
   else if (lap.isOverallBest) templateStr = tpl.overallSessionBest;
   else if (lap.isDriverSessionBest) templateStr = tpl.driverSessionBest;
   else if (racer.currentStreak >= settings.streak.minLaps) templateStr = tpl.consistentStreak;

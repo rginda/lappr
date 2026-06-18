@@ -168,15 +168,15 @@ describe('Speech Announcements', () => {
 
   it('should announce overall car best', async () => {
     getLapsByCarId.mockResolvedValue([{ lapTime: 3.0 }]);
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 3.0, carId: 'c1' }]);
 
     const eventData = {
-      racer: { name: 'Test Driver', carName: 'Car 1' },
+      racer: { name: 'Unknown Driver', carName: 'Car 1' },
       lap: {
+        driverId: null, // Anonymous driver, so no personal records are evaluated
         carId: 'c1',
-        lapTime: 2.5, // Fastest lap EVER for this car
-        isOverallBest: true,
-        isDriverSessionBest: true
+        lapTime: 2.5,
+        isOverallBest: false,
+        isDriverSessionBest: false
       }
     };
 
