@@ -67,14 +67,26 @@ export class RaceEngine {
     laps.forEach(lap => {
       // Find transponder for the lap's carId UUID
       const car = cars.find(c => c.id === lap.carId);
-      const transponder = car ? car.transponder.toUpperCase() : lap.carId.toUpperCase();
+      
+      let transponder = car ? car.transponder.toUpperCase() : null;
+      if (!transponder) {
+         // Look in state.racers (which was loaded from IndexedDB) to see if any racer has this carId
+         const existingRacer = Object.values(state.racers || {}).find(r => r.carId === lap.carId);
+         if (existingRacer) transponder = existingRacer.transponder.toUpperCase();
+         else transponder = lap.carId.toUpperCase(); // Fallback if really unknown
+      }
+
       if (!grouped[transponder]) grouped[transponder] = [];
       grouped[transponder].push(lap);
     });
 
     for (const [transponder, carLaps] of Object.entries(grouped)) {
+      if (state.activeTransponders && !state.activeTransponders.includes(transponder)) {
+        continue; // Skip cars that were explicitly removed from the session
+      }
+
       let racer = state.racers[transponder];
-      const car = cars.find(c => c.transponder.toUpperCase() === transponder);
+      const car = cars.find(c => c.transponder && c.transponder.toUpperCase() === transponder);
       
       if (!racer) {
         racer = sessionStore.createRacerSessionData({ 

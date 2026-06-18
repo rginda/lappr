@@ -47,71 +47,59 @@ export function calculateRacerStats(lapTimes, streakSettings = { minLaps: 3, var
   // Longest Streak Calculation
   const varianceRatio = streakSettings.varianceThreshold / 100;
   let maxStreak = 0;
-  
-  if (totalLaps >= streakSettings.minLaps) {
-    for (let i = 0; i < lapTimes.length; i++) {
-      let minLap = lapTimes[i];
-      let maxLap = lapTimes[i];
-      let currentStreak = 1;
-      let qualifies = true;
-      
-      for (let j = i + 1; j < lapTimes.length; j++) {
-        minLap = Math.min(minLap, lapTimes[j]);
-        maxLap = Math.max(maxLap, lapTimes[j]);
-        if (maxLap - minLap <= minLap * varianceRatio) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-      
-      if (currentStreak >= streakSettings.minLaps) {
-        if (streakSettings.mustBeFast) {
-          let streakSum = 0;
-          for (let k = i; k < i + currentStreak; k++) {
-            streakSum += lapTimes[k];
-          }
-          let streakAvg = streakSum / currentStreak;
-          if (streakAvg > bestLap * 1.1) {
-            qualifies = false;
-          }
-        }
-        
-        if (qualifies && currentStreak > maxStreak) {
-          maxStreak = currentStreak;
-        }
-      }
-    }
-  }
-
   let currentActiveStreak = 0;
-  if (totalLaps >= streakSettings.minLaps) {
-    let minL = lapTimes[totalLaps - 1];
-    let maxL = lapTimes[totalLaps - 1];
-    let tempStreak = 1;
-    for (let i = totalLaps - 2; i >= 0; i--) {
-      minL = Math.min(minL, lapTimes[i]);
-      maxL = Math.max(maxL, lapTimes[i]);
-      if (maxL - minL <= minL * varianceRatio) {
-        tempStreak++;
+
+  if (totalLaps > 0) {
+    let currentStreakLaps = [];
+
+    for (let i = 0; i < lapTimes.length; i++) {
+      const lap = lapTimes[i];
+
+      if (currentStreakLaps.length === 0) {
+        // To initiate a streak, they must start with a lap that is within variance% of their average lap time
+        // Actually, we should also allow starting a streak if the lap is FASTER than the average lap time.
+        // But the user said "within the variance% of their average lap time". Let's be strict:
+        if (lap <= averageLap * (1 + varianceRatio)) {
+          // If mustBeFast is true, ensure it's not absurdly slow compared to bestLap.
+          // Since averageLap can be skewed, we can just let it start and check bestLap later, or just rely on averageLap.
+          // The user specifically requested: "within the variance% of their average lap time".
+          // We'll consider it starting if lap is <= averageLap * (1 + varianceRatio).
+          if (!streakSettings.mustBeFast || lap <= bestLap * 1.1) {
+            currentStreakLaps.push(lap);
+          }
+        }
       } else {
-        break;
+        // Once established, each additional lap must be no worse than variance% of the streak average
+        const streakSum = currentStreakLaps.reduce((sum, val) => sum + val, 0);
+        const streakAverage = streakSum / currentStreakLaps.length;
+
+        if (lap <= streakAverage * (1 + varianceRatio)) {
+          // It's a consistent lap (or faster!). Add to streak.
+          currentStreakLaps.push(lap);
+        } else {
+          // Streak broken
+          if (currentStreakLaps.length >= streakSettings.minLaps) {
+            if (currentStreakLaps.length > maxStreak) {
+              maxStreak = currentStreakLaps.length;
+            }
+          }
+          currentStreakLaps = [];
+          
+          // Re-evaluate this breaking lap as the potential start of a NEW streak
+          if (lap <= averageLap * (1 + varianceRatio)) {
+            if (!streakSettings.mustBeFast || lap <= bestLap * 1.1) {
+              currentStreakLaps.push(lap);
+            }
+          }
+        }
       }
     }
-    
-    let qualifies = true;
-    if (tempStreak >= streakSettings.minLaps) {
-      if (streakSettings.mustBeFast) {
-        let streakSum = 0;
-        for (let i = totalLaps - tempStreak; i < totalLaps; i++) {
-          streakSum += lapTimes[i];
-        }
-        if (streakSum / tempStreak > bestLap * 1.1) {
-          qualifies = false;
-        }
-      }
-      if (qualifies) {
-        currentActiveStreak = tempStreak;
+
+    // Finalize the active streak at the end of the session
+    if (currentStreakLaps.length >= streakSettings.minLaps) {
+      currentActiveStreak = currentStreakLaps.length;
+      if (currentActiveStreak > maxStreak) {
+        maxStreak = currentActiveStreak;
       }
     }
   }

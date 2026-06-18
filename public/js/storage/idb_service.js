@@ -129,6 +129,7 @@ export async function closeDB() {
     const db = await dbPromise;
     db.close();
     dbPromise = null;
+    initPromise = null;
   }
 }
 
@@ -236,7 +237,9 @@ export async function saveSession(session) {
     startTime: session.startTime,
     endTime: session.endTime,
     elapsedTime: session.elapsedTime,
-    assignments: session.assignments
+    assignments: session.assignments,
+    racers: session.racers,
+    activeTransponders: Object.keys(session.racers || {})
   };
 
   const db = await initDB();

@@ -17,7 +17,8 @@ import {
   deleteDriver,
   getCars,
   saveCar,
-  deleteCar
+  deleteCar,
+  deleteDriverCarStats
 } from './storage/idb_service.js';
 
 import { connectHID, toggleSimulator, disconnect, autoConnectHID } from './hardware/serial.js';

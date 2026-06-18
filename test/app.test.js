@@ -18,6 +18,8 @@ vi.mock('../public/js/storage/idb_service.js', () => ({
   deleteDriver: vi.fn(),
   deleteCar: vi.fn(),
   saveSession: vi.fn(),
+  getLapsByDriverId: vi.fn(() => Promise.resolve([])),
+  deleteDriverCarStats: vi.fn(() => Promise.resolve()),
   memCache: { drivers: [], cars: [], activeSessions: [] }
 }));
 
@@ -111,5 +113,30 @@ describe('App Controller (DOM)', () => {
       name: 'Test Car',
       color: '#000000'
     }));
+  });
+
+
+
+  it('should call deleteDriverCarStats via DOM event', async () => {
+    const db = await import('../public/js/storage/idb_service.js');
+    db.getDrivers.mockReturnValue([{ id: 'd1', name: 'Test Driver' }]);
+    db.getLapsByDriverId.mockReturnValue([
+      { driverId: 'd1', carId: 'c1', carName: 'Test Car', lapTime: 12.3, timestamp: 1000, sessionId: 's1' }
+    ]);
+    db.getLapsBySessionId = vi.fn().mockReturnValue([]);
+    
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await new Promise(process.nextTick);
+
+    const driverLi = document.querySelector('#driver-list .list-group-item');
+    if (driverLi) driverLi.click();
+    await new Promise(process.nextTick);
+
+    const deleteBtn = document.querySelector('.delete-car-stats-btn');
+    if (deleteBtn) {
+      vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
+      deleteBtn.click();
+      expect(db.deleteDriverCarStats).toHaveBeenCalledWith('d1', 'c1');
+    }
   });
 });

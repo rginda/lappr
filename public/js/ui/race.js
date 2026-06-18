@@ -94,13 +94,13 @@ bus.on('lapRecorded', async ({ racer, lap }) => {
   let isDriverOverallPR = false;
   let isDriverCarPR = false;
 
-  const carLaps = await getLapsByCarId(carId);
+  const carLaps = (await getLapsByCarId(carId)).filter(l => l.id !== lap.id);
   if (carLaps.length === 0 || lap.lapTime < Math.min(...carLaps.map(l => l.lapTime))) {
     isOverallCarBest = true;
   }
 
   if (driverId) {
-    const driverLaps = await getLapsByDriverId(driverId);
+    const driverLaps = (await getLapsByDriverId(driverId)).filter(l => l.id !== lap.id);
     if (driverLaps.length === 0 || lap.lapTime < Math.min(...driverLaps.map(l => l.lapTime))) {
       isDriverOverallPR = true;
     }

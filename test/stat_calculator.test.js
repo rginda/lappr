@@ -69,4 +69,20 @@ describe('StatCalculator', () => {
     const stats = calculateRacerStats([10.0, 15.0, 15.1, 15.2], settings);
     expect(stats.longestStreak).toBe(0);
   });
+
+  it('should maintain streak during gradual improvement', () => {
+    // 10.0 average. 10.0 starts streak.
+    // Next lap 9.8 is < 10.0 * 1.10 (11.0). Streak = 2. Avg = 9.9
+    // Next lap 9.6 is < 9.9 * 1.10 (10.89). Streak = 3. Avg = 9.8
+    // Next lap 9.4 is < 9.8 * 1.10 (10.78). Streak = 4. Avg = 9.7
+    // Next lap 9.2 is < 9.7 * 1.10 (10.67). Streak = 5. Avg = 9.6
+    // Next lap 9.0 is < 9.6 * 1.10 (10.56). Streak = 6. Avg = 9.5
+    const settings = { minLaps: 3, varianceThreshold: 10, mustBeFast: false };
+    const stats = calculateRacerStats([10.0, 9.8, 9.6, 9.4, 9.2, 9.0], settings);
+    
+    // In the old implementation, the difference between 10.0 and 9.0 (1.0) 
+    // would exceed 10% of 9.0 (0.9), breaking the streak and returning a smaller number.
+    // In the new implementation, it should gracefully maintain the streak at 6.
+    expect(stats.longestStreak).toBe(6);
+  });
 });

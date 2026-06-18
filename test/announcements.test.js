@@ -64,12 +64,13 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce normal lap', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 4.0 }]);
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 4.0, carId: 'c1' }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0 }]);
+    getLapsByDriverId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0, carId: 'c1' }]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         carId: 'c1',
         lapTime: 5.0,
         isOverallBest: false,
@@ -84,12 +85,13 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce driver session best', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 4.0 }]);
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 4.0, carId: 'c1' }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0 }]);
+    getLapsByDriverId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0, carId: 'c1' }]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         carId: 'c1',
         lapTime: 4.5,
         isOverallBest: false,
@@ -104,12 +106,13 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce overall session best', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 4.0 }]);
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 4.0, carId: 'c1' }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0 }]);
+    getLapsByDriverId.mockResolvedValue([{ id: 'mock-1', lapTime: 4.0, carId: 'c1' }]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         carId: 'c1',
         lapTime: 4.2,
         isOverallBest: true, // This should take precedence over driver session best
@@ -124,15 +127,16 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce driver car PR', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 3.0 }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 3.0 }]);
     getLapsByDriverId.mockResolvedValue([
-      { lapTime: 3.5, carId: 'c2' }, // Faster in a different car
-      { lapTime: 4.5, carId: 'c1' }  // Slower in this car
+      { id: 'mock-1', lapTime: 3.5, carId: 'c2' }, // Faster in a different car
+      { id: 'mock-2', lapTime: 4.5, carId: 'c1' }  // Slower in this car
     ]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         carId: 'c1',
         lapTime: 4.0, // PR for this car, but not overall driver PR
         isOverallBest: true,
@@ -147,12 +151,13 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce driver overall PR', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 2.0 }]); // Someone else is faster in this car
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 3.5, carId: 'c2' }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 2.0 }]); // Someone else is faster in this car
+    getLapsByDriverId.mockResolvedValue([{ id: 'mock-2', lapTime: 3.5, carId: 'c2' }]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         carId: 'c1',
         lapTime: 3.0, // PR for driver across all cars!
         isOverallBest: true,
@@ -167,11 +172,12 @@ describe('Speech Announcements', () => {
   });
 
   it('should announce overall car best', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 3.0 }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'old-lap', lapTime: 3.0 }]);
 
     const eventData = {
       racer: { name: 'Unknown Driver', carName: 'Car 1' },
       lap: {
+        id: 'new-lap',
         driverId: null, // Anonymous driver, so no personal records are evaluated
         carId: 'c1',
         lapTime: 2.5,
@@ -186,13 +192,39 @@ describe('Speech Announcements', () => {
     expect(speak).toHaveBeenCalledWith('Overall Car 1 record 2.5');
   });
 
+  it('should not announce car PR if the lap is slower than a previous lap', async () => {
+    getLapsByCarId.mockResolvedValue([
+      { id: 'old-lap', lapTime: 2.0 },
+      { id: 'new-lap', lapTime: 3.0 } // The current lap is included because saveLap ran first
+    ]);
+
+    const eventData = {
+      racer: { name: 'Unknown Driver', carName: 'Car 1' },
+      lap: {
+        id: 'new-lap',
+        driverId: null,
+        carId: 'c1',
+        lapTime: 3.0,
+        isOverallBest: false,
+        isDriverSessionBest: false
+      }
+    };
+
+    bus.emit('lapRecorded', eventData);
+    await new Promise(r => setTimeout(r, 10));
+
+    // It should not announce the car PR, but rather normal lap (or driver session best)
+    expect(speak).toHaveBeenCalledWith('Unknown Driver, 3.0');
+  });
+
   it('should announce consistent streak', async () => {
-    getLapsByCarId.mockResolvedValue([{ lapTime: 3.0 }]);
-    getLapsByDriverId.mockResolvedValue([{ lapTime: 3.0, carId: 'c1' }]);
+    getLapsByCarId.mockResolvedValue([{ id: 'mock-1', lapTime: 3.0 }]);
+    getLapsByDriverId.mockResolvedValue([{ id: 'mock-1', lapTime: 3.0, carId: 'c1' }]);
 
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1', currentStreak: 4 },
       lap: {
+        id: 'new-lap',
         driverId: 'd1',
         carId: 'c1',
         lapTime: 4.0, // Not a PR
