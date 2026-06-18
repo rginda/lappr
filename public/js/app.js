@@ -460,9 +460,9 @@ function bindEvents() {
 
   const handleDriverUpdate = () => {
     if (selectedDriverId) {
-      const newName = editDriverName.value.trim();
+      const newName = editDriverName.value; // allow trailing spaces while typing
 
-      if (newName) {
+      if (newName.trim() !== '') {
         const drivers = getDrivers();
         const driverIndex = drivers.findIndex((d) => d.id === selectedDriverId);
         if (driverIndex !== -1) {
@@ -545,11 +545,11 @@ function bindEvents() {
     const carIndex = cars.findIndex((c) => c.transponder === selectedCarId);
     if (carIndex === -1) return;
 
-    const newName = editCarName.value.trim();
-    const newChassis = editCarChassis.value.trim();
+    const newName = editCarName.value; // allow spaces
+    const newChassis = editCarChassis.value; // allow spaces
     const newColor = editCarColor.value;
 
-    if (newName) {
+    if (newName.trim() !== '') {
       cars[carIndex].name = newName;
       cars[carIndex].chassis = newChassis;
       cars[carIndex].color = newColor;
@@ -1229,14 +1229,11 @@ async function renderDriverDetails(driverId) {
   if (selectedDriverId !== driver.id) {
     driverRecentLapsPage = 1;
     selectedDriverId = driver.id;
+    deleteDriverConfirm.value = '';
+    btnDeleteDriver.disabled = true;
   }
   if (document.activeElement !== editDriverName) {
     editDriverName.value = driver.name;
-  }
-
-  if (document.activeElement !== deleteDriverConfirm) {
-    deleteDriverConfirm.value = '';
-    btnDeleteDriver.disabled = true;
   }
 
   // Render Per-Car Stats
@@ -1579,7 +1576,10 @@ async function renderCarDetails(transponder) {
   const car = cars.find((c) => c.transponder === transponder);
   if (!car) return;
   if (selectedCarId !== car.transponder) {
+    carRecentLapsPage = 1;
     selectedCarId = car.transponder;
+    deleteCarConfirm.value = '';
+    btnDeleteCar.disabled = true;
   }
 
   if (document.activeElement !== editCarName) {
@@ -1595,11 +1595,6 @@ async function renderCarDetails(transponder) {
   }
   if (document.activeElement !== editCarColor) {
     editCarColor.value = car.color;
-  }
-
-  if (document.activeElement !== deleteCarConfirm) {
-    deleteCarConfirm.value = '';
-    btnDeleteCar.disabled = true;
   }
 
   // Render Best Lap per Driver
