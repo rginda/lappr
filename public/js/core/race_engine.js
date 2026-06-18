@@ -342,6 +342,7 @@ export class RaceEngine {
       state.assignments[id] = null;
       if (state.racers[id]) {
         state.racers[id].name = 'Unknown Driver';
+        state.racers[id].driverId = null;
       }
       bus.emit('leaderboardUpdated', state);
       return;
@@ -353,6 +354,7 @@ export class RaceEngine {
         state.assignments[tId] = null;
         if (state.racers[tId]) {
           state.racers[tId].name = 'Unknown Driver';
+          state.racers[tId].driverId = null;
         }
       }
     }
@@ -362,6 +364,7 @@ export class RaceEngine {
     if (state.racers[id]) {
       const racer = state.racers[id];
       racer.name = driverName;
+      racer.driverId = driverId;
 
       // Retroactively credit laps that have NO driver assigned yet in memory
       racer.laps.forEach((lap) => {

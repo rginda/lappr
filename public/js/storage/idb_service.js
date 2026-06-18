@@ -19,15 +19,17 @@ export const memCache = {
 };
 
 let dbPromise;
+let initPromise;
 
 /**
  * Initialize the database and its schema.
  */
 export async function initDB() {
-  if (dbPromise) return dbPromise;
+  if (initPromise) return initPromise;
 
-  dbPromise = openDB(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion, newVersion, transaction) {
+  initPromise = (async () => {
+    dbPromise = openDB(DB_NAME, DB_VERSION, {
+      upgrade(db, oldVersion, newVersion, transaction) {
       if (oldVersion < 1) {
         if (!db.objectStoreNames.contains('drivers')) db.createObjectStore('drivers', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('cars')) {
@@ -103,7 +105,10 @@ export async function initDB() {
   const paused = await index.getAll('paused');
   memCache.activeSessions = [...active, ...paused];
 
-  return dbPromise;
+  return db;
+  })();
+
+  return initPromise;
 }
 
 // ==========================================
