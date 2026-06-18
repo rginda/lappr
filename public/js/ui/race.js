@@ -287,8 +287,26 @@ export function assignUnregisteredRacer(transponder, driverId, carId) {
 export function refreshActiveRacers() {
   const state = sessionStore.getState();
   const activeTransponders = Object.keys(state.racers);
+  
   const activeCars = getCars().filter(c => activeTransponders.includes(c.transponder));
   raceEngine.registerCars(activeCars);
+
+  const drivers = getDrivers();
+  let updated = false;
+  for (const transponder of activeTransponders) {
+    const racer = state.racers[transponder];
+    if (racer.driverId) {
+      const driver = drivers.find(d => d.id === racer.driverId);
+      if (driver && driver.name !== racer.name) {
+        racer.name = driver.name;
+        updated = true;
+      }
+    }
+  }
+  
+  if (updated) {
+    bus.emit('leaderboardUpdated', state);
+  }
 }
 
 export async function assignSessionDriver(transponder, driverId) {
