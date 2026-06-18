@@ -1230,10 +1230,14 @@ async function renderDriverDetails(driverId) {
     driverRecentLapsPage = 1;
     selectedDriverId = driver.id;
   }
-  editDriverName.value = driver.name;
+  if (document.activeElement !== editDriverName) {
+    editDriverName.value = driver.name;
+  }
 
-  deleteDriverConfirm.value = '';
-  btnDeleteDriver.disabled = true;
+  if (document.activeElement !== deleteDriverConfirm) {
+    deleteDriverConfirm.value = '';
+    btnDeleteDriver.disabled = true;
+  }
 
   // Render Per-Car Stats
   const driverPerCarBody = document.getElementById('driver-per-car-body');
@@ -1578,13 +1582,25 @@ async function renderCarDetails(transponder) {
     selectedCarId = car.transponder;
   }
 
-  editCarName.value = car.name;
-  editCarTransponder.value = car.transponder;
-  document.getElementById('edit-car-chassis').value = car.chassis || '';
-  editCarColor.value = car.color;
+  if (document.activeElement !== editCarName) {
+    editCarName.value = car.name;
+  }
+  if (document.activeElement !== editCarTransponder) {
+    editCarTransponder.value = car.transponder;
+  }
+  
+  const editCarChassis = document.getElementById('edit-car-chassis');
+  if (document.activeElement !== editCarChassis) {
+    editCarChassis.value = car.chassis || '';
+  }
+  if (document.activeElement !== editCarColor) {
+    editCarColor.value = car.color;
+  }
 
-  deleteCarConfirm.value = '';
-  btnDeleteCar.disabled = true;
+  if (document.activeElement !== deleteCarConfirm) {
+    deleteCarConfirm.value = '';
+    btnDeleteCar.disabled = true;
+  }
 
   // Render Best Lap per Driver
   const carDriversBody = document.getElementById('car-drivers-body');
