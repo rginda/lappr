@@ -120,14 +120,17 @@ bus.on('lapRecorded', async ({ racer, lap }) => {
   else if (isOverallCarBest) templateStr = tpl.overallCarBest;
   else if (lap.isOverallBest) templateStr = tpl.overallSessionBest;
   else if (lap.isDriverSessionBest) templateStr = tpl.driverSessionBest;
-  else if (racer.currentStreak >= settings.streak.minLaps) templateStr = tpl.consistentStreak;
 
   // 3. Format strings
-  const announcement = templateStr
+  let announcement = templateStr
     .replace('{driver}', racer.name)
     .replace('{car}', racer.carName)
-    .replace('{time}', lap.lapTime.toFixed(1))
-    .replace('{streak}', racer.currentStreak || 0);
+    .replace('{time}', lap.lapTime.toFixed(1));
+
+  if (racer.currentStreak >= settings.streak.minLaps) {
+    const streakStr = tpl.consistentStreak.replace('{streak}', racer.currentStreak);
+    announcement += `, ${streakStr}`;
+  }
 
   speak(announcement);
 

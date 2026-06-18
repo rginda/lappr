@@ -193,6 +193,7 @@ describe('Speech Announcements', () => {
     const eventData = {
       racer: { name: 'Test Driver', carName: 'Car 1', currentStreak: 4 },
       lap: {
+        driverId: 'd1',
         carId: 'c1',
         lapTime: 4.0, // Not a PR
         isOverallBest: false,
@@ -203,6 +204,6 @@ describe('Speech Announcements', () => {
     bus.emit('lapRecorded', eventData);
     await new Promise(r => setTimeout(r, 10));
 
-    expect(speak).toHaveBeenCalledWith('times 4');
+    expect(speak).toHaveBeenCalledWith('Test Driver, 4.0, times 4');
   });
 });
