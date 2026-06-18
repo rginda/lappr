@@ -103,6 +103,7 @@ let selectedCarId = null;
 let activeCarChart = null;
 let activeSessionChart = null;
 let driverRecentLapsPage = 1;
+let carRecentLapsPage = 1;
 
 // Application State
 let activeSettings = {};
